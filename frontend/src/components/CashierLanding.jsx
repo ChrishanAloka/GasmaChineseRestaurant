@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import PaymentModal from "./PaymentModal";
 import ReceiptModal from "./ReceiptModal";
@@ -26,6 +27,8 @@ const CashierLanding = () => {
     amount: 0,
     isActive: false
   });
+  const navigate = useNavigate();
+  
 
 
   // Load menus and service charge
@@ -247,6 +250,8 @@ const CashierLanding = () => {
       fetchMenus();
       setShowPaymentModal(false);
       toast.success("Order placed successfully!");
+
+      navigate("/cashier-summery");
     } catch (err) {
       console.error("Order failed:", err.response?.data || err.message);
       alert("Failed to place order");
