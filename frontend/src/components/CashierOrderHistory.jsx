@@ -3,6 +3,9 @@ import axios from "axios";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import "./CashierOrderHistory.css";
+// import { printToBothPrinters } from "../utils/dualPrinter";
+import { printReceiptToBoth } from "../utils/printReceipt";
+
 
 
 
@@ -293,7 +296,15 @@ const generateReceipt = (order) => {
 
   const proceed = window.confirm("Do you want to print the receipt?");
   if (proceed) {
-    printReceipt();
+    // printReceipt();
+    if (window.qz && qz.websocket.isActive()) {
+      printReceiptToBoth(container.innerHTML);
+    } else {
+      console.warn("QZ Tray not connected — using browser print");
+      const printWindow = window.open("", "_blank");
+      printWindow.document.write(container.innerHTML);
+      printWindow.print();
+    }
   } else {
     exportPDF();
   }
