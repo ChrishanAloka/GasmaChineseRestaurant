@@ -1,17 +1,19 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 
 const SignupForm = ({ role, title }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false); // 👈 Add loading state
   const navigate = useNavigate();
-  const location = useLocation();
 
   const handleSignup = async (e) => {
     e.preventDefault();
+    setLoading(true); // 👈 Start loading
+
     try {
       await axios.post("https://gasmachineserestaurantrms.onrender.com/api/auth/signup", {
         name,
@@ -23,6 +25,8 @@ const SignupForm = ({ role, title }) => {
       navigate(`/${role}-login`);
     } catch (err) {
       alert("Signup failed. Try again.");
+    } finally {
+      setLoading(false); // 👈 Stop loading regardless of success/failure
     }
   };
 
@@ -41,6 +45,7 @@ const SignupForm = ({ role, title }) => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
+              disabled={loading} // 👈 Optional: disable input during loading
             />
           </div>
           <div className="mb-3">
@@ -53,6 +58,7 @@ const SignupForm = ({ role, title }) => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={loading}
             />
           </div>
           <div className="mb-3">
@@ -65,10 +71,22 @@ const SignupForm = ({ role, title }) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              disabled={loading}
             />
           </div>
-          <button type="submit" className="btn btn-success w-100">
-            Sign Up as {role.charAt(0).toUpperCase() + role.slice(1)}
+          <button
+            type="submit"
+            className="btn btn-success w-100"
+            disabled={loading} // 👈 Disable button while loading
+          >
+            {loading ? (
+              <>
+                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                &nbsp;Signing up...
+              </>
+            ) : (
+              `Sign Up as ${role.charAt(0).toUpperCase() + role.slice(1)}`
+            )}
           </button>
         </form>
 
