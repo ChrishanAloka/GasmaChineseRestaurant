@@ -207,10 +207,10 @@ const generateReceipt = (order) => {
 
   // Build full HTML
   container.innerHTML = `
-    <h3 style="text-align:center; margin:0;"><strong>Golden plus</strong></h3>
-    <h3 style="text-align:center; margin:4px 0 12px;"><strong>Cafe and Restaurant</strong></h3>
-    <p style="text-align:center; margin:0;">33/C, Naranwala, Gampaha.</p>
-    <p style="text-align:center; margin:0 0 16px;">0770115235 / 0742257227</p>
+    <h3 style="text-align:center; margin:0;"><strong>Gasma</strong></h3>
+    <h3 style="text-align:center; margin:4px 0 12px;"><strong>Chinese Restaurant</strong></h3>
+    <p style="text-align:center; margin:0;">No. 14/2/D, Pugoda Road, Katulanda, Dekatana.</p>
+    <p style="text-align:center; margin:0 0 16px;">0777122797</p>
     <hr />
 
     ${invoiceDetails}

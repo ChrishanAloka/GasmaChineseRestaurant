@@ -22,7 +22,7 @@ const Home = () => {
           >
             <img
               src={LogoImage}
-              alt="Golden Plus Logo"
+              alt="Gasma Chinese Restaurant Logo"
               style={{
                 width: "100%",
                 height: "100%",
@@ -31,8 +31,8 @@ const Home = () => {
             />
           </div>
         </div>
-        <h1 className="mb-2">Welcome to Golden Plus</h1>
-        <h5 className="mb-3 border-bottom pb-2">Restaurant and Cafe Management System</h5>
+        <h1 className="mb-2">Welcome to Gasma</h1>
+        <h5 className="mb-3 border-bottom pb-2">Restaurant Management System</h5>
         
         <p className="lead mb-4">Please select your role to continue:</p>
 

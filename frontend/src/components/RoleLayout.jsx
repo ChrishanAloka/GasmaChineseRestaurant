@@ -144,7 +144,7 @@ const RoleLayout = () => {
                     boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
                   }}
                 />
-                <h3 className="justify-content-left sidebar-title mb-0">Golden Plus Cafe RMS  </h3>
+                <h3 className="justify-content-left sidebar-title mb-0">Gasma Chinese Restaurant-RMS</h3>
               </>
             )}
           </div>
