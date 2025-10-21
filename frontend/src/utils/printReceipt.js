@@ -1,6 +1,6 @@
 // src/utils/printReceipt.js
 
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 
 export const printReceiptToBoth = async (receiptHTML) => {
   try {

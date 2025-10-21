@@ -67,8 +67,6 @@ import RegisterDriverPage from "./components/RegisterDriverPage";
 import OtherExpenses from "./components/OtherExpenses";
 import OtherIncome from "./components/OtherIncome";
 
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 <Route path="/unauthorized" element={<Unauthorized />} />
 
@@ -155,8 +153,6 @@ function App() {
       
       <Route path="/cashier/takeaway-orders" element={<TakeawayOrdersPage />} />
       <Route path="/orders/receipt/:id" element={<ReceiptView />} />
-
-      <ToastContainer position="top-right" autoClose={2500} />
       
     </Routes>
   );
