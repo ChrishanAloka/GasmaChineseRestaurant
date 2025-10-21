@@ -115,7 +115,7 @@ function App() {
       
       <Route
         element={
-          <ProtectedRoute allowedRoles={["admin", "cashier"]}>
+          <ProtectedRoute allowedRoles={["admin", "cashier", "kitchen"]}>
             <RoleLayout />
           </ProtectedRoute>
         }
@@ -128,6 +128,16 @@ function App() {
         <Route path="/:role/menu" element={<MenuManagement />} />
         <Route path="/:role/report" element={<MonthlyReport />} />
         <Route path="/:role/bills" element={<KitchenBills />} /> 
+
+      </Route>
+
+      <Route
+        element={
+          <ProtectedRoute allowedRoles={["admin", "cashier"]}>
+            <RoleLayout />
+          </ProtectedRoute>
+        }
+      >
 
         <Route path="/cashier" element={<CashierLanding />} />
         <Route path="/cashier-summery" element={<CashierSummery />} />

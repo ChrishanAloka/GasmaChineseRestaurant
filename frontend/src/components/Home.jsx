@@ -40,9 +40,9 @@ const Home = () => {
           <Link to="/cashier-login" className="btn btn-outline-primary btn-lg">
             Cashier Login
           </Link>
-          {/* <Link to="/kitchen-login" className="btn btn-outline-dark btn-lg">
+          <Link to="/kitchen-login" className="btn btn-outline-dark btn-lg">
             Kitchen Login
-          </Link> */}
+          </Link>
           <Link to="/admin-login" className="btn btn-outline-success btn-lg">
             Admin Login
           </Link>
@@ -58,9 +58,9 @@ const Home = () => {
             <Link to="/signup?role=cashier" className="btn btn-primary btn-sm">
               Sign Up as Cashier
             </Link>
-            {/* <Link to="/signup?role=kitchen" className="btn btn-dark btn-sm">
+            <Link to="/signup?role=kitchen" className="btn btn-dark btn-sm">
               Sign Up as Kitchen Staff
-            </Link> */}
+            </Link>
             {/* <Link to="/signup?role=admin" className="btn btn-success btn-sm">
               Sign Up as Admin
             </Link> */}

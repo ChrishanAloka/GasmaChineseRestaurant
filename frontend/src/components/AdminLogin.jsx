@@ -82,12 +82,12 @@ const handleLogin = async (e) => {
 
         <hr />
 
-        <p className="text-center mb-0">
+        {/* <p className="text-center mb-0">
           Don't have an account?{" "}
           <Link to="/signup?role=admin" className="text-decoration-none">
             Sign Up
           </Link>
-        </p>
+        </p> */}
         <p className="mt-3 text-center">
           <Link to="/forgot-password">Forgot Password?</Link>
         </p>

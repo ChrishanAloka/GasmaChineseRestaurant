@@ -82,7 +82,7 @@ const SignupForm = ({ role, title }) => {
             {loading ? (
               <>
                 <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                &nbsp;Signing up...
+                Signing up...
               </>
             ) : (
               `Sign Up as ${role.charAt(0).toUpperCase() + role.slice(1)}`
