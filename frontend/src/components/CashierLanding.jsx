@@ -251,7 +251,7 @@ const CashierLanding = () => {
       setShowPaymentModal(false);
       toast.success("Order placed successfully!");
 
-      navigate("/cashier-summery");
+      // navigate("/cashier-summery");
     } catch (err) {
       console.error("Order failed:", err.response?.data || err.message);
       alert("Failed to place order");
@@ -565,7 +565,10 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
       {receiptOrder && (
         <ReceiptModal
           order={receiptOrder}
-          onClose={() => setReceiptOrder(null)}
+          onClose={() => {
+            setReceiptOrder(null);
+            navigate("/cashier-summery");
+          }}
         />
       )}
       <ToastContainer />

@@ -35,6 +35,172 @@ const ReceiptModal = ({ order, onClose }) => {
     totalPrice
   } = order;
 
+  // Inside ReceiptModal component
+const generatePrintableHTML = () => {
+  const symbol = localStorage.getItem("currencySymbol") || "$";
+  const now = new Date().toLocaleString();
+
+  // Build items rows
+  const itemsRows = order.items.map((item, idx) => `
+    <tr key="${idx}">
+      <td style="padding:4px 0;width:50%;text-align:left;">${item.name}</td>
+      <td style="padding:4px 0;width:20%;text-align:center;">${item.quantity}</td>
+      <td style="padding:4px 0;width:30%;text-align:right;">${symbol}${(item.price || 0).toFixed(2)}</td>
+    </tr>
+  `).join('');
+
+  let serviceChargeRow = '';
+  if (order.serviceCharge > 0) {
+    const pct = order.subtotal ? ((order.serviceCharge * 100) / order.subtotal).toFixed(2) : '0.00';
+    serviceChargeRow = `
+      <tr>
+        <td style="padding:4px 0;text-align:left;">Service Charge (${pct}%)</td>
+        <td></td>
+        <td style="padding:4px 0;text-align:right;">${symbol}${order.serviceCharge.toFixed(2)}</td>
+      </tr>
+    `;
+  }
+
+  let deliveryChargeRow = '';
+  if (order.deliveryCharge > 0) {
+    deliveryChargeRow = `
+      <tr>
+        <td style="padding:4px 0;text-align:left;">Delivery Charge</td>
+        <td></td>
+        <td style="padding:4px 0;text-align:right;">${symbol}${order.deliveryCharge.toFixed(2)}</td>
+      </tr>
+    `;
+  }
+
+  let paymentSection = '';
+  if (order.payment) {
+    const p = order.payment;
+    let lines = '';
+    if (p.cash > 0) lines += `<p class="mb-1">Cash: ${symbol}${p.cash.toFixed(2)}</p>`;
+    if (p.card > 0) lines += `<p class="mb-1">Card: ${symbol}${p.card.toFixed(2)}</p>`;
+    if (p.bankTransfer > 0) lines += `<p class="mb-1">Bank Transfer: ${symbol}${p.bankTransfer.toFixed(2)}</p>`;
+    
+    paymentSection = `
+      <div class="mb-1">
+        <p class="mb-1"><strong>Paid via:</strong></p>
+        ${lines}
+        <p class="mb-1"><strong>Total Paid:</strong> ${symbol}${(p.totalPaid || 0).toFixed(2)}</p>
+        <p class="mb-1"><strong>Change Due:</strong> ${symbol}${(p.changeDue || 0).toFixed(2)}</p>
+      </div>
+    `;
+  }
+
+  let deliveryNoteSection = '';
+  if (order.deliveryCharge > 0 && order.deliveryNote) {
+    deliveryNoteSection = `<p><strong>Delivery Note:</strong><br>${order.deliveryNote}</p>`;
+  }
+
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Receipt</title>
+        <style>
+          body {
+            font-family: Calibri, Arial, sans-serif;
+            width: 380px;
+            margin: 0;
+            padding: 20px;
+            background: #fff;
+            color: #000;
+            line-height: 1.4;
+          }
+          hr {
+            border: 0;
+            border-top: 1px dashed #000;
+            margin: 10px 0;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0 16px;
+          }
+          th, td {
+            padding: 4px 0;
+          }
+          .text-center { text-align: center; }
+          .text-end { text-align: right; }
+          .mb-1 { margin-bottom: 4px; }
+          h3, h4, h5 { margin: 6px 0; }
+          p { margin: 4px 0; }
+        </style>
+      </head>
+      <body>
+        <h3 class="text-center"><strong>Gasma</strong></h3>
+        <h3 class="text-center"><strong>Chinese Restaurant</strong></h3>
+        <p class="text-center mb-1">No. 14/2/D, Pugoda Road, Katulanda, Dekatana.</p>
+        <p class="text-center mb-3">0777122797</p>
+        <hr />
+
+        <div style="font-size:16px;margin-bottom:12px;">
+          <div style="display:flex;gap:4px;margin-bottom:4px;">
+            <div style="width:90px;"><strong>Invoice No:</strong></div>
+            <div>${order.invoiceNo || 'N/A'}</div>
+          </div>
+          <div style="display:flex;gap:4px;margin-bottom:4px;">
+            <div style="width:90px;"><strong>Date:</strong></div>
+            <div>${now}</div>
+          </div>
+          <div style="display:flex;gap:4px;margin-bottom:4px;">
+            <div style="width:90px;"><strong>Customer:</strong></div>
+            <div>${order.customerName || 'Walk-in'}</div>
+          </div>
+          <div style="display:flex;gap:4px;margin-bottom:4px;">
+            <div style="width:90px;"><strong>Phone:</strong></div>
+            <div>${order.customerPhone || 'N/A'}</div>
+          </div>
+          <div style="display:flex;gap:4px;margin-bottom:4px;">
+            <div style="width:90px;"><strong>Order Type:</strong></div>
+            <div>${order.tableNo > 0 ? `Dine In - Table ${order.tableNo}` : "Takeaway"}</div>
+          </div>
+          ${order.tableNo <= 0 && order.deliveryType ? `
+          <div style="display:flex;gap:4px;margin-bottom:4px;">
+            <div style="width:90px;"><strong>Delivery Type:</strong></div>
+            <div>${order.deliveryType}</div>
+          </div>` : ''}
+        </div>
+
+        <hr />
+
+        <table>
+          <thead>
+            <tr>
+              <th style="text-align:left;">Items</th>
+              <th style="text-align:center;">Qty</th>
+              <th style="text-align:right;">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemsRows}
+            ${serviceChargeRow}
+            ${deliveryChargeRow}
+          </tbody>
+        </table>
+
+        <hr />
+
+        <h5 class="text-end mb-1">Total: ${symbol}${(order.totalPrice || 0).toFixed(2)}</h5>
+
+        ${paymentSection}
+
+        <hr />
+        <p class="text-center mb-1">Thank you for your order!</p>
+        <p class="text-center mb-1">SOFTWARE BY: RAXWO (Pvt) Ltd.</p>
+        <p class="text-center mb-1">CONTACT: 074 357 3333</p>
+        <hr />
+
+        ${deliveryNoteSection}
+      </body>
+    </html>
+  `;
+};
+
   return (
     <div
       className="receipt-modal"
@@ -62,8 +228,9 @@ const ReceiptModal = ({ order, onClose }) => {
           className="btn btn-success"
           // onClick={() => window.print()}
           onClick={() => {
-            const content = document.getElementById("receipt-content").innerHTML;
-            printReceiptToBoth(content);
+            // const content = document.getElementById("receipt-content").innerHTML;
+            const fullHTML = generatePrintableHTML();
+            printReceiptToBoth(fullHTML);
           }}
         >
           🖨️ Print Receipt
@@ -243,13 +410,13 @@ const ReceiptModal = ({ order, onClose }) => {
         <p className="text-center mb-1">CONTACT: 074 357 3333</p>
         <hr />
         {order.deliveryCharge > 0 && (
-                  <p>
-                    <p>
-                      <strong>Delivery Note :</strong>
-                    </p>
-                    <span >{symbol}{order.deliveryNote}</span>
-                  </p>
-                )}
+          <p>
+            <p>
+              <strong>Delivery Note :</strong>
+            </p>
+            <span >{symbol}{order.deliveryNote}</span>
+          </p>
+        )}
       </div>
 
       {/* Hide everything except receipt when printing */}

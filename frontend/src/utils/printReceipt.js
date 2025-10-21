@@ -1,44 +1,97 @@
 // src/utils/printReceipt.js
+import { toast } from "react-toastify";
+import axios from "axios";
 
-import { ToastContainer, toast } from "react-toastify";
-
+/**
+ * Prints the given receiptHTML to all printers saved in the backend.
+//  * @param {string} receiptHTML - The HTML string to print
+ */
 export const printReceiptToBoth = async (receiptHTML) => {
-  try {
-    toast.info("Connecting to QZ Tray...");
+  if (!receiptHTML || typeof receiptHTML !== "string") {
+    toast.error("❌ Invalid receipt data.");
+    return;
+  }
 
+  let token;
+  try {
+    token = localStorage.getItem("token");
+    if (!token) throw new Error("No auth token found");
+  } catch (err) {
+    toast.error("❌ User not authenticated.");
+    return;
+  }
+
+  // 1. Fetch saved printers from backend
+  let savedPrinters = [];
+  try {
+    toast.info("📥 Loading saved printers...");
+    const res = await axios.get("https://gasmachineserestaurantrms.onrender.com/api/auth/printers", {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    savedPrinters = res.data;
+    if (savedPrinters.length === 0) {
+      toast.warn("⚠️ No printers configured. Go to Printer Settings to add one.");
+      return;
+    }
+  } catch (err) {
+    console.error("Failed to load printers:", err);
+    toast.error("❌ Failed to load saved printers.");
+    return;
+  }
+
+  // 2. Connect to QZ Tray
+  try {
+    toast.info("🔌 Connecting to QZ Tray...");
     await qz.websocket.connect();
 
-    // Format as printable HTML (ESC/POS printers can also use raw text)
-    const printData = [{ type: "html", format: "plain", data: receiptHTML }];
+    const printData = [{
+        type: 'pixel',     // ← This is required for HTML
+        format: 'html',    // ← Format is "html"
+        flavor: 'plain',
+        data: receiptHTML
+    }];
 
-    // Printer names (must match your system printer names)
-    const printers = ["Cashier Printer", "Kitchen Printer"];
-    const printed = [];
+    const printedSuccessfully = [];
+    const failedPrinters = [];
 
-    // Print to both
-    for (const printerName of printers) {
+    // 3. Print to each saved printer
+    for (const printer of savedPrinters) {
+      const printerName = printer.name.trim();
       try {
-        await qz.print({ printer: printerName }, printData);
-        printed.push(printerName);
-        toast.success(`✅ Printed successfully on ${printerName}`);
+        const config = qz.configs.create(printerName);
+        await qz.print(config, printData);
+        printedSuccessfully.push(printerName);
+        toast.success(`✅ Printed to: ${printerName}`);
       } catch (err) {
-        toast.error(`⚠️ Failed to print on ${printerName}`);
-        console.error(`❌ Failed to print on ${printerName}`, err);
+        failedPrinters.push(printerName);
+        toast.error(`❌ Failed to print to: ${printerName}`);
+        console.error(`Print failed for ${printerName}:`, err);
       }
     }
 
-    if (printed.length === 0) {
-      toast.warn("No printers printed successfully!");
-    } else if (printed.length < printers.length) {
-      toast.warn("Some printers failed. Check connection or paper.");
+    // 4. Final summary
+    if (printedSuccessfully.length === 0) {
+      toast.error("🔥 All print jobs failed! Check printer names and QZ Tray.");
+    } else if (failedPrinters.length > 0) {
+      toast.warn(`⚠️ Partial success: ${printedSuccessfully.length} of ${savedPrinters.length} printed.`);
     } else {
-      toast.success("✅ Printed on both printers successfully!");
+      toast.success(`🎉 Successfully printed to ${savedPrinters.length} printer(s)!`);
     }
 
-    await qz.websocket.disconnect();
-    toast.info("Disconnected from QZ Tray.");
   } catch (err) {
-    toast.error("❌ Could not connect to QZ Tray. Please make sure it’s running.");
-    console.error(err);
+    if (err.message?.includes("QZ")) {
+      toast.error("❌ QZ Tray is not running or blocked. Please start QZ Tray and refresh.");
+    } else {
+      toast.error("❌ Failed to connect to QZ Tray.");
+    }
+    console.error("QZ Connection Error:", err);
+  } finally {
+    // Always disconnect
+    try {
+      await qz.websocket.disconnect();
+      toast.info("🔌 Disconnected from QZ Tray.");
+    } catch (e) {
+      console.warn("QZ disconnect warning:", e);
+    }
   }
 };

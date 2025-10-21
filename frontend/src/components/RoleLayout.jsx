@@ -7,7 +7,7 @@ import {
   FaChartBar, FaUserTie, FaCalendarCheck, FaTruck, FaMoneyBillWave,
   FaMoneyCheckAlt, FaUtensils, FaDollarSign, FaShoppingCart, FaHistory,
   FaBookOpen, FaClipboardList, FaUserCircle, FaPercentage, FaTruckLoading, 
-  FaFirstOrder,FaMotorcycle,FaUserClock,FaCashRegister,FaBookReader,FaCoins,FaWallet
+  FaFirstOrder,FaMotorcycle,FaUserClock,FaCashRegister,FaBookReader,FaCoins,FaWallet,FaPrint
 } from "react-icons/fa";
 import "./Sidebar.css";
 import NotificationCenter from "./NotificationCenter";
@@ -99,6 +99,8 @@ const RoleLayout = () => {
 
             {createMenuItem("/cashier/today", "View Today", FaBookOpen)}
             {createMenuItem("/cashier-summery", "Cashier Summery", FaBookReader)}
+            {createMenuItem("/printer-settings", "Printer Settings", FaPrint)}
+            
 
             {createMenuItem("/cashier/other-income", "Other Incomes", FaCoins)}
             {createMenuItem("/cashier/other-expences", "Other Expences", FaWallet)}

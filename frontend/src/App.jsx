@@ -12,6 +12,8 @@ import AdminSignup from "./components/AdminSignup";
 
 import Signup from './components/Signup';
 
+import Printersettings from "./components/PrinterSettings";
+
 import KitchenLanding from "./components/KitchenLanding";
 import KitchenBills from "./components/KitchenBills";
 
@@ -129,6 +131,8 @@ function App() {
         <Route path="/:role/menu" element={<MenuManagement />} />
         <Route path="/:role/report" element={<MonthlyReport />} />
         <Route path="/:role/bills" element={<KitchenBills />} /> 
+
+        <Route path="/printer-settings" element={<Printersettings />} />
 
       </Route>
 

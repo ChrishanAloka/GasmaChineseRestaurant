@@ -51,6 +51,12 @@ const {submitShiftSummary,  getShiftSummaries,  getShiftSummaryByDate} = require
 
 const {  getIncomes,  addIncome,  updateIncome,  deleteIncome, getIncomesByDate} = require("../controllers/otherIncomeController");
 const {  getExpenses,  addExpense,  updateExpense,  deleteExpense, getExpensesByDate} = require("../controllers/otherExpenseController");
+const { getPrinters, upsertPrinter, deletePrinter } = require("../controllers/printerController");
+
+// Only admin can manage printers (adjust roles as needed)
+router.get("/printers", authMiddleware(["admin", "kitchen", "cashier"]), getPrinters);
+router.post("/printers", authMiddleware(["admin", "kitchen", "cashier"]), upsertPrinter);
+router.delete("/printers/:id", authMiddleware(["admin", "kitchen", "cashier"]), deletePrinter);
 
 // Public routes
 router.post("/signup", signup);
