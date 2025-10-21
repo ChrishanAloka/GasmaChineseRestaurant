@@ -10,7 +10,7 @@ const CurrencySettings = () => {
     const fetchCurrency = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get("https://goldenpluscaferms.onrender.com/api/auth/settings/currency", {
+        const res = await axios.get("https://gasmachineserestaurantrms.onrender.com/api/auth/settings/currency", {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -30,7 +30,7 @@ const CurrencySettings = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.put(
-        "https://goldenpluscaferms.onrender.com/api/auth/settings/currency",
+        "https://gasmachineserestaurantrms.onrender.com/api/auth/settings/currency",
         { currency, symbol },
         {
           headers: { Authorization: `Bearer ${token}` }

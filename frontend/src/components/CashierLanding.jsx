@@ -42,7 +42,7 @@ const CashierLanding = () => {
     const timer = setTimeout(async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get("https://goldenpluscaferms.onrender.com/api/auth/customer", {
+        const res = await axios.get("https://gasmachineserestaurantrms.onrender.com/api/auth/customer", {
           params: { phone: customer.phone },
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -61,7 +61,7 @@ const CashierLanding = () => {
   const fetchMenus = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("https://goldenpluscaferms.onrender.com/api/auth/menus", {
+      const res = await axios.get("https://gasmachineserestaurantrms.onrender.com/api/auth/menus", {
         headers: { Authorization: `Bearer ${token}` }
       });
       setMenus(res.data);
@@ -74,7 +74,7 @@ const CashierLanding = () => {
   try {
     const token = localStorage.getItem("token");
     const res = await axios.get(
-      "https://goldenpluscaferms.onrender.com/api/auth/admin/service-charge",
+      "https://gasmachineserestaurantrms.onrender.com/api/auth/admin/service-charge",
       {
         headers: { Authorization: `Bearer ${token}` }
       }
@@ -96,7 +96,7 @@ const CashierLanding = () => {
   const fetchDeliveryCharge = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("https://goldenpluscaferms.onrender.com/api/auth/admin/delivery-charge", {
+      const res = await axios.get("https://gasmachineserestaurantrms.onrender.com/api/auth/admin/delivery-charge", {
         headers: { Authorization: `Bearer ${token}` }
       });
       setDeliveryChargeSettings(res.data);
@@ -228,7 +228,7 @@ const CashierLanding = () => {
       };
 
       const res = await axios.post(
-        "https://goldenpluscaferms.onrender.com/api/auth/order",
+        "https://gasmachineserestaurantrms.onrender.com/api/auth/order",
         payload,
         {
           headers: { Authorization: `Bearer ${token}` }
@@ -443,7 +443,7 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
                     src={
                     menu.imageUrl.startsWith("https")
                       ? menu.imageUrl
-                      : `https://goldenpluscaferms.onrender.com${menu.imageUrl}`
+                      : `https://gasmachineserestaurantrms.onrender.com${menu.imageUrl}`
                     }
                     alt={menu.name}
                     style={{ height: "150px", width:"100%" ,objectFit: "contain" }}

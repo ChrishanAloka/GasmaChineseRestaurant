@@ -7,7 +7,7 @@ const KitchenLanding = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       const token = localStorage.getItem("token");
-      const res = await axios.get("https://goldenpluscaferms.onrender.com/api/auth/orders", {
+      const res = await axios.get("https://gasmachineserestaurantrms.onrender.com/api/auth/orders", {
         headers: { Authorization: `Bearer ${token}` }
       });
       setOrders(res.data);
@@ -23,7 +23,7 @@ const KitchenLanding = () => {
 
     try {
       await axios.put(
-        `https://goldenpluscaferms.onrender.com/api/auth/order/${id}/status`,
+        `https://gasmachineserestaurantrms.onrender.com/api/auth/order/${id}/status`,
         { status: "Ready" },
         {
           headers: { Authorization: `Bearer ${token}` }
@@ -31,7 +31,7 @@ const KitchenLanding = () => {
       );
 
       await axios.post(
-        "https://goldenpluscaferms.onrender.com/api/auth/notifications/send",
+        "https://gasmachineserestaurantrms.onrender.com/api/auth/notifications/send",
         {
           userId: id, // In practice, use the correct cashier/admin ID
           message: `Order #${id} is ready for pickup.`,

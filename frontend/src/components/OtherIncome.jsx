@@ -27,7 +27,7 @@ const OtherIncome = () => {
     const token = localStorage.getItem("token");
 
     try {
-      const res = await axios.get("https://goldenpluscaferms.onrender.com/api/auth/income/other", {
+      const res = await axios.get("https://gasmachineserestaurantrms.onrender.com/api/auth/income/other", {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -56,7 +56,7 @@ const OtherIncome = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.post(
-        "https://goldenpluscaferms.onrender.com/api/auth/income/other",
+        "https://gasmachineserestaurantrms.onrender.com/api/auth/income/other",
         newIncome,
         {
           headers: {
@@ -114,7 +114,7 @@ const OtherIncome = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.put(
-        `https://goldenpluscaferms.onrender.com/api/auth/income/other/${editingIncome}`,
+        `https://gasmachineserestaurantrms.onrender.com/api/auth/income/other/${editingIncome}`,
         editData,
         {
           headers: { Authorization: `Bearer ${token}` }
@@ -137,7 +137,7 @@ const OtherIncome = () => {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`https://goldenpluscaferms.onrender.com/api/auth/income/other/${id}`, {
+      await axios.delete(`https://gasmachineserestaurantrms.onrender.com/api/auth/income/other/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 

@@ -17,7 +17,7 @@ const AdminServiceCharge = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.get(
-        "https://goldenpluscaferms.onrender.com/api/auth/admin/service-charge",
+        "https://gasmachineserestaurantrms.onrender.com/api/auth/admin/service-charge",
         {
           headers: { Authorization: `Bearer ${token}` }
         }
@@ -42,7 +42,7 @@ const AdminServiceCharge = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.put(
-        "https://goldenpluscaferms.onrender.com/api/auth/admin/service-charge",
+        "https://gasmachineserestaurantrms.onrender.com/api/auth/admin/service-charge",
         serviceCharge,
         {
           headers: { Authorization: `Bearer ${token}` }

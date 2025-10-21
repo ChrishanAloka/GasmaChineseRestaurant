@@ -13,7 +13,7 @@ const SignupForm = ({ role, title }) => {
   const handleSignup = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("https://goldenpluscaferms.onrender.com/api/auth/signup", {
+      await axios.post("https://gasmachineserestaurantrms.onrender.com/api/auth/signup", {
         name,
         email,
         password,

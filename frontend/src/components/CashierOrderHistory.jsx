@@ -56,7 +56,7 @@ const CashierOrderHistory = () => {
 
     try {
       const res = await axios.get(
-        `https://goldenpluscaferms.onrender.com/api/auth/orders?${params.toString()}`,
+        `https://gasmachineserestaurantrms.onrender.com/api/auth/orders?${params.toString()}`,
         {
           headers: { Authorization: `Bearer ${token}` }
         }
