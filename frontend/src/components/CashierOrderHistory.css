@@ -1,0 +1,25 @@
+/* src/components/CashierOrderHistory.css */
+.badge.bg-warning.text-dark {
+  color: #fff !important; /* Fix warning text color */
+}
+
+@media (max-width: 768px) {
+
+  .mobile-scroll-container {
+    height: 100vh;
+    width: 100vw;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch; /* smooth scroll for iOS */
+  }
+
+  #order-table {
+    overflow-x: auto;
+  }
+
+  #order-table thead th {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 1;
+  }
+}
