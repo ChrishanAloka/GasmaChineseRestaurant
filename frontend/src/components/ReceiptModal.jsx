@@ -1,6 +1,7 @@
 import React from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { printReceiptToBoth } from "../utils/printReceipt";
 
 const exportToPDF = () => {
   const input = document.getElementById("receipt-content");
@@ -59,7 +60,11 @@ const ReceiptModal = ({ order, onClose }) => {
         </button>
         <button
           className="btn btn-success"
-          onClick={() => window.print()}
+          // onClick={() => window.print()}
+          onClick={() => {
+            const content = document.getElementById("receipt-content").innerHTML;
+            printReceiptToBoth(content);
+          }}
         >
           🖨️ Print Receipt
         </button>
