@@ -35,6 +35,8 @@ exports.getAdminSummary = async (req, res) => {
     const totalSalaries = salaries.reduce((sum, s) => sum + s.total, 0);
     const totalOtherExpenses = otherExpenses.reduce((sum, e) => sum + e.amount, 0);
     const totalOrdersIncome = orders.reduce((sum, o) => sum + o.totalPrice, 0);
+    const totaldeliveryOrdersIncome = orders.reduce((sum, o) => sum + o.deliveryCharge, 0);
+    
     // ✅ Calculate totalOrdersNetIncome: sum of (item.netProfit * item.quantity) for all items in all orders
     const totalOrdersNetIncome = orders.reduce((sum, order) => {
       const orderNetProfit = order.items.reduce((itemSum, item) => {
@@ -56,13 +58,38 @@ exports.getAdminSummary = async (req, res) => {
     const netProfit = totalIncome - totalCost;
 
     // ✅ Count orders
-    const totalOrders = orders.length;
+    const totalOrders = orders.filter((item) => item.deliveryType === "Delivery Service").length;
+
+    const totaldeliveryOrders = orders.length;
 
     // ✅ Count by status
     const statusCounts = orders.reduce((acc, order) => {
       acc[order.status] = (acc[order.status] || 0) + 1;
       return acc;
     }, {});
+
+    const delayedOrders = orders.filter(order => {
+      // Skip if statusUpdatedAt is not set (shouldn't happen if you always set it)
+      if (!order.statusUpdatedAt) return false;
+
+      const diffMs = new Date(order.statusUpdatedAt) - new Date(order.createdAt);
+      const diffMinutes = diffMs / (1000 * 60);
+      return diffMinutes > 30;
+    }).length;
+
+    const nextDayStatusUpdates = orders.filter(order => {
+      if (!order.statusUpdatedAt) return false;
+
+      const created = new Date(order.createdAt);
+      const updated = new Date(order.statusUpdatedAt);
+
+      // Compare YEAR, MONTH, and DAY (ignore time)
+      return (
+        created.getFullYear() !== updated.getFullYear() ||
+        created.getMonth() !== updated.getMonth() ||
+        created.getDate() !== updated.getDate()
+      );
+    }).length;
 
     // ✅ Payment breakdown
     const paymentBreakdown = orders.reduce(
@@ -99,9 +126,13 @@ exports.getAdminSummary = async (req, res) => {
       totalCost,
       netProfit,
       totalOrders,
+      totaldeliveryOrders,
+      totaldeliveryOrdersIncome,
       totalOrdersIncome,
       totalOrdersNetIncome,
       statusCounts,
+      delayedOrders,           // ✅ new
+      nextDayStatusUpdates,    // ✅ new
       paymentBreakdown,
       topMenus
     });

@@ -194,10 +194,12 @@ exports.updateOrderStatus = async (req, res) => {
   try {
     const updated = await Order.findByIdAndUpdate(
       id,
-      { status },
+      { 
+        status,
+        statusUpdatedAt: Date.now()
+       },
       { new: true }
     );
-
     res.json(updated);
   } catch (err) {
     res.status(400).json({ error: "Failed to update status" });
@@ -249,24 +251,6 @@ exports.getCustomerByPhone = async (req, res) => {
     res.json(null);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch customer" });
-  }
-};
-
-// backend/controllers/orderController.js
-
-exports.updateOrderStatus = async (req, res) => {
-  const { id } = req.params;
-  const { status } = req.body;
-
-  try {
-    const updated = await Order.findByIdAndUpdate(
-      id,
-      { status },
-      { new: true }
-    );
-    res.json(updated);
-  } catch (err) {
-    res.status(400).json({ error: "Failed to update status" });
   }
 };
 

@@ -98,10 +98,14 @@ const orderSchema = new mongoose.Schema({
     type: String,
     default: "Pending"
   },
+  statusUpdatedAt: {
+    type: Date,
+    default: Date.now // initially set to order creation time
+  },
   createdAt: {
     type: Date,
     default: Date.now
   }
-});
+},{ timestamps: true });
 
 module.exports = mongoose.model("Order", orderSchema);

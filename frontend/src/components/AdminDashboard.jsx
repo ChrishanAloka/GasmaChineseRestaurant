@@ -16,9 +16,13 @@ const AdminDashboard = () => {
     totalCost: 0,
     netProfit: 0,
     totalOrders: 0,
+    totaldeliveryOrders: 0,
+    totaldeliveryOrdersIncome: 0,
     totalOrdersIncome: 0,
     totalOrdersNetIncome: 0,
     statusCounts: {},
+    delayedOrders: 0,
+    nextDayStatusUpdates: 0,
     paymentBreakdown: { cash: 0, cashdue: 0, card: 0, bank: 0 },
     topMenus: []
   });
@@ -208,19 +212,57 @@ const AdminDashboard = () => {
     </div>
 
     {/* Summary Cards */}
-    <div className="row g-3 mb-4">
+    <div className="row g-3 mb-5 row-cols-5">
       {[
-        { label: "Total Orders", value: summary.totalOrders, color: "primary", icon: "🛒" },
-        { label: "Orders Income / Orders Net Income", value: 
-          `${symbol}${formatCurrency(summary.totalOrdersIncome)} / ${symbol}${formatCurrency(summary.totalOrdersNetIncome)}`,
-          // (
-          //   <>
-          //     {symbol}{formatCurrency(summary.totalOrdersIncome)}
-          //     <br />
-          //     Net {symbol}{formatCurrency(summary.totalOrdersNetIncome)}
-          //   </>
-          // ), 
+        { label: "", value: ``, color: "", icon: "" },
+        { label: 
+            // "Total Orders / Delivery Orders", 
+            (
+              <>
+                Total Orders /
+                <br />
+                Delivery Orders
+              </>
+            ), 
+          value: `${summary.totalOrders} / ${summary.totaldeliveryOrders}`, color: "primary", icon: "🛒" },
+        { label: 
+            // "Orders Income ( Net Income )",
+             (
+              <>
+                Orders Income
+                <br />
+                ( Net Income )
+              </>
+            ), 
+          value: 
+            // `${symbol}${formatCurrency(summary.totalOrdersIncome)}   (${symbol}${formatCurrency(summary.totalOrdersNetIncome)})`,
+            (
+              <>
+                {symbol}{formatCurrency(summary.totalOrdersIncome)}
+                <br />
+                ( {symbol}{formatCurrency(summary.totalOrdersNetIncome)} )
+              </>
+            ), 
           color: "primary", icon: "🛒" },
+        { label:
+            // "Total Delevery Charges",
+            (
+              <>
+                Total Delevery Charges
+                <br />
+              </>
+            ), 
+          value: 
+            // `${symbol}${formatCurrency(summary.totaldeliveryOrdersIncome)}`, 
+            (
+              <>
+                
+                <br />
+                ( {symbol}{formatCurrency(summary.totaldeliveryOrdersIncome)} )
+              </>
+            ),
+          color: "primary", icon: "🚚" },
+        { label: "", value: ``, color: "", icon: "" },
         { label: "Other Income", value: `${symbol}${formatCurrency(summary.totalOtherIncome)}`, color: "success", icon: "🎁"}, // ✅ NEW
         { label: "Other Expenses", value: `${symbol}${formatCurrency(summary.totalOtherExpenses)}`, color: "danger", icon: "🔧"}, // ✅ NEW
         
@@ -233,7 +275,7 @@ const AdminDashboard = () => {
           icon: summary.netProfit >= 0 ? "📈" : "⚠️",
         }
       ].map((card, idx) => (
-        <div className="col-md-3" key={idx}>
+        <div key={idx}>
           <div className={`card bg-${card.color} text-white shadow-sm h-100`}>
             <div className="card-body text-center">
               <div className="fs-3">{card.icon}</div>
@@ -315,6 +357,14 @@ const AdminDashboard = () => {
                     <td>{count}</td>
                   </tr>
                 ))}
+                  <tr>
+                    <td>Delayed Completed</td>
+                    <td>{summary.delayedOrders}</td>
+                  </tr>
+                  <tr>
+                    <td>Delayed Completed (Day After)</td>
+                    <td>{summary.nextDayStatusUpdates}</td>
+                  </tr>
               </tbody>
             </table>
           </div>
