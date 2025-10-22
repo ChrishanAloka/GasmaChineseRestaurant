@@ -81,6 +81,8 @@ const RoleLayout = () => {
             {createMenuItem("/cashier/driver-register", "Takeaway Driver Register", FaMotorcycle)}
             {createMenuItem("/admin/suppliers", "Suppliers Register", FaTruck)}
             {createMenuItem("/admin/expenses", "Supplier Expenses", FaMoneyBillWave)}
+            {createMenuItem("/cashier/other-income", "Other Incomes", FaCoins)}
+            {createMenuItem("/cashier/other-expences", "Other Expences", FaWallet)}
             {createMenuItem("/admin/bills", "Restaurant Bills", FaFileInvoice)}            
             {createMenuItem("/admin/salaries", "Salary Payments", FaMoneyCheckAlt)}
             {createMenuItem("/admin/service-charge", "Service Charge", FaPercentage)}
