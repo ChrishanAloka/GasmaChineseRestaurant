@@ -2,6 +2,7 @@ import React from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { printReceiptToBoth } from "../utils/printReceipt";
+import LogoImage from "../upload/logo.jpg";
 
 const exportToPDF = () => {
   const input = document.getElementById("receipt-content");
@@ -36,171 +37,174 @@ const ReceiptModal = ({ order, onClose }) => {
   } = order;
 
   // Inside ReceiptModal component
-const generatePrintableHTML = () => {
-  const symbol = localStorage.getItem("currencySymbol") || "$";
-  const now = new Date().toLocaleString();
+  const generatePrintableHTML = () => {
+    const symbol = localStorage.getItem("currencySymbol") || "$";
+    const now = new Date().toLocaleString();
 
-  // Build items rows
-  const itemsRows = order.items.map((item, idx) => `
-    <tr key="${idx}">
-      <td style="padding:4px 0;width:50%;text-align:left;">${item.name}</td>
-      <td style="padding:4px 0;width:20%;text-align:center;">${item.quantity}</td>
-      <td style="padding:4px 0;width:30%;text-align:right;">${symbol}${(item.price || 0).toFixed(2)}</td>
-    </tr>
-  `).join('');
-
-  let serviceChargeRow = '';
-  if (order.serviceCharge > 0) {
-    const pct = order.subtotal ? ((order.serviceCharge * 100) / order.subtotal).toFixed(2) : '0.00';
-    serviceChargeRow = `
-      <tr>
-        <td style="padding:4px 0;text-align:left;">Service Charge (${pct}%)</td>
-        <td></td>
-        <td style="padding:4px 0;text-align:right;">${symbol}${order.serviceCharge.toFixed(2)}</td>
+    // Build items rows
+    const itemsRows = order.items.map((item, idx) => `
+      <tr key="${idx}">
+        <td style="padding:4px 0;width:50%;text-align:left;">${item.name}</td>
+        <td style="padding:4px 0;width:20%;text-align:center;">${item.quantity}</td>
+        <td style="padding:4px 0;width:30%;text-align:right;">${symbol}${(item.price || 0).toFixed(2)}</td>
       </tr>
-    `;
-  }
+    `).join('');
 
-  let deliveryChargeRow = '';
-  if (order.deliveryCharge > 0) {
-    deliveryChargeRow = `
-      <tr>
-        <td style="padding:4px 0;text-align:left;">Delivery Charge</td>
-        <td></td>
-        <td style="padding:4px 0;text-align:right;">${symbol}${order.deliveryCharge.toFixed(2)}</td>
-      </tr>
-    `;
-  }
+    let serviceChargeRow = '';
+    if (order.serviceCharge > 0) {
+      const pct = order.subtotal ? ((order.serviceCharge * 100) / order.subtotal).toFixed(2) : '0.00';
+      serviceChargeRow = `
+        <tr>
+          <td style="padding:4px 0;text-align:left;">Service Charge (${pct}%)</td>
+          <td></td>
+          <td style="padding:4px 0;text-align:right;">${symbol}${order.serviceCharge.toFixed(2)}</td>
+        </tr>
+      `;
+    }
 
-  let paymentSection = '';
-  if (order.payment) {
-    const p = order.payment;
-    let lines = '';
-    if (p.cash > 0) lines += `<p class="mb-1">Cash: ${symbol}${p.cash.toFixed(2)}</p>`;
-    if (p.card > 0) lines += `<p class="mb-1">Card: ${symbol}${p.card.toFixed(2)}</p>`;
-    if (p.bankTransfer > 0) lines += `<p class="mb-1">Bank Transfer: ${symbol}${p.bankTransfer.toFixed(2)}</p>`;
-    
-    paymentSection = `
-      <div class="mb-1">
-        <p class="mb-1"><strong>Paid via:</strong></p>
-        ${lines}
-        <p class="mb-1"><strong>Total Paid:</strong> ${symbol}${(p.totalPaid || 0).toFixed(2)}</p>
-        <p class="mb-1"><strong>Change Due:</strong> ${symbol}${(p.changeDue || 0).toFixed(2)}</p>
-      </div>
-    `;
-  }
+    let deliveryChargeRow = '';
+    if (order.deliveryCharge > 0) {
+      deliveryChargeRow = `
+        <tr>
+          <td style="padding:4px 0;text-align:left;">Delivery Charge</td>
+          <td></td>
+          <td style="padding:4px 0;text-align:right;">${symbol}${order.deliveryCharge.toFixed(2)}</td>
+        </tr>
+      `;
+    }
 
-  let deliveryNoteSection = '';
-  if (order.deliveryCharge > 0 && order.deliveryNote) {
-    deliveryNoteSection = `<p><strong>Delivery Note:</strong><br>${order.deliveryNote}</p>`;
-  }
-
-  return `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="UTF-8">
-        <title>Receipt</title>
-        <style>
-          body {
-            font-family: Calibri, Arial, sans-serif;
-            width: 288px;
-            margin: 0;
-            padding: 7.5px;
-            background: #fff;
-            color: #000;
-            line-height: 1.4;
-            box-sizing: border-box;
-          }
-          hr {
-            border: 0;
-            border-top: 1px dashed #000;
-            margin: 10px 0;
-          }
-          table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 8px 0 16px;
-          }
-          th, td {
-            padding: 4px 0;
-          }
-          .text-center { text-align: center; }
-          .text-end { text-align: right; }
-          .mb-1 { margin-bottom: 4px; }
-          h3, h4, h5 { margin: 6px 0; }
-          p { margin: 4px 0; }
-        </style>
-      </head>
-      <body>
-        <h3 class="text-center"><strong>Gasma</strong></h3>
-        <h3 class="text-center"><strong>Chinese Restaurant</strong></h3>
-        <p class="text-center mb-1">No. 14/2/D, Pugoda Road, Katulanda, Dekatana.</p>
-        <p class="text-center mb-3">0777122797</p>
-        <hr />
-
-        <div style="font-size:16px;margin-bottom:12px;">
-          <div style="display:flex;gap:4px;margin-bottom:4px;">
-            <div style="width:90px;"><strong>Invoice No:</strong></div>
-            <div>${order.invoiceNo || 'N/A'}</div>
-          </div>
-          <div style="display:flex;gap:4px;margin-bottom:4px;">
-            <div style="width:90px;"><strong>Date:</strong></div>
-            <div>${now}</div>
-          </div>
-          <div style="display:flex;gap:4px;margin-bottom:4px;">
-            <div style="width:90px;"><strong>Customer:</strong></div>
-            <div>${order.customerName || 'Walk-in'}</div>
-          </div>
-          <div style="display:flex;gap:4px;margin-bottom:4px;">
-            <div style="width:90px;"><strong>Phone:</strong></div>
-            <div>${order.customerPhone || 'N/A'}</div>
-          </div>
-          <div style="display:flex;gap:4px;margin-bottom:4px;">
-            <div style="width:90px;"><strong>Order Type:</strong></div>
-            <div>${order.tableNo > 0 ? `Dine In - Table ${order.tableNo}` : "Takeaway"}</div>
-          </div>
-          ${order.tableNo <= 0 && order.deliveryType ? `
-          <div style="display:flex;gap:4px;margin-bottom:4px;">
-            <div style="width:90px;"><strong>Delivery Type:</strong></div>
-            <div>${order.deliveryType}</div>
-          </div>` : ''}
+    let paymentSection = '';
+    if (order.payment) {
+      const p = order.payment;
+      let lines = '';
+      if (p.cash > 0) lines += `<p class="mb-1">Cash: ${symbol}${p.cash.toFixed(2)}</p>`;
+      if (p.card > 0) lines += `<p class="mb-1">Card: ${symbol}${p.card.toFixed(2)}</p>`;
+      if (p.bankTransfer > 0) lines += `<p class="mb-1">Bank Transfer: ${symbol}${p.bankTransfer.toFixed(2)}</p>`;
+      
+      paymentSection = `
+        <div class="mb-1">
+          <p class="mb-1"><strong>Paid via:</strong></p>
+          ${lines}
+          <p class="mb-1"><strong>Total Paid:</strong> ${symbol}${(p.totalPaid || 0).toFixed(2)}</p>
+          <p class="mb-1"><strong>Change Due:</strong> ${symbol}${(p.changeDue || 0).toFixed(2)}</p>
         </div>
+      `;
+    }
 
-        <hr />
+    let deliveryNoteSection = '';
+    if (order.deliveryCharge > 0 && order.deliveryNote) {
+      deliveryNoteSection = `<p><strong>Delivery Note:</strong><br>${order.deliveryNote}</p>`;
+    }
 
-        <table>
-          <thead>
-            <tr>
-              <th style="text-align:left;">Items</th>
-              <th style="text-align:center;">Qty</th>
-              <th style="text-align:right;">Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${itemsRows}
-            ${serviceChargeRow}
-            ${deliveryChargeRow}
-          </tbody>
-        </table>
+    return `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8">
+          <title>Receipt</title>
+          <style>
+            body {
+              font-family: Calibri, Arial, sans-serif;
+              width: 288px;
+              margin: 0;
+              padding: 7.5px;
+              background: #fff;
+              color: #000;
+              line-height: 1.4;
+              box-sizing: border-box;
+            }
+            hr {
+              border: 0;
+              border-top: 1px dashed #000;
+              margin: 10px 0;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin: 8px 0 16px;
+            }
+            th, td {
+              padding: 4px 0;
+            }
+            .text-center { text-align: center; }
+            .text-end { text-align: right; }
+            .mb-1 { margin-bottom: 4px; }
+            h3, h4, h5 { margin: 6px 0; }
+            p { margin: 4px 0; }
+          </style>
+        </head>
+        <body>
+        <!-- ✅ SMALL CIRCULAR LOGO -->
+        <div class="text-center mb-2">
+          <div style="width:80px;height:80px;border-radius:50%;overflow:hidden;margin:0 auto 4px;box-shadow:0 1px 2px rgba(0,0,0,0.1);">
+            <img src=${LogoImage} alt="Gasma Logo" style="width:100%;height:100%;object-fit:cover;display:block;">
+          </div>
+        </div>
+          <h3 class="text-center" style=" font-size:15px; "><strong>Gasma Chinese Restaurant</strong></h3>
+          <p class="text-center mb-1" style=" font-size:12px; ">No. 14/2/D, Pugoda Road, Katulanda, Dekatana.</p>
+          <p class="text-center mb-3" style=" font-size:12px; ">0777122797</p>
+          <hr />
 
-        <hr />
+          <div style="font-size:16px;margin-bottom:12px;">
+            <div style="display:flex;gap:4px;margin-bottom:4px; font-size:12px;">
+              <div style="width:90px;"><strong>Invoice No:</strong></div>
+              <div>${order.invoiceNo || 'N/A'}</div>
+            </div>
+            <div style="display:flex;gap:4px;margin-bottom:4px; font-size:12px;">
+              <div style="width:90px;"><strong>Date:</strong></div>
+              <div>${now}</div>
+            </div>
+            <div style="display:flex;gap:4px;margin-bottom:4px; font-size:12px;">
+              <div style="width:90px;"><strong>Customer:</strong></div>
+              <div>${order.customerName || 'Walk-in'}</div>
+            </div>
+            <div style="display:flex;gap:4px;margin-bottom:4px; font-size:12px;">
+              <div style="width:90px;"><strong>Phone:</strong></div>
+              <div>${order.customerPhone || 'N/A'}</div>
+            </div>
+            <div style="display:flex;gap:4px;margin-bottom:4px; font-size:12px;">
+              <div style="width:90px;"><strong>Order Type:</strong></div>
+              <div>${order.tableNo > 0 ? `Dine In - Table ${order.tableNo}` : "Takeaway"}</div>
+            </div>
+            ${order.tableNo <= 0 && order.deliveryType ? `
+            <div style="display:flex;gap:4px;margin-bottom:4px; font-size:12px;">
+              <div style="width:90px;"><strong>Delivery Type:</strong></div>
+              <div>${order.deliveryType}</div>
+            </div>` : ''}
+          </div>
 
-        <h5 class="text-end mb-1">Total: ${symbol}${(order.totalPrice || 0).toFixed(2)}</h5>
+          <hr />
 
-        ${paymentSection}
+          <table style="font-size:12px;">
+            <thead>
+              <tr>
+                <th style="text-align:left;">Items</th>
+                <th style="text-align:center;">Qty</th>
+                <th style="text-align:right;">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsRows}
+              ${serviceChargeRow}
+              ${deliveryChargeRow}
+            </tbody>
+          </table>
 
-        <hr />
-        <p className="text-center fs-5 mb-1"> Thank you for your order! </p>
-        <p className="text-center fs-6 mb-1">Software By: Raxwo (Pvt) Ltd.</p>
-        <p className="text-center fs-6 mb-1 ">Contact: 074 357 3333</p>
-        <hr />
+          <hr />
 
-        ${deliveryNoteSection}
-      </body>
-    </html>
-  `;
-};
+          <h5 class="text-end mb-1" style=" font-size:16px; ">Total: ${symbol}${(order.totalPrice || 0).toFixed(2)}</h5>
+
+          <hr />
+          <p class="text-center mb-1" style=" font-size:16px; "> <strong> Thank you for your order!</strong> </p>
+          <p class="text-center mb-1" style=" font-size:12px; ">Software By: Raxwo (Pvt) Ltd.</p>
+          <p class="text-center mb-1" style=" font-size:12px; ">Contact: 074 357 3333</p>
+          <hr />
+
+          ${deliveryNoteSection}
+        </body>
+      </html>
+    `;
+  };
 
   return (
     <div
@@ -253,11 +257,35 @@ const generatePrintableHTML = () => {
           boxShadow: "0 0 10px rgba(0,0,0,0.15)"
         }}
       >
+        {/* ✅ SMALL CIRCULAR LOGO - ON SCREEN PREVIEW */}
+        <div className="text-center mb-2">
+          <div
+            style={{
+              width: '80px',
+              height: '80px',
+              borderRadius: '50%',
+              overflow: 'hidden',
+              margin: '0 auto 4px',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+            }}
+          >
+            <img
+              src={LogoImage}
+              alt="Gasma Logo"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                display: 'block',
+              }}
+            />
+          </div>
+        </div>
         {/* <h4 className="text-center mb-3">🍽️ <strong>Gasma Chinese Restaurant </strong></h4> */}
-        <h3 className="mb-0" style={{ textAlign: "center" }} ><strong>Gasma</strong></h3>
-        <h3 className="mb-1" style={{ textAlign: "center" }}><strong>Chinese Restaurant</strong></h3>
-        <p className="mb-0" style={{ textAlign: "center" }}> No. 14/2/D, Pugoda Road, Katulanda, Dekatana.</p>
-        <p className="mb-3" style={{ textAlign: "center" }}> 0777122797</p>
+        {/* <h3 className="mb-0 fs-5" style={{ textAlign: "center" }} ><strong>Gasma</strong></h3> */}
+        <h3 className="mb-1 fs-5" style={{ textAlign: "center" }}><strong>Gasma Chinese Restaurant</strong></h3>
+        <p className="mb-0" style={{ textAlign: "center", fontSize: "13px" }}> No. 14/2/D, Pugoda Road, Katulanda, Dekatana.</p>
+        <p className="mb-3" style={{ textAlign: "center", fontSize: "13px" }}> 0777122797</p>
         <hr />
         {/* <p className="mb-1"><strong>Invoice No:</strong> {order.invoiceNo}</p>
         <p className="mb-1"><strong>Date:</strong> {new Date().toLocaleString()}</p>
@@ -268,7 +296,7 @@ const generatePrintableHTML = () => {
 
         <div style={{ fontSize: "16px", marginBottom: "12px", lineHeight: "1.6" }}>
           {/* Row */}
-          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "13px"  }}>
             <div style={{ width: "90px",  lineHeight: "0", paddingBottom: "4px" }}>
               <strong>Invoice No:</strong>
             </div>
@@ -276,7 +304,7 @@ const generatePrintableHTML = () => {
           </div>
 
           {/* Row */}
-          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "13px"  }}>
             <div style={{ width: "90px", lineHeight: "0", paddingBottom: "4px" }}>
               <strong>Date:</strong>
             </div>
@@ -284,7 +312,7 @@ const generatePrintableHTML = () => {
           </div>
 
           {/* Row */}
-          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "13px"  }}>
             <div style={{ width: "90px",  lineHeight: "0", paddingBottom: "4px" }}>
               <strong>Customer:</strong>
             </div>
@@ -292,7 +320,7 @@ const generatePrintableHTML = () => {
           </div>
 
           {/* Row */}
-          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "13px"  }}>
             <div style={{ width: "90px",  lineHeight: "0", paddingBottom: "4px" }}>
               <strong>Phone:</strong>
             </div>
@@ -300,7 +328,7 @@ const generatePrintableHTML = () => {
           </div>
 
           {/* Row */}
-          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "13px"  }}>
             <div style={{ width: "90px", lineHeight: "0", paddingBottom: "4px" }}>
               <strong>Order Type:</strong>
             </div>
@@ -309,7 +337,7 @@ const generatePrintableHTML = () => {
 
           {/* Conditional Row */}
           {tableNo <= 0 && (
-            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "13px"  }}>
               <div style={{ width: "90px",  lineHeight: "0", paddingBottom: "4px" }}>
                 <strong>Delivery Type:</strong>
               </div>
@@ -344,7 +372,7 @@ const generatePrintableHTML = () => {
         </ul> */}
 
         {/* ✅ Replaced list with table for cleaner, aligned display */}
-        <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "16px" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "16px", fontSize: "13px"  }}>
           <thead>
               <th style={{ padding: "4px 0", width: "50%", textAlign: "left" }}> Items</th>
               <th style={{ padding: "4px 0", width: "20%", textAlign: "center" }}> Qty</th>
@@ -392,9 +420,9 @@ const generatePrintableHTML = () => {
         </table>
 
         <hr />
-        <h5 className="text-end mb-1">Total: {symbol}{totalPrice?.toFixed(2)}</h5>
+        <h5 className="text-end fs-6 mb-1">Total: {symbol}{totalPrice?.toFixed(2)}</h5>
 
-        {order.payment && (
+        {/* {order.payment && (
           <div className="mb-1">
             <p className="mb-1"><strong>Paid via:</strong></p>
             {order.payment.cash > 0 && <p className="mb-1">Cash: {symbol}{order.payment.cash.toFixed(2)}</p>}
@@ -405,11 +433,11 @@ const generatePrintableHTML = () => {
             <p className="mb-1"><strong>Total Paid:</strong> {symbol}{order.payment.totalPaid.toFixed(2)}</p>
             <p className="mb-1"><strong>Change Due:</strong> {symbol}{order.payment.changeDue.toFixed(2)}</p>
           </div>
-        )}
+        )} */}
         <hr />
-        <p className="text-center fs-5 mb-1"> Thank you for your order! </p>
-        <p className="text-center fs-6 mb-1">Software By: Raxwo (Pvt) Ltd.</p>
-        <p className="text-center fs-6 mb-1 ">Contact: 074 357 3333</p>
+        <p className="text-center mb-1 fw-bold" style={{ fontSize: "16px" }}> Thank you for your order! </p>
+        <p className="text-center  mb-1" style={{ fontSize: "13px" }}>Software By: Raxwo (Pvt) Ltd.</p>
+        <p className="text-center  mb-1 " style={{ fontSize: "13px" }}>Contact: 074 357 3333</p>
         <hr />
         {order.deliveryCharge > 0 && (
           <p>
