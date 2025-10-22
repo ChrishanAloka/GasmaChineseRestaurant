@@ -63,6 +63,7 @@ const RoleLayout = () => {
             {createMenuItem("/admin", "Dashboard", FaTachometerAlt)}
             {createMenuItem("/cashier/today", "View Today", FaBookOpen)}
             {createMenuItem("/cashier-summery", "Cashier Summery", FaBookReader)}
+            {createMenuItem("/printer-settings", "Printer Settings", FaPrint)}
             {createMenuItem("/cashier", "Order Management", FaCashRegister)}
             
             {createMenuItem("/kitchen", "Live Orders", FaShoppingCart)}

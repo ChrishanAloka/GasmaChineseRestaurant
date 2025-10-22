@@ -104,12 +104,13 @@ const generatePrintableHTML = () => {
         <style>
           body {
             font-family: Calibri, Arial, sans-serif;
-            width: 380px;
+            width: 288px;
             margin: 0;
-            padding: 20px;
+            padding: 15px;
             background: #fff;
             color: #000;
             line-height: 1.4;
+            box-sizing: border-box;
           }
           hr {
             border: 0;
@@ -241,12 +242,13 @@ const generatePrintableHTML = () => {
       <div
         id="receipt-content"
         style={{
-          maxWidth: "380px",
+          maxWidth: "288px",
           margin: "auto",
           background: "#fff",
           border: "1px solid #ccc",
           borderRadius: "8px",
-          padding: "20px",
+          padding: "15px",
+          lineHeight: 1.4,
           fontFamily: "Calibri, sans-serif", // ✅ Set Calibri font globally
           boxShadow: "0 0 10px rgba(0,0,0,0.15)"
         }}
