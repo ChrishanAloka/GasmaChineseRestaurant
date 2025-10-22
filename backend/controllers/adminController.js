@@ -80,10 +80,11 @@ exports.getAdminSummary = async (req, res) => {
     }).length;
 
     const nextDayStatusUpdates = orders.filter(order => {
-      if (!order.statusUpdatedAt) return false;
 
       const created = new Date(order.createdAt);
-      const updated = new Date(order.statusUpdatedAt);
+      const updated = (!Date(order.statusUpdatedAt)) && order.status !== "Pending" ? new Date(order.statusUpdatedAt) : new Date(order.createdAt);
+        
+      console.log("order.statusupdates", order.invoiceNo,new Date(order.statusUpdatedAt));
       console.log("Created date and updated", created.getDate(), updated.getDate());
       // Compare YEAR, MONTH, and DAY (ignore time)
       return (
