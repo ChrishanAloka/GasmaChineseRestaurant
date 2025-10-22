@@ -106,7 +106,7 @@ const generatePrintableHTML = () => {
             font-family: Calibri, Arial, sans-serif;
             width: 288px;
             margin: 0;
-            padding: 15px;
+            padding: 7.5px;
             background: #fff;
             color: #000;
             line-height: 1.4;
@@ -191,9 +191,9 @@ const generatePrintableHTML = () => {
         ${paymentSection}
 
         <hr />
-        <p class="text-center mb-1">Thank you for your order!</p>
-        <p class="text-center mb-1">SOFTWARE BY: RAXWO (Pvt) Ltd.</p>
-        <p class="text-center mb-1">CONTACT: 074 357 3333</p>
+        <p className="text-center fs-5 mb-1"> Thank you for your order! </p>
+        <p className="text-center fs-6 mb-1">Software By: Raxwo (Pvt) Ltd.</p>
+        <p className="text-center fs-6 mb-1 ">Contact: 074 357 3333</p>
         <hr />
 
         ${deliveryNoteSection}
@@ -247,7 +247,7 @@ const generatePrintableHTML = () => {
           background: "#fff",
           border: "1px solid #ccc",
           borderRadius: "8px",
-          padding: "15px",
+          padding: "7.5px",
           lineHeight: 1.4,
           fontFamily: "Calibri, sans-serif", // ✅ Set Calibri font globally
           boxShadow: "0 0 10px rgba(0,0,0,0.15)"
@@ -407,9 +407,9 @@ const generatePrintableHTML = () => {
           </div>
         )}
         <hr />
-        <p className="text-center mb-1"> Thank you for your order! </p>
-        <p className="text-center mb-1">SOFTWARE BY: RAXWO (Pvt) Ltd.</p>
-        <p className="text-center mb-1">CONTACT: 074 357 3333</p>
+        <p className="text-center fs-5 mb-1"> Thank you for your order! </p>
+        <p className="text-center fs-6 mb-1">Software By: Raxwo (Pvt) Ltd.</p>
+        <p className="text-center fs-6 mb-1 ">Contact: 074 357 3333</p>
         <hr />
         {order.deliveryCharge > 0 && (
           <p>
