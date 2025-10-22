@@ -11,12 +11,13 @@ exports.registerSupplier = async (req, res) => {
     if (existingName) return res.status(400).json({ error: "Supplier already exists by Name" });
     if (existingCompany) return res.status(400).json({ error: "Supplier already exists by Company" });
     if (existingContact) return res.status(400).json({ error: "Supplier already exists by Contact" });
+    const cleanEmail = email?.trim() === '' ? undefined : email?.trim();
 
     const newSupplier = new Supplier({
       name,
       companyName,
       contact,
-      email,
+      email: cleanEmail,
       address,
       addedBy: req.user.id
     });

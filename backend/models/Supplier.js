@@ -15,7 +15,10 @@ const supplierSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: false
+    required: false,
+    unique: true,   // 👈 enforce uniqueness
+    sparse: true,   // 👈 ignore documents where email is missing
+    trim: true,
   },
   address: String,
   createdAt: {
