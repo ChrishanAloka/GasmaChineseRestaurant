@@ -8,10 +8,16 @@ exports.registerSupplier = async (req, res) => {
     const existingName = await Supplier.findOne({ name });
     const existingCompany = await Supplier.findOne({ companyName });
     const existingContact = await Supplier.findOne({ contact });
+    
     if (existingName) return res.status(400).json({ error: "Supplier already exists by Name" });
     if (existingCompany) return res.status(400).json({ error: "Supplier already exists by Company" });
     if (existingContact) return res.status(400).json({ error: "Supplier already exists by Contact" });
+    
     const cleanEmail = email?.trim() === '' ? undefined : email?.trim();
+    // console.log("Clean Email", cleanEmail);
+    const existingEmail = await Supplier.findOne({ email });
+    // console.log("existingEmail Email", existingEmail);
+    if (email?.trim() !== '' && existingEmail) return res.status(400).json({ error: "Supplier already exists by Email" });
 
     const newSupplier = new Supplier({
       name,

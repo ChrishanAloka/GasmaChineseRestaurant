@@ -63,7 +63,11 @@ const SupplierRegistration = () => {
       toast.success("Supplier registered successfully!");
     } catch (err) {
       console.error("Register failed:", err.response?.data || err.message);
-      alert("Failed to register supplier");
+      // alert("Failed to register supplier");
+
+      // ✅ Extract and display the backend error message
+      const errorMessage = err.response?.data?.error || "Failed to register supplier";
+      toast.error(errorMessage);
     }
   };
 
