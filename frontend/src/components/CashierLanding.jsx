@@ -567,7 +567,6 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
           order={receiptOrder}
           onClose={() => {
             setReceiptOrder(null);
-            navigate("/cashier-summery");
           }}
         />
       )}
