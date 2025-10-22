@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import CreatableSelect from 'react-select/creatable';
+import makeAnimated from 'react-select/animated';
 
 const MenuManagement = () => {
   const [menus, setMenus] = useState([]);
@@ -23,6 +25,8 @@ const MenuManagement = () => {
   const [restockMenu, setRestockMenu] = useState(null);
   const [restockAmount, setRestockAmount] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [categoryOptions, setCategoryOptions] = useState([]);
 
   const symbol = localStorage.getItem("currencySymbol") || "$";
 
@@ -37,7 +41,21 @@ const MenuManagement = () => {
       const res = await axios.get("https://gasmachineserestaurantrms.onrender.com/api/auth/menus", {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setMenus(res.data);
+      
+      const menuData = res.data;
+      setMenus(menuData);
+
+      // Format unique categories as react-select options
+      const uniqueCats = [...new Set(menuData.map(menu => menu.category).filter(Boolean))];
+      const options = uniqueCats.map(cat => ({ value: cat, label: cat }));
+      
+      // Ensure at least one default option
+      if (options.length === 0) {
+        setCategoryOptions([{ value: "Main Course", label: "Main Course" }]);
+      } else {
+        setCategoryOptions(options);
+      }
+      
     } catch (err) {
       console.error("Failed to load menus:", err.message);
     }
@@ -51,6 +69,7 @@ const MenuManagement = () => {
   // Handle create input change
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
     setNewMenu((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -301,17 +320,29 @@ const MenuManagement = () => {
 
           <div className="col-md-6">
             <label className="form-label">Category</label>
-            <select
-              name="category"
-              value={newMenu.category}
-              onChange={handleChange}
-              className="form-select"
-            >
-              <option value="Main Course">Main Course</option>
-              <option value="Appetizer">Appetizer</option>
-              <option value="Dessert">Dessert</option>
-              <option value="Drink">Drink</option>
-            </select>
+            <CreatableSelect
+              value={categoryOptions.find(option => option.value === newMenu.category) || null}
+              onChange={(selectedOption) => {
+                const value = selectedOption ? selectedOption.value : "Main Course";
+                setNewMenu(prev => ({ ...prev, category: value }));
+                
+                // Auto-add new category to options if it's not there
+                if (selectedOption && !categoryOptions.some(opt => opt.value === value)) {
+                  setCategoryOptions(prev => [...prev, { value, label: value }]);
+                }
+              }}
+              onCreateOption={(inputValue) => {
+                const newOption = { value: inputValue, label: inputValue };
+                setCategoryOptions(prev => [...prev, newOption]);
+                setNewMenu(prev => ({ ...prev, category: inputValue }));
+              }}
+              options={categoryOptions}
+              placeholder="Select or create category..."
+              className="basic-single"
+              classNamePrefix="select"
+              isClearable={false}
+              components={makeAnimated()}
+            />
           </div>
 
           <div className="col-md-4">

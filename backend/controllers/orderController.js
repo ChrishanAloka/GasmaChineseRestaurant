@@ -5,7 +5,7 @@ const Order = require("../models/Order");
 const Driver = require("../models/Driver");
 
 const Menu = require("../models/Menu");
-const DeliveryCharge = require("../models/DeliveryCharge");
+const DeliveryCharge = require("../models/DeliveryChargeByPlace");
 const ServiceCharge = require("../models/ServiceCharge");
 
 
@@ -17,9 +17,10 @@ exports.createOrder = async (req, res) => {
     tableNo,
     items,
     deliveryType,
-    deliveryCharge,
+    deliveryPlaceId,
     deliveryNote,
-    payment // { cash, card, bankTransfer, notes }
+    payment, // { cash, card, bankTransfer, notes }
+    invoiceNo
   } = req.body;
 
   if (!items || items.length === 0) {
@@ -77,16 +78,29 @@ exports.createOrder = async (req, res) => {
     }
 
     // Apply delivery charge
+    // let deliveryCharge = 0;
+    // if (tableNo === "Takeaway" && deliveryType === "Delivery Service") {
+    //   const deliverySettings = await DeliveryCharge.findOne({});
+    //   if (deliverySettings?.isActive) {
+    //     deliveryCharge = deliverySettings.amount;
+    //     finalTotalPrice = subtotal + deliveryCharge;
+    //   }
+    // }
+
     let deliveryCharge = 0;
-    if (tableNo === "Takeaway" && deliveryType === "Delivery Service") {
-      const deliverySettings = await DeliveryCharge.findOne({});
-      if (deliverySettings?.isActive) {
-        deliveryCharge = deliverySettings.amount;
-        finalTotalPrice = subtotal + deliveryCharge;
+    let deliveryPlaceName = null;
+
+    if (tableNo === "Takeaway" && deliveryType === "Delivery Service" && deliveryPlaceId) {
+      const place = await DeliveryCharge.findById(deliveryPlaceId); // ✅ from your new model
+      if (!place) {
+        return res.status(400).json({ error: "Invalid delivery place selected" });
       }
+      deliveryCharge = place.charge;
+      deliveryPlaceName = place.placeName; // ✅ store name for receipt
+      finalTotalPrice += deliveryCharge;
     }
 
-    const invoiceNo = `INV-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    // const invoiceNo = `INV-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
     const newOrder = new Order({
       invoiceNo,
@@ -97,7 +111,8 @@ exports.createOrder = async (req, res) => {
       subtotal,
       serviceCharge,
       deliveryType,
-      deliveryCharge,
+      deliveryCharge,        // ✅ computed value
+      deliveryPlaceName, 
       deliveryNote: deliveryNote || "",
        deliveryStatus: deliveryType === "Customer Pickup"
         ? "Customer Pending"

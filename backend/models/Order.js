@@ -44,6 +44,11 @@ const orderSchema = new mongoose.Schema({
     enum: ["Customer Pickup", "Delivery Service"],
     default: "Customer Pickup"
   },
+  // In your Order model (orderSchema)
+  deliveryPlaceName: {
+    type: String,
+    default: null
+  },
   deliveryCharge: { // ✅ New field
     type: Number,
     default: 0

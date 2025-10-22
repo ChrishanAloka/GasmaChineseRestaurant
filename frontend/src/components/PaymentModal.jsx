@@ -3,7 +3,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const PaymentModal = ({ totalAmount, onConfirm, onClose }) => {
-  const [cash, setCash] = useState(0);
+  const [cash, setCash] = useState(parseFloat(totalAmount));
   const [card, setCard] = useState(0);
   const [bankTransfer, setBankTransfer] = useState(0);
   const [notes, setNotes] = useState("");

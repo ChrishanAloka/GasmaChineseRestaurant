@@ -12,7 +12,10 @@ const CashierLanding = () => {
     phone: "",
     name: "",
     orderType: "table",
-    tableNo: ""
+    tableNo: "",
+    deliveryType: "", // e.g., "Customer Pickup" or "Delivery Service"
+    deliveryPlaceId: "", // ✅ NEW: store selected place ID
+    deliveryNote: ""
   });
   const [receiptOrder, setReceiptOrder] = useState(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -23,11 +26,14 @@ const CashierLanding = () => {
     dineInCharge: 0,
     isActive: false
   });
-  const [deliveryChargeSettings, setDeliveryChargeSettings] = useState({
-    amount: 0,
-    isActive: false
-  });
+  // const [deliveryChargeSettings, setDeliveryChargeSettings] = useState({
+  //   amount: 0,
+  //   isActive: false
+  // });
+  const [deliveryPlaces, setDeliveryPlaces] = useState([]); // ✅ new state
   const navigate = useNavigate();
+  const [categories, setCategories] = useState([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
   
 
 
@@ -35,7 +41,8 @@ const CashierLanding = () => {
   useEffect(() => {
     fetchMenus();
     fetchServiceCharge();
-    fetchDeliveryCharge();
+    // fetchDeliveryCharge();
+    fetchDeliveryPlaces();
   }, []);
 
   // Auto-fill customer name when phone changes
@@ -68,8 +75,12 @@ const CashierLanding = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       setMenus(res.data);
+      const uniqueCategories = [...new Set(res.data.map(menu => menu.category).filter(Boolean))];
+      setCategories(uniqueCategories);
+      setLoadingCategories(false); // Done loading categories
     } catch (err) {
       console.error("Failed to load menus:", err.message);
+      setLoadingCategories(false); // Ensure loading stops even on error
     }
   };
 
@@ -96,15 +107,28 @@ const CashierLanding = () => {
   }
   };
 
-  const fetchDeliveryCharge = async () => {
+  // const fetchDeliveryCharge = async () => {
+  //   try {
+  //     const token = localStorage.getItem("token");
+  //     const res = await axios.get("https://gasmachineserestaurantrms.onrender.com/api/auth/admin/delivery-charge", {
+  //       headers: { Authorization: `Bearer ${token}` }
+  //     });
+  //     setDeliveryChargeSettings(res.data);
+  //   } catch (err) {
+  //     console.error("Failed to load delivery charge:", err.message);
+  //   }
+  // };
+
+  const fetchDeliveryPlaces = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("https://gasmachineserestaurantrms.onrender.com/api/auth/admin/delivery-charge", {
+      const res = await axios.get("https://gasmachineserestaurantrms.onrender.com/api/auth/delivery-charges", { // ✅ updated endpoint
         headers: { Authorization: `Bearer ${token}` }
       });
-      setDeliveryChargeSettings(res.data);
+      setDeliveryPlaces(res.data); // ✅ store array of places
     } catch (err) {
-      console.error("Failed to load delivery charge:", err.message);
+      console.error("Failed to load delivery places:", err.message);
+      toast.error("Failed to load delivery zones");
     }
   };
 
@@ -167,6 +191,15 @@ const CashierLanding = () => {
       return;
     }
 
+    if (
+      customer.orderType === "takeaway" &&
+      customer.deliveryType === "Delivery Service" &&
+      !customer.deliveryPlaceId
+    ) {
+      toast.warn("Please select a delivery place");
+      return;
+    }
+
     const subtotal = cart.reduce(
       (sum, item) => sum + item.price * item.quantity,
       0
@@ -183,8 +216,8 @@ const CashierLanding = () => {
     }
 
     // Apply delivery charge
-    if (customer.orderType === "takeaway" && deliveryChargeSettings.isActive && customer.deliveryType === "Delivery Service") {
-      deliveryCharge = deliveryChargeSettings.amount;
+    if (customer.orderType === "takeaway" && customer.deliveryType === "Delivery Service") {
+      deliveryCharge = selectedDeliveryPlace.charge;
       finalTotal += deliveryCharge;
     }
     
@@ -214,10 +247,19 @@ const CashierLanding = () => {
   const submitConfirmedOrder = async (paymentData) => {
     try {
       const token = localStorage.getItem("token");
-      const invoiceNo = `INV-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+      // const invoiceNo = `INV-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
+      // Get last invoice number from localStorage, default to 99 so next is 100
+      let lastInvoiceNo = parseInt(localStorage.getItem("lastInvoiceNo")) || 99;
+      lastInvoiceNo += 1;
+      localStorage.setItem("lastInvoiceNo", lastInvoiceNo.toString());
+      const invoiceNo = `INV-${lastInvoiceNo}`;
 
       const payload = {
         ...customer,
+        deliveryPlaceId: selectedDeliveryPlace?._id,
+        deliveryPlaceName: selectedDeliveryPlace?.placeName || null,
+        deliveryCharge: deliveryCharge,
         ...orderData,
         payment: {
           cash: paymentData.cash,
@@ -271,8 +313,17 @@ const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
 const serviceCharge = customer.orderType === "table" && serviceChargeSettings.isActive
   ? subtotal * (serviceChargeSettings.dineInCharge / 100)
   : 0;
-const deliveryCharge = customer.orderType === "takeaway" && deliveryChargeSettings.isActive && customer.deliveryType === "Delivery Service"
-    ? deliveryChargeSettings.amount
+// const deliveryCharge = customer.orderType === "takeaway" && deliveryChargeSettings.isActive && customer.deliveryType === "Delivery Service"
+//     ? deliveryChargeSettings.amount
+//     : 0;
+  const selectedDeliveryPlace = deliveryPlaces.find(
+    (place) => place._id === customer.deliveryPlaceId
+  );
+
+  const deliveryCharge = customer.orderType === "takeaway" &&
+                        customer.deliveryType === "Delivery Service" &&
+                        selectedDeliveryPlace
+    ? selectedDeliveryPlace.charge
     : 0;
 
 const finalTotal = subtotal + serviceCharge + deliveryCharge;
@@ -400,6 +451,32 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
               </div>
             )}
 
+            {/* Delivery Place Selector (only for Delivery Service) */}
+            {customer.orderType === "takeaway" && customer.deliveryType === "Delivery Service" && (
+              <div className="col-md-3">
+                <label>Delivery Place *</label>
+                <select
+                  name="deliveryPlaceId"
+                  value={customer.deliveryPlaceId}
+                  onChange={(e) =>
+                    setCustomer({
+                      ...customer,
+                      deliveryPlaceId: e.target.value
+                    })
+                  }
+                  className="form-select"
+                  required
+                >
+                  <option value="">Select a delivery zone</option>
+                  {deliveryPlaces.map((place) => (
+                    <option key={place._id} value={place._id}>
+                      {place.placeName} ({symbol}{place.charge.toFixed(2)})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
         </div>
       </div>
 
@@ -426,9 +503,15 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
                   onChange={(e) => setSelectedCategory(e.target.value)}
                 >
                   <option value="">All Categories</option>
-                  <option value="Main Course">Main Course</option>
-                  <option value="Drinks">Drinks</option>
-                  <option value="Dessert">Dessert</option>
+                  {loadingCategories ? (
+                    <option disabled>Loading categories...</option>
+                  ) : (
+                    categories.map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))
+                  )}
                 </select>
               </div>
             </div>

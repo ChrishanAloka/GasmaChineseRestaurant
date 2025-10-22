@@ -45,6 +45,12 @@ const serviceChargeController = require("../controllers/serviceChargeController"
 
 const deliveryChargeController = require("../controllers/deliveryChargeController");
 
+const {
+  getDeliveryCharges,
+  upsertDeliveryCharge,
+  deleteDeliveryCharge
+} = require("../controllers/deliveryChargeByPlaceController");
+
 const driverController = require("../controllers/driverController");
 
 const {submitShiftSummary,  getShiftSummaries,  getShiftSummaryByDate} = require("../controllers/cashierShiftSummaryController");
@@ -100,6 +106,10 @@ router.put("/admin/service-charge", authMiddleware(["admin"]), serviceChargeCont
 //Delivery Charge
 router.get("/admin/delivery-charge", authMiddleware(["admin", "cashier"]), deliveryChargeController.getDeliveryCharge);
 router.put("/admin/delivery-charge", authMiddleware(["admin"]), deliveryChargeController.updateDeliveryCharge);
+
+router.get("/delivery-charges", authMiddleware(["admin", "cashier"]), getDeliveryCharges);
+router.post("/delivery-charges", authMiddleware(["admin"]), upsertDeliveryCharge);
+router.delete("/delivery-charges/:id", authMiddleware(["admin"]), deleteDeliveryCharge);
 
 //Takeaway Orders
 router.get("/cashier/takeaway-orders", authMiddleware(["admin", "cashier"]), orderController.getCashierTakeawayOrders);

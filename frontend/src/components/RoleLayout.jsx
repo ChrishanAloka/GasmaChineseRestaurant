@@ -84,7 +84,7 @@ const RoleLayout = () => {
             {createMenuItem("/admin/bills", "Restaurant Bills", FaFileInvoice)}            
             {createMenuItem("/admin/salaries", "Salary Payments", FaMoneyCheckAlt)}
             {createMenuItem("/admin/service-charge", "Service Charge", FaPercentage)}
-            {createMenuItem("/admin/delivery-charge", "Delivery Charge", FaTruckLoading)}
+            {createMenuItem("/admin/delivery-charges", "Delivery Charge", FaTruckLoading)}
             {createMenuItem("/admin/signup-key", "Signup Key", FaKey)}
             {createMenuItem("/admin/currency", "Currency", FaDollarSign)}
           </>

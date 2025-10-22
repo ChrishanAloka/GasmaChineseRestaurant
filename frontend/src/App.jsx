@@ -13,6 +13,7 @@ import AdminSignup from "./components/AdminSignup";
 import Signup from './components/Signup';
 
 import Printersettings from "./components/PrinterSettings";
+import DeliveryCharges from "./components/DeliveryCharges";
 
 import KitchenLanding from "./components/KitchenLanding";
 import KitchenBills from "./components/KitchenBills";
@@ -113,6 +114,8 @@ function App() {
         <Route path="/admin/kitchen-requests" element={<AdminKitchenRequests />} />
         <Route path="/admin/service-charge" element={<AdminServiceCharge />} />
         <Route path="/admin/delivery-charge" element={<AdminDeliveryCharge />} />
+        
+        <Route path="/admin/delivery-charges" element={<DeliveryCharges />} />
 
       </Route>
       

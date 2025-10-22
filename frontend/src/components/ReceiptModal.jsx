@@ -105,7 +105,7 @@ const ReceiptModal = ({ order, onClose }) => {
           <style>
             body {
               font-family: Calibri, Arial, sans-serif;
-              width: 288px;
+              width: 275px;
               margin: 0;
               padding: 7.5px;
               background: #fff;
@@ -116,7 +116,7 @@ const ReceiptModal = ({ order, onClose }) => {
             hr {
               border: 0;
               border-top: 1px dashed #000;
-              margin: 10px 0;
+              margin: 4px 0;
             }
             table {
               width: 100%;
@@ -140,9 +140,9 @@ const ReceiptModal = ({ order, onClose }) => {
             <img src=${LogoImage} alt="Gasma Logo" style="width:100%;height:100%;object-fit:cover;display:block;">
           </div>
         </div>
-          <h3 class="text-center" style=" font-size:15px; "><strong>Gasma Chinese Restaurant</strong></h3>
+          <h3 class="text-center" style=" font-size:20px; "><strong>Gasma Chinese Restaurant</strong></h3>
           <p class="text-center mb-1" style=" font-size:12px; ">No. 14/2/D, Pugoda Road, Katulanda, Dekatana.</p>
-          <p class="text-center mb-3" style=" font-size:12px; ">0777122797</p>
+          <p class="text-center mb-3" style=" font-size:15px; "><strong>0777122797</strong></p>
           <hr />
 
           <div style="font-size:16px;margin-bottom:12px;">
@@ -164,12 +164,12 @@ const ReceiptModal = ({ order, onClose }) => {
             </div>
             <div style="display:flex;gap:4px;margin-bottom:4px; font-size:12px;">
               <div style="width:90px;"><strong>Order Type:</strong></div>
-              <div>${order.tableNo > 0 ? `Dine In - Table ${order.tableNo}` : "Takeaway"}</div>
+              <div>${order.tableNo > 0 ? `Dine In - Table ${order.tableNo}` : `Takeaway ( ${order.deliveryType} )`}</div>
             </div>
-            ${order.tableNo <= 0 && order.deliveryType ? `
+            ${order.tableNo === "Takeaway" && order.deliveryType === "Delivery Service" ? `
             <div style="display:flex;gap:4px;margin-bottom:4px; font-size:12px;">
-              <div style="width:90px;"><strong>Delivery Type:</strong></div>
-              <div>${order.deliveryType}</div>
+              <div style="width:90px;"><strong>Delivery Place:</strong></div>
+              <div>${order.deliveryPlaceName}</div>
             </div>` : ''}
           </div>
 
@@ -246,7 +246,7 @@ const ReceiptModal = ({ order, onClose }) => {
       <div
         id="receipt-content"
         style={{
-          maxWidth: "288px",
+          maxWidth: "283px",
           margin: "auto",
           background: "#fff",
           border: "1px solid #ccc",
@@ -283,10 +283,10 @@ const ReceiptModal = ({ order, onClose }) => {
         </div>
         {/* <h4 className="text-center mb-3">🍽️ <strong>Gasma Chinese Restaurant </strong></h4> */}
         {/* <h3 className="mb-0 fs-5" style={{ textAlign: "center" }} ><strong>Gasma</strong></h3> */}
-        <h3 className="mb-1 fs-5" style={{ textAlign: "center" }}><strong>Gasma Chinese Restaurant</strong></h3>
+        <h3 className="mb-1 fs-4" style={{ textAlign: "center" }}><strong>Gasma Chinese Restaurant</strong></h3>
         <p className="mb-0" style={{ textAlign: "center", fontSize: "13px" }}> No. 14/2/D, Pugoda Road, Katulanda, Dekatana.</p>
-        <p className="mb-3" style={{ textAlign: "center", fontSize: "13px" }}> 0777122797</p>
-        <hr />
+        <p className="mb-3" style={{ textAlign: "center", fontSize: "14px" }}><strong>0777122797</strong></p>
+        <hr style={{ margin: "10px 4px" }}/>
         {/* <p className="mb-1"><strong>Invoice No:</strong> {order.invoiceNo}</p>
         <p className="mb-1"><strong>Date:</strong> {new Date().toLocaleString()}</p>
         <p className="mb-1"><strong>Customer:</strong> {customerName}</p>
@@ -294,7 +294,7 @@ const ReceiptModal = ({ order, onClose }) => {
         <p className="mb-1"><strong>Order Type:</strong> {tableNo > 0 ? `Dine In - Table ${tableNo}` : "Takeaway" }</p>
         { (tableNo > 0) ? <></> : (<p><strong>Delivery Type:</strong>  {order.deliveryType}</p>)} */}
 
-        <div style={{ fontSize: "16px", marginBottom: "12px", lineHeight: "1.6" }}>
+        <div style={{ fontSize: "16px", marginBottom: "0px", lineHeight: "1.6" }}>
           {/* Row */}
           <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "13px"  }}>
             <div style={{ width: "90px",  lineHeight: "0", paddingBottom: "4px" }}>
@@ -332,21 +332,21 @@ const ReceiptModal = ({ order, onClose }) => {
             <div style={{ width: "90px", lineHeight: "0", paddingBottom: "4px" }}>
               <strong>Order Type:</strong>
             </div>
-            <div>{tableNo > 0 ? `Dine In - Table ${tableNo}` : "Takeaway"}</div>
+            <div>{tableNo > 0 ? `Dine In - Table ${tableNo}` : `Takeaway ( ${order.deliveryType} )`}</div>
           </div>
 
           {/* Conditional Row */}
-          {tableNo <= 0 && (
+          {tableNo === "Takeaway" && order.deliveryType === "Delivery Service" && (
             <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "13px"  }}>
               <div style={{ width: "90px",  lineHeight: "0", paddingBottom: "4px" }}>
-                <strong>Delivery Type:</strong>
+                <strong>Delivery Place:</strong>
               </div>
-              <div>{order.deliveryType}</div>
+              <div>{order.deliveryPlaceName}</div>
             </div>
           )}
         </div>
 
-        <hr />
+        <hr style={{ margin: "10px 4px" }}/>
 
         {/* <ul className="mb-3" style={{ listStyle: "none", padding: 0 }}>
           {items.map((item, idx) => (
@@ -372,7 +372,7 @@ const ReceiptModal = ({ order, onClose }) => {
         </ul> */}
 
         {/* ✅ Replaced list with table for cleaner, aligned display */}
-        <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "16px", fontSize: "13px"  }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", paddingTop: "0px", paddingBottom:"0px", fontSize: "13px"  }}>
           <thead>
               <th style={{ padding: "4px 0", width: "50%", textAlign: "left" }}> Items</th>
               <th style={{ padding: "4px 0", width: "20%", textAlign: "center" }}> Qty</th>
@@ -419,7 +419,7 @@ const ReceiptModal = ({ order, onClose }) => {
           </tbody>
         </table>
 
-        <hr />
+        <hr style={{ margin: "10px 4px" }}/>
         <h5 className="text-end fs-6 mb-1">Total: {symbol}{totalPrice?.toFixed(2)}</h5>
 
         {/* {order.payment && (
@@ -434,17 +434,17 @@ const ReceiptModal = ({ order, onClose }) => {
             <p className="mb-1"><strong>Change Due:</strong> {symbol}{order.payment.changeDue.toFixed(2)}</p>
           </div>
         )} */}
-        <hr />
+        <hr style={{ margin: "10px 4px" }}/>
         <p className="text-center mb-1 fw-bold" style={{ fontSize: "16px" }}> Thank you for your order! </p>
         <p className="text-center  mb-1" style={{ fontSize: "13px" }}>Software By: Raxwo (Pvt) Ltd.</p>
         <p className="text-center  mb-1 " style={{ fontSize: "13px" }}>Contact: 074 357 3333</p>
-        <hr />
-        {order.deliveryCharge > 0 && (
+        <hr style={{ margin: "10px 4px" }}/>
+        {order.deliveryCharge > 0 && order.deliveryNote?.trim() && (
           <p>
             <p>
               <strong>Delivery Note :</strong>
             </p>
-            <span >{symbol}{order.deliveryNote}</span>
+            <span >{order.deliveryNote}</span>
           </p>
         )}
       </div>
