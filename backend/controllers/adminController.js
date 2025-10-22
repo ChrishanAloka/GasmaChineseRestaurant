@@ -58,9 +58,9 @@ exports.getAdminSummary = async (req, res) => {
     const netProfit = totalIncome - totalCost;
 
     // ✅ Count orders
-    const totalOrders = orders.filter((item) => item.deliveryType === "Delivery Service").length;
+    const totaldeliveryOrders = orders.filter((item) => item.deliveryType === "Delivery Service").length;
 
-    const totaldeliveryOrders = orders.length;
+    const totalOrders= orders.length;
 
     // ✅ Count by status
     const statusCounts = orders.reduce((acc, order) => {
@@ -74,7 +74,9 @@ exports.getAdminSummary = async (req, res) => {
 
       const diffMs = new Date(order.statusUpdatedAt) - new Date(order.createdAt);
       const diffMinutes = diffMs / (1000 * 60);
+      console.log("Diff Minute", diffMinutes);
       return diffMinutes > 30;
+      
     }).length;
 
     const nextDayStatusUpdates = orders.filter(order => {
@@ -82,7 +84,7 @@ exports.getAdminSummary = async (req, res) => {
 
       const created = new Date(order.createdAt);
       const updated = new Date(order.statusUpdatedAt);
-
+      console.log("Created date and updated", created.getDate(), updated.getDate());
       // Compare YEAR, MONTH, and DAY (ignore time)
       return (
         created.getFullYear() !== updated.getFullYear() ||
@@ -90,7 +92,7 @@ exports.getAdminSummary = async (req, res) => {
         created.getDate() !== updated.getDate()
       );
     }).length;
-
+    
     // ✅ Payment breakdown
     const paymentBreakdown = orders.reduce(
       (acc, order) => {
