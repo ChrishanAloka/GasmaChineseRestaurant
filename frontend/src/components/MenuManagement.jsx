@@ -148,8 +148,8 @@ const MenuManagement = () => {
     setNewMenu({
       name: "",
       description: "",
-      price: "",
-      cost: "",
+      price: "0",
+      cost: "0",
       category: "Main Course",
       minimumQty: 5,
       menuImage: ""
@@ -351,6 +351,9 @@ const MenuManagement = () => {
               type="number"
               name="price"
               step="0.01"
+              min="0"
+              onFocus={(e) => e.target.select()}
+              onWheel={(e) => e.target.blur()}
               value={newMenu.price}
               onChange={handleChange}
               className="form-control"
@@ -365,10 +368,14 @@ const MenuManagement = () => {
               type="number"
               name="cost"
               step="0.01"
+              min="0"
+              onFocus={(e) => e.target.select()}
+              onWheel={(e) => e.target.blur()}
               value={newMenu.cost}
               onChange={handleChange}
               className="form-control"
               placeholder="Enter cost"
+              required
             />
           </div>
 
@@ -378,6 +385,8 @@ const MenuManagement = () => {
               type="number"
               name="minimumQty"
               min="1"
+              onFocus={(e) => e.target.select()}
+              onWheel={(e) => e.target.blur()}
               value={newMenu.minimumQty}
               onChange={handleChange}
               className="form-control"
@@ -466,6 +475,9 @@ const MenuManagement = () => {
                         type="number"
                         name="price"
                         step="0.01"
+                        min="0"
+                        onFocus={(e) => e.target.select()}
+                        onWheel={(e) => e.target.blur()}
                         value={editData.price}
                         onChange={handleEditChange}
                         className="form-control"
@@ -479,9 +491,13 @@ const MenuManagement = () => {
                         type="number"
                         name="cost"
                         step="0.01"
+                        min="0"
+                        onFocus={(e) => e.target.select()}
+                        onWheel={(e) => e.target.blur()}
                         value={editData.cost}
                         onChange={handleEditChange}
                         className="form-control"
+                        required
                       />
                     </div>
 
@@ -491,6 +507,8 @@ const MenuManagement = () => {
                         type="number"
                         name="minimumQty"
                         min="1"
+                        onFocus={(e) => e.target.select()}
+                        onWheel={(e) => e.target.blur()}
                         value={editData.minimumQty}
                         onChange={handleEditChange}
                         className="form-control"
@@ -503,6 +521,8 @@ const MenuManagement = () => {
                       <input
                         type="number"
                         name="currentQty"
+                        onFocus={(e) => e.target.select()}
+                        onWheel={(e) => e.target.blur()}
                         value={editData.currentQty = editData.minimumQty}
                         readOnly
                         className="form-control"
@@ -572,6 +592,8 @@ const MenuManagement = () => {
                 <input
                   type="number"
                   value={restockAmount}
+                  onFocus={(e) => e.target.select()}
+                  onWheel={(e) => e.target.blur()}
                   onChange={(e) => setRestockAmount(parseInt(e.target.value))}
                   className="form-control"
                   min="1"
