@@ -10,8 +10,8 @@ const MenuManagement = () => {
   const [newMenu, setNewMenu] = useState({
     name: "",
     description: "",
-    price: "",
-    cost: "",
+    price: "0",
+    cost: "0",
     category: "Main Course",
     minimumQty: 5
   });
