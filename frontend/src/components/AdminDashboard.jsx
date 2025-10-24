@@ -212,7 +212,8 @@ const AdminDashboard = () => {
     </div>
 
     {/* Summary Cards */}
-    <div className="row g-3 mb-5 row-cols-5">
+    {/* <div className="row g-3 mb-5 row-cols-5"> */}
+    <div className="row g-3 mb-5">
       {[
         { label: "", value: ``, color: "", icon: "" },
         { label: 
@@ -275,7 +276,7 @@ const AdminDashboard = () => {
           icon: summary.netProfit >= 0 ? "📈" : "⚠️",
         }
       ].map((card, idx) => (
-        <div key={idx}>
+        <div className="col-md-3" key={idx}>
           <div className={`card bg-${card.color} text-white shadow-sm h-100`}>
             <div className="card-body text-center">
               <div className="fs-3">{card.icon}</div>
