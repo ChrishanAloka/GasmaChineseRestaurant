@@ -254,6 +254,41 @@ exports.getCustomerByPhone = async (req, res) => {
   }
 };
 
+// GET /api/auth/customers-search?q=...
+exports.searchCustomers = async (req, res) => {
+  const { q = '' } = req.query;
+
+  try {
+    // Get all orders, group by phone, and pick the latest name per phone
+    const pipeline = [
+      { $match: { customerPhone: { $exists: true, $ne: null } } },
+      { $sort: { date: -1 } },
+      {
+        $group: {
+          _id: '$customerPhone',
+          name: { $first: '$customerName' },
+          phone: { $first: '$customerPhone' }
+        }
+      },
+      {
+        $match: {
+          $or: [
+            { phone: { $regex: q, $options: 'i' } },
+            { name: { $regex: q, $options: 'i' } }
+          ]
+        }
+      },
+      { $limit: 20 }
+    ];
+
+    const customers = await Order.aggregate(pipeline);
+    res.json(customers);
+  } catch (err) {
+    console.error('Search customers error:', err);
+    res.status(500).json({ error: 'Failed to search customers' });
+  }
+};
+
 exports.getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);

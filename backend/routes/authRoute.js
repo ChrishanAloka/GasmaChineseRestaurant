@@ -16,7 +16,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 // const upload = require("../middleware/uploadMiddleware");
 // ✅ Add this line:
 const orderController = require("../controllers/orderController");
-const {getCustomerByPhone, updateOrderStatus} = require("../controllers/orderController");
+const {getCustomerByPhone, updateOrderStatus, searchCustomers} = require("../controllers/orderController");
 const { getMonthlyReport } = require("../controllers/reportController");
 
 const { getBills, addBill, updateBill, deleteBill } = require("../controllers/kitchenBillController");
@@ -96,6 +96,7 @@ router.put("/order/:id/status", authMiddleware(["kitchen", "admin", "cashier"]),
 router.get("/orders/export/excel", authMiddleware(["admin", "cashier", "kitchen"]), orderController.exportOrdersToExcel);
 
 router.get("/customer", authMiddleware(["admin", "cashier"]), getCustomerByPhone);
+router.get('/customers-search', authMiddleware(["admin", "cashier"]), searchCustomers);
 
 router.put("/order/:id/status", authMiddleware(["admin", "kitchen", "cashier"]), updateOrderStatus);
 
