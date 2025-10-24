@@ -10,7 +10,7 @@ const storage = multer.memoryStorage(); // For buffer upload
 const upload = multer({ storage });
 
 const menuController = require("../controllers/menuController");
-const { getMenus, deleteMenu } = require("../controllers/menuController");
+const { getMenus, deleteMenu, restockAllMenus } = require("../controllers/menuController");
 
 const authMiddleware = require("../middleware/authMiddleware");
 // const upload = require("../middleware/uploadMiddleware");
@@ -87,6 +87,7 @@ router.get("/menus", authMiddleware(["admin", "kitchen", "cashier"]), getMenus);
 router.post("/menu", authMiddleware(["admin", "kitchen", "cashier"]), upload.single("image"), menuController.createMenu);
 router.put("/menu/:id", authMiddleware(["admin", "kitchen", "cashier"]), upload.single("image"), menuController.updateMenu);
 router.delete("/menu/:id", authMiddleware(["admin", "kitchen", "cashier"]), deleteMenu);
+router.post('/menu/restock-all', authMiddleware(["admin", "kitchen", "cashier"]), restockAllMenus);
 
 // ✅ New Order Routes
 router.post("/order", authMiddleware(["admin","cashier"]), orderController.createOrder); // Now defined
