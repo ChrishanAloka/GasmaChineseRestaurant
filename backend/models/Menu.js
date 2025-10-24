@@ -18,7 +18,6 @@ const menuSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    enum: ["Appetizer", "Main Course", "Dessert", "Drink"],
     default: "Main Course"
   },
   imageUrl: {

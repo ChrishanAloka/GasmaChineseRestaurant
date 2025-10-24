@@ -306,19 +306,6 @@ const MenuManagement = () => {
       <form onSubmit={handleCreate} className="mb-4 p-3 border rounded bg-light">
         <div className="row g-3">
           <div className="col-md-6">
-            <label className="form-label">Menu Name *</label>
-            <input
-              type="text"
-              name="name"
-              value={newMenu.name}
-              onChange={handleChange}
-              className="form-control"
-              placeholder="e.g., Spaghetti Bolognese"
-              required
-            />
-          </div>
-
-          <div className="col-md-6">
             <label className="form-label">Category</label>
             <CreatableSelect
               value={categoryOptions.find(option => option.value === newMenu.category) || null}
@@ -342,6 +329,19 @@ const MenuManagement = () => {
               classNamePrefix="select"
               isClearable={false}
               components={makeAnimated()}
+            />
+          </div>
+          
+          <div className="col-md-6">
+            <label className="form-label">Menu Name *</label>
+            <input
+              type="text"
+              name="name"
+              value={newMenu.name}
+              onChange={handleChange}
+              className="form-control"
+              placeholder="e.g., Spaghetti Bolognese"
+              required
             />
           </div>
 
