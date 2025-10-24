@@ -218,6 +218,43 @@ exports.updateMenu = async (req, res) => {
   }
 };
 
+// POST /api/auth/menu/restock-all
+exports.restockAllMenus = async (req, res) => {
+  const { amount } = req.body;
+
+  if (!amount || isNaN(amount) || amount <= 0) {
+    return res.status(400).json({ error: "Valid restock amount is required" });
+  }
+
+  const addQty = parseInt(amount, 10);
+
+  try {
+    // Update all menus: increase both currentQty and minimumQty by `amount`
+    const result = await Menu.updateMany(
+      {},
+      [
+        {
+          $set: {
+            currentQty: { $add: ["$currentQty", addQty] },
+            minimumQty: { $add: ["$minimumQty", addQty] }
+          }
+        }
+      ]
+    );
+
+    if (result.modifiedCount === 0) {
+      return res.status(404).json({ error: "No menus found to restock" });
+    }
+
+    // Return updated menus
+    const updatedMenus = await Menu.find();
+    res.json(updatedMenus);
+  } catch (err) {
+    console.error("Bulk restock failed:", err);
+    res.status(500).json({ error: "Failed to restock all items" });
+  }
+};
+
 // DELETE /menu/:id - Delete menu
 exports.deleteMenu = async (req, res) => {
   const { id } = req.params;
