@@ -289,6 +289,31 @@ exports.searchCustomers = async (req, res) => {
   }
 };
 
+// GET /api/auth/customers-list
+exports.getAllCustomers = async (req, res) => {
+  try {
+    const pipeline = [
+      { $match: { customerPhone: { $exists: true, $ne: null } } },
+      { $sort: { date: -1 } },
+      {
+        $group: {
+          _id: '$customerPhone',
+          name: { $first: '$customerName' },
+          phone: { $first: '$customerPhone' },
+          lastOrderDate: { $first: '$date' }
+        }
+      },
+      { $sort: { lastOrderDate: -1 } }
+    ];
+
+    const customers = await Order.aggregate(pipeline);
+    res.json(customers);
+  } catch (err) {
+    console.error('Failed to fetch customers:', err);
+    res.status(500).json({ error: 'Failed to load customers' });
+  }
+};
+
 exports.getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);

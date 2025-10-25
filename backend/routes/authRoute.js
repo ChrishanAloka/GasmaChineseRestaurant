@@ -95,6 +95,7 @@ router.get("/order/:id", authMiddleware(["admin", "cashier"]), orderController.g
 router.get("/orders", authMiddleware(["admin","cashier", "kitchen"]), orderController.getOrderHistory);
 router.put("/order/:id/status", authMiddleware(["kitchen", "admin", "cashier"]), orderController.updateOrderStatus);
 router.get("/orders/export/excel", authMiddleware(["admin", "cashier", "kitchen"]), orderController.exportOrdersToExcel);
+router.get('/customers-list', authMiddleware(["admin", "cashier", "kitchen"]), orderController.getAllCustomers);
 
 router.get("/customer", authMiddleware(["admin", "cashier"]), getCustomerByPhone);
 router.get('/customers-search', authMiddleware(["admin", "cashier"]), searchCustomers);
