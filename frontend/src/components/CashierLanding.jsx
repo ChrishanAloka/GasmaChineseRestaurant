@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import PaymentModal from "./PaymentModal";
 import ReceiptModal from "./ReceiptModal";
-
+import 'react-toastify/dist/ReactToastify.css'; 
 import AsyncSelect from 'react-select/async';
 import makeAnimated from 'react-select/animated';
 
@@ -37,7 +37,13 @@ const CashierLanding = () => {
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
+  const [sizeFilter, setSizeFilter] = useState(""); // "", "M", or "L"
+  const [menuPopularity, setMenuPopularity] = useState({}); // e.g., { "Pepperoni Pizza": 42, ... }
   
+  const [numberPadTarget, setNumberPadTarget] = useState(null); // 'phone' or 'tableNo'
+  const [showNumberPad, setShowNumberPad] = useState(false);
+  const [customerSearchResults, setCustomerSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
 
 
   // Load menus and service charge
@@ -46,6 +52,7 @@ const CashierLanding = () => {
     fetchServiceCharge();
     // fetchDeliveryCharge();
     fetchDeliveryPlaces();
+    fetchOrdersAndComputePopularity();
   }, []);
 
   // Auto-fill customer name when phone changes
@@ -70,6 +77,82 @@ const CashierLanding = () => {
 
     return () => clearTimeout(timer);
   }, [customer.phone]);
+
+  useEffect(() => {
+    if (customer.phone.length >= 10) {
+      // Trigger auto-fill as before
+      const timer = setTimeout(async () => {
+        try {
+          const token = localStorage.getItem("token");
+          const res = await axios.get("https://gasmachineserestaurantrms.onrender.com/api/auth/customer", {
+            params: { phone: customer.phone },
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (res.data?.name && !customer.name) {
+            setCustomer((prev) => ({ ...prev, name: res.data.name }));
+          }
+        } catch (err) {
+          console.error("Auto-fill failed:", err.message);
+        }
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [customer.phone]);
+
+  const handlePhoneChange = async (value) => {
+    const digits = value.replace(/\D/g, '');
+    setCustomer(prev => ({ ...prev, phone: digits, name: '' }));
+    setCustomerSearchResults([]);
+
+    if (digits.length >= 2) {
+      setIsSearching(true);
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get(
+          "https://gasmachineserestaurantrms.onrender.com/api/auth/customers-search",
+          {
+            params: { q: digits },
+            headers: { Authorization: `Bearer ${token}` }
+          }
+        );
+        setCustomerSearchResults(res.data || []);
+      } catch (err) {
+        console.error("Customer search failed:", err);
+        toast.error("Search failed");
+      } finally {
+        setIsSearching(false);
+      }
+    }
+  };
+
+  const handleNumberPadInput = (value) => {
+    if (!numberPadTarget) return;
+
+    if (numberPadTarget === 'phone') {
+      // Reuse the same logic that handles search
+      const newPhone = (customer.phone || '') + value;
+      handlePhoneChange(newPhone); // 👈 this triggers search
+    } else if (numberPadTarget === 'tableNo') {
+      setCustomer(prev => ({
+        ...prev,
+        tableNo: (prev.tableNo || '') + value
+      }));
+    }
+  };
+
+  const handleBackspace = () => {
+    if (!numberPadTarget) return;
+
+    if (numberPadTarget === 'phone') {
+      const newPhone = (customer.phone || '').slice(0, -1);
+      handlePhoneChange(newPhone); // 👈 triggers search (or clears results if <2 digits)
+    } else if (numberPadTarget === 'tableNo') {
+      setCustomer(prev => ({
+        ...prev,
+        tableNo: (prev.tableNo || '').slice(0, -1)
+      }));
+    }
+  };
 
   const fetchMenus = async () => {
     try {
@@ -109,6 +192,35 @@ const CashierLanding = () => {
       console.error("Customer search failed:", err);
       toast.error("Search failed");
       return [];
+    }
+  };
+
+  const fetchOrdersAndComputePopularity = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get("https://gasmachineserestaurantrms.onrender.com/api/auth/orders", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const orders = res.data; // assume this is an array of orders
+
+      // Count occurrences of each menu item name
+      const popularityMap = {};
+      orders.forEach(order => {
+        if (order.items && Array.isArray(order.items)) {
+          order.items.forEach(item => {
+            const name = item.name;
+            if (name) {
+              popularityMap[name] = (popularityMap[name] || 0) + item.quantity;
+            }
+          });
+        }
+      });
+
+      setMenuPopularity(popularityMap);
+    } catch (err) {
+      console.error("Failed to load order history for sorting:", err.message);
+      // Optional: toast.warning("Could not sort by popularity");
     }
   };
 
@@ -197,35 +309,41 @@ const CashierLanding = () => {
 
   // Proceed to payment
   const goToPayment = () => {
-    const { phone, name } = customer;
+    const { phone, name, orderType, tableNo, deliveryType, deliveryPlaceId } = customer;
 
-    if (!phone.trim() || !name.trim()) {
-      toast.warn("Please enter customer phone and name");
+    // Always required
+    if (!phone.trim()) {
+      toast.warn("Phone number is required");
       return;
     }
-
-    if (customer.orderType === "table" && !customer.tableNo.trim()) {
-      toast.warn("Table number is required for Dine-In orders");
+    if (!name.trim()) {
+      toast.warn("Customer name is required");
       return;
     }
-
-    if (customer.orderType === "takeaway" && !customer.deliveryType) {
-      toast.warn("Delivery Type is required for Takeaway orders");
-      return;
-    }
-
     if (cart.length === 0) {
-      toast.warn("Please add at least one item");
+      toast.warn("Please add at least one item to the order");
       return;
     }
 
-    if (
-      customer.orderType === "takeaway" &&
-      customer.deliveryType === "Delivery Service" &&
-      !customer.deliveryPlaceId
-    ) {
-      toast.warn("Please select a delivery place");
-      return;
+    // Dine-in specific
+    if (orderType === "table") {
+      if (!tableNo.trim()) {
+        toast.warn("Table number is required for Dine-In orders");
+        return;
+      }
+    }
+
+    // Takeaway specific
+    if (orderType === "takeaway") {
+      if (!deliveryType) {
+        toast.warn("Please select a Delivery Type");
+        return;
+      }
+
+      if (deliveryType === "Delivery Service" && !deliveryPlaceId) {
+        toast.warn("Please select a Delivery Place");
+        return;
+      }
     }
 
     const subtotal = cart.reduce(
@@ -328,13 +446,25 @@ const CashierLanding = () => {
     }
   };
 
-  // Filter menus by search & category
-  const filteredMenus = menus.filter((menu) => {
-    const matchesSearch = menu.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory =
-      !selectedCategory || menu.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const filteredMenus = menus
+    .filter((menu) => {
+      const matchesSearch = menu.name.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory = !selectedCategory || menu.category === selectedCategory;
+
+      let matchesSize = true;
+      if (sizeFilter) {
+        const parts = menu.name?.split('-');
+        const suffix = parts?.[parts.length - 1];
+        matchesSize = suffix === sizeFilter;
+      }
+
+      return matchesSearch && matchesCategory && matchesSize;
+    })
+    .sort((a, b) => {
+      const countA = menuPopularity[a.name] || 0;
+      const countB = menuPopularity[b.name] || 0;
+      return countB - countA; // most ordered first
+    });
 
   // ✅ LIVE subtotal calculation
 const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -365,10 +495,10 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
       {/* Customer Info */}
       <div className="mb-4 bg-white p-4 rounded shadow-sm">
         <h4>Customer Details</h4>
-        <div className="row g-3">
+        <div className="row g-3 position-relative">
           <div className="col-md-3">
           <label>Phone *</label>
-          <AsyncSelect
+          {/* <AsyncSelect
             cacheOptions
             defaultOptions
             loadOptions={loadCustomerOptions}
@@ -384,7 +514,48 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
             noOptionsMessage={() => "No matching customers"}
             classNamePrefix="select"
             components={makeAnimated()}
+          /> */}
+          
+          <input
+            type="text"
+            value={customer.phone}
+            onChange={(e) => handlePhoneChange(e.target.value)}
+            onFocus={() => {
+              setNumberPadTarget('phone');
+              setShowNumberPad(true);
+            }}
+            className="form-control"
+            placeholder="Type phone..."
           />
+
+          {/* Search Results Dropdown */}
+          {customerSearchResults.length > 0 && (
+            <div className="text-muted small mt-1">
+              <ul className="list-group z-3 w-100 shadow" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                {customerSearchResults.map((cust) => (
+                  <li
+                    key={cust._id || cust.phone}
+                    className="list-group-item list-group-item-action"
+                    onClick={() => {
+                      setCustomer({
+                        ...customer,
+                        phone: cust.phone,
+                        name: cust.name || ''
+                      });
+                      setCustomerSearchResults([]);
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    {cust.name ? `${cust.name} (${cust.phone})` : cust.phone}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {isSearching && (
+            <div className="text-muted small mt-1">Searching...</div>
+          )}
         </div>
 
           <div className="col-md-3">
@@ -421,7 +592,7 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
             </select>
           </div>
           
-          {customer.orderType === "table" && (
+          {/* {customer.orderType === "table" && (
             <>
               <div className="col-md-3">
                 <label>Table No</label>
@@ -439,6 +610,28 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
                 />
               </div>
             </>
+          )} */}
+
+          {customer.orderType === "table" && (
+            <div className="col-md-3">
+              <label>Table No</label>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={customer.tableNo}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/\D/g, '');
+                  setCustomer({ ...customer, tableNo: val });
+                }}
+                onFocus={() => {
+                  setNumberPadTarget('tableNo');
+                  setShowNumberPad(true);
+                }}
+                className="form-control"
+                placeholder="-"
+                required
+              />
+            </div>
           )}
 
           {/* Delivery Type (only for Takeaway) */}
@@ -538,7 +731,7 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
                 </select>
               </div>
 
-              <div className="col-md-8">
+              <div className="col-md-4">
                 <input
                   type="text"
                   className="form-control"
@@ -546,6 +739,18 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
+              </div>
+
+              <div className="col-md-4">
+                <select
+                  className="form-select"
+                  value={sizeFilter}
+                  onChange={(e) => setSizeFilter(e.target.value)}
+                >
+                  <option value="">All Sizes</option>
+                  <option value="M">Medium</option>
+                  <option value="L">Large</option>
+                </select>
               </div>
             </div>
           </div>
@@ -560,7 +765,7 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
               return(
               <div key={menu._id} className="col-12 col-md-4 col-lg-4 col-xl-3">
                 <div className="card shadow-sm h-100 border-0">
-                  <img
+                  {/* <img
                     src={
                     menu.imageUrl.startsWith("https")
                       ? menu.imageUrl
@@ -572,7 +777,7 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
                       e.target.src = "https://via.placeholder.com/300x200?text=No+Image";
                     }}
                     className="card-img-top"
-                  />
+                  /> */}
                   <div className="card-body text-center">
                     <h6>{menu.name} <p>({menu.category})</p></h6>
                     <p className="m-0">{symbol}{menu.price.toFixed(2)} </p>
@@ -599,68 +804,124 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
             })}
           </div>
         </div>
-
-        {/* Right Side - Cart & Receipt */}
+        
         <div className="col-md-4">
-          <div className="card shadow-sm">
-            <div className="card-header bg-success text-white">
-              <h5 className="mb-0">🛒 Current Order</h5>
-            </div>
-            <div className="card-body">
-              <ul className="list-group mb-3">
-                {cart.length === 0 ? (
-                  <li className="list-group-item">No items added</li>
-                ) : (
-                  cart.map((item, idx) => (
-                    <li key={idx} className="list-group-item d-flex justify-content-between align-items-center">
-                      <span>{item.name}</span>
-                      <span>{symbol}{(item.price * item.quantity).toFixed(2)}</span>
-                      <span className="badge bg-secondary">{item.quantity}</span>
+          {showNumberPad && (
+            <div className="row g-0 mb-4">
+              <div className="card shadow-sm">
+                <div className="card-header bg-light d-flex justify-content-between align-items-center">
+                  <span>Enter {numberPadTarget === 'phone' ? 'Phone' : 'Table No'}</span>
+                  <button
+                    className="btn btn-sm btn-outline-secondary"
+                    onClick={() => setShowNumberPad(false)}
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="card-body p-2">
+                  <div className="row g-1">
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                      <div key={num} className="col-4">
+                        <button
+                          className="btn btn-light w-100 py-2 border"
+                          onClick={() => handleNumberPadInput(num.toString())}
+                        >
+                          {num}
+                        </button>
+                      </div>
+                    ))}
+                    <div className="col-4">
                       <button
-                        className="btn btn-sm btn-outline-danger"
-                        onClick={() => removeFromCart(item)}
+                        className="btn btn-light w-100 py-2 border"
+                        onClick={() => handleNumberPadInput('0')}
                       >
-                        -
+                        0
                       </button>
-                    </li>
-                  ))
+                    </div>
+                    <div className="col-4">
+                      <button
+                        className="btn btn-light w-100 py-2 border"
+                        onClick={handleBackspace}
+                      >
+                        ⌫
+                      </button>
+                    </div>
+                    <div className="col-4">
+                      <button
+                        className="btn btn-success w-100 py-2"
+                        onClick={() => setShowNumberPad(false)}
+                      >
+                        Done
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Right Side - Cart & Receipt */}
+          <div className="row g-0 mb-4">
+            <div className="card shadow-sm">
+              <div className="card-header bg-success text-white">
+                <h5 className="mb-0">🛒 Current Order</h5>
+              </div>
+              <div className="card-body">
+                <ul className="list-group mb-3">
+                  {cart.length === 0 ? (
+                    <li className="list-group-item">No items added</li>
+                  ) : (
+                    cart.map((item, idx) => (
+                      <li key={idx} className="list-group-item d-flex justify-content-between align-items-center">
+                        <span>{item.name}</span>
+                        <span>{symbol}{(item.price * item.quantity).toFixed(2)}</span>
+                        <span className="badge bg-secondary">{item.quantity}</span>
+                        <button
+                          className="btn btn-sm btn-outline-danger"
+                          onClick={() => removeFromCart(item)}
+                        >
+                          -
+                        </button>
+                      </li>
+                    ))
+                  )}
+                </ul>
+
+                <hr />
+
+                {/* Order Summary */}
+                <div className="d-flex justify-content-between mb-2">
+                  <strong>Subtotal</strong>
+                  <span>{symbol}{subtotal.toFixed(2)}</span> {/* ✅ UPDATED */}
+                </div>
+
+                {serviceCharge > 0 && (
+                  <div className="d-flex justify-content-between mb-2">
+                    <strong>Service Charge ({serviceChargeSettings.dineInCharge}%)</strong>
+                    <span>{symbol}{serviceCharge.toFixed(2)}</span> {/* ✅ UPDATED */}
+                  </div>
                 )}
-              </ul>
 
-              <hr />
+                {deliveryCharge > 0 && (
+                  <div className="d-flex justify-content-between mb-2">
+                    <strong>Delivery Fee</strong>
+                    <span>{symbol}{deliveryCharge.toFixed(2)}</span>
+                  </div>
+                )}
 
-              {/* Order Summary */}
-              <div className="d-flex justify-content-between mb-2">
-                <strong>Subtotal</strong>
-                <span>{symbol}{subtotal.toFixed(2)}</span> {/* ✅ UPDATED */}
-              </div>
-
-              {serviceCharge > 0 && (
-                <div className="d-flex justify-content-between mb-2">
-                  <strong>Service Charge ({serviceChargeSettings.dineInCharge}%)</strong>
-                  <span>{symbol}{serviceCharge.toFixed(2)}</span> {/* ✅ UPDATED */}
+                <div className="d-flex justify-content-between fw-bold fs-5">
+                  <strong>Total</strong>
+                  <span>{symbol}{finalTotal.toFixed(2)}</span> {/* ✅ UPDATED */}
                 </div>
-              )}
 
-              {deliveryCharge > 0 && (
-                <div className="d-flex justify-content-between mb-2">
-                  <strong>Delivery Fee</strong>
-                  <span>{symbol}{deliveryCharge.toFixed(2)}</span>
-                </div>
-              )}
-
-              <div className="d-flex justify-content-between fw-bold fs-5">
-                <strong>Total</strong>
-                <span>{symbol}{finalTotal.toFixed(2)}</span> {/* ✅ UPDATED */}
+                <button
+                  className="btn btn-success w-100 py-2 mt-3"
+                  onClick={goToPayment}
+                  disabled={cart.length === 0}
+                >
+                  Proceed to Payment
+                </button>
               </div>
-
-              <button
-                className="btn btn-success w-100 py-2 mt-3"
-                onClick={goToPayment}
-                disabled={cart.length === 0}
-              >
-                Proceed to Payment
-              </button>
             </div>
           </div>
         </div>
