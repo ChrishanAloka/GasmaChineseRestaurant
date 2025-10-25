@@ -27,6 +27,10 @@ const MenuManagement = () => {
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
   const [categoryOptions, setCategoryOptions] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [bulkRestockOpen, setBulkRestockOpen] = useState(false);
+  const [bulkRestockAmount, setBulkRestockAmount] = useState(0);
 
   const symbol = localStorage.getItem("currencySymbol") || "$";
 
@@ -60,6 +64,16 @@ const MenuManagement = () => {
       console.error("Failed to load menus:", err.message);
     }
   };
+
+  // Filter menus by search term and selected category
+  const filteredMenus = menus.filter((menu) => {
+    const matchesSearch = menu.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = !selectedCategory || menu.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  // Get flat list of categories for filtering (not for react-select)
+  const allCategories = [...new Set(menus.map(menu => menu.category).filter(Boolean))];
 
   // Calculate net profit
   const calculateNetProfit = (price, cost) => {
@@ -277,6 +291,32 @@ const MenuManagement = () => {
     }
   };
 
+  const handleBulkRestock = async () => {
+    if (bulkRestockAmount <= 0) {
+      toast.warn("Please enter a valid amount");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.post(
+        "https://gasmachineserestaurantrms.onrender.com/api/auth/menu/restock-all",
+        { amount: bulkRestockAmount },
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+
+      setMenus(res.data); // Update all menus at once
+      setBulkRestockOpen(false);
+      setBulkRestockAmount(0);
+      toast.success(`All items restocked by ${bulkRestockAmount} units!`);
+    } catch (err) {
+      console.error("Bulk restock failed:", err.response?.data || err.message);
+      toast.error(err.response?.data?.error || "Failed to restock all items");
+    }
+  };
+
   // Helper functions
   const calculateMenuStatus = (qty) => {
     if (!qty || qty <= 0) return "Out of Stock";
@@ -331,7 +371,7 @@ const MenuManagement = () => {
               components={makeAnimated()}
             />
           </div>
-          
+
           <div className="col-md-6">
             <label className="form-label">Menu Name *</label>
             <input
@@ -610,9 +650,90 @@ const MenuManagement = () => {
         </div>
       )}
 
+      {/* Bulk Restock Modal */}
+      {bulkRestockOpen && (
+        <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Restock All Menu Items</h5>
+                <button className="btn-close" onClick={() => setBulkRestockOpen(false)}></button>
+              </div>
+              <div className="modal-body">
+                <p>Enter the quantity to add to <strong>all</strong> menu items:</p>
+                <input
+                  type="number"
+                  className="form-control"
+                  onFocus={(e) => e.target.select()}
+                  onWheel={(e) => e.target.blur()}
+                  value={bulkRestockAmount}
+                  onChange={(e) => setBulkRestockAmount(parseInt(e.target.value) || 0)}
+                  min="1"
+                  placeholder="e.g., 10"
+                  autoFocus
+                />
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-secondary" onClick={() => setBulkRestockOpen(false)}>
+                  Cancel
+                </button>
+                <button
+                  className="btn btn-success"
+                  onClick={handleBulkRestock}
+                  disabled={bulkRestockAmount <= 0}
+                >
+                  Apply to All Items
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Restock Button */}
+      <div className="d-flex justify-content-end mb-3">
+        <button
+          className="btn btn-outline-success"
+          onClick={() => setBulkRestockOpen(true)}
+        >
+          📦 Restock All Menu Items
+        </button>
+      </div>
+
+      {/* Search & Filter Controls */}
+      <div className="mb-4 p-3 bg-white rounded shadow-sm">
+        <div className="row g-3">
+          <div className="col-md-4">
+            <label className="form-label">Filter by Category</label>
+            <select
+              className="form-select"
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+            >
+              <option value="">All Categories</option>
+              {allCategories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="col-md-8">
+            <label className="form-label">Search Menu</label>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Search by name..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
+      </div>
+
       {/* Menu List */}
       <div className="row g-3">
-        {menus.map((menu) => {
+        {filteredMenus.map((menu) => {
           const status = calculateMenuStatus(menu.currentQty);
           return (
             <div key={menu._id} className="col-md-3 mb-3">
@@ -625,10 +746,10 @@ const MenuManagement = () => {
                   }
                   alt={menu.name}
                   className="card-img-top"
-                  style={{ height: "280px", objectFit: "cover" }}
+                  style={{ height: "100px", objectFit: "cover" }}
                 />
                 <div className="card-body d-flex flex-column">
-                  <h5>{menu.name}</h5>
+                  <><h5>{menu.name}</h5><h6>({menu.category})</h6></>
                   <p className="card-text">
                     Price: {symbol}
                     {menu.price.toFixed(2)}

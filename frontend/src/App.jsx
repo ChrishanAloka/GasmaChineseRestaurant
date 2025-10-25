@@ -47,6 +47,8 @@ import ResetPassword from "./components/ResetPassword";
 import CurrencySettings from "./components/CurrencySettings";
 
 import AdminEmployees from "./components/AdminEmployees";
+import CustomerList from "./components/CustomerList";
+
 import AdminEmployeeRegister from "./components/AdminEmployeeRegister";
 import AdminEmployeeEdit from "./components/AdminEmployeeEdit";
 
@@ -101,6 +103,8 @@ function App() {
         <Route path="/admin/users" element={<AdminUsers />} />
         <Route path="/admin/signup-key" element={<AdminSignupKey />} />
         <Route path="/admin/employees" element={<AdminEmployees />} />
+        <Route path="/admin/customers" element={<CustomerList />} />
+        
         <Route path="/admin/employee/new" element={<AdminEmployeeRegister />} />
         <Route path="/admin/employee/edit/:id" element={<AdminEmployeeEdit />} />
 
@@ -109,6 +113,7 @@ function App() {
         <Route path="/admin/suppliers" element={<SupplierRegistration />} />
         <Route path="/admin/expenses" element={<ExpensePage />} />
         <Route path="/admin/salaries" element={<SalaryPage />} />
+
 
         <Route path="/admin/currency" element={<CurrencySettings />} />
         <Route path="/admin/kitchen-requests" element={<AdminKitchenRequests />} />

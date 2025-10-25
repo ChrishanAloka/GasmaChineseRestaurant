@@ -5,6 +5,9 @@ import { ToastContainer, toast } from "react-toastify";
 import PaymentModal from "./PaymentModal";
 import ReceiptModal from "./ReceiptModal";
 
+import AsyncSelect from 'react-select/async';
+import makeAnimated from 'react-select/animated';
+
 const CashierLanding = () => {
   const [menus, setMenus] = useState([]);
   const [cart, setCart] = useState([]);
@@ -81,6 +84,31 @@ const CashierLanding = () => {
     } catch (err) {
       console.error("Failed to load menus:", err.message);
       setLoadingCategories(false); // Ensure loading stops even on error
+    }
+  };
+
+  const loadCustomerOptions = async (inputValue) => {
+    if (!inputValue.trim()) return [];
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(
+        "https://gasmachineserestaurantrms.onrender.com/api/auth/customers-search",
+        {
+          params: { q: inputValue },
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+
+      return res.data.map(cust => ({
+        value: cust.phone,
+        label: `${cust.name || 'Unnamed'} (${cust.phone})`,
+        name: cust.name || ''
+      }));
+    } catch (err) {
+      console.error("Customer search failed:", err);
+      toast.error("Search failed");
+      return [];
     }
   };
 
@@ -339,20 +367,25 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
         <h4>Customer Details</h4>
         <div className="row g-3">
           <div className="col-md-3">
-            <label>Phone *</label>
-            <input
-              name="phone"
-              value={customer.phone}
-              onChange={(e) =>
-                setCustomer({
-                  ...customer,
-                  phone: e.target.value
-                })
+          <label>Phone *</label>
+          <AsyncSelect
+            cacheOptions
+            defaultOptions
+            loadOptions={loadCustomerOptions}
+            value={customer.phone ? { value: customer.phone, label: `${customer.name || 'Unknown'} (${customer.phone})` } : null}
+            onChange={(opt) => {
+              if (opt) {
+                setCustomer({ ...customer, phone: opt.value, name: opt.name });
+              } else {
+                setCustomer({ ...customer, phone: '', name: '' });
               }
-              className="form-control"
-              placeholder="e.g., 0771234567"
-            />
-          </div>
+            }}
+            placeholder="Type phone or name..."
+            noOptionsMessage={() => "No matching customers"}
+            classNamePrefix="select"
+            components={makeAnimated()}
+          />
+        </div>
 
           <div className="col-md-3">
             <label>Name *</label>
@@ -486,16 +519,6 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
           {/* Search & Filter */}
           <div className="bg-white p-3 mb-3 rounded shadow-sm">
             <div className="row g-3">
-              <div className="col-md-8">
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Search items..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-
               <div className="col-md-4">
                 <select
                   className="form-select"
@@ -513,6 +536,16 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
                     ))
                   )}
                 </select>
+              </div>
+
+              <div className="col-md-8">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Search items..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </div>
             </div>
           </div>
@@ -534,14 +567,14 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
                       : `https://gasmachineserestaurantrms.onrender.com${menu.imageUrl}`
                     }
                     alt={menu.name}
-                    style={{ height: "150px", width:"100%" ,objectFit: "contain" }}
+                    style={{ height: "50px", width:"100%" ,objectFit: "contain" }}
                     onError={(e) => {
                       e.target.src = "https://via.placeholder.com/300x200?text=No+Image";
                     }}
                     className="card-img-top"
                   />
                   <div className="card-body text-center">
-                    <h6>{menu.name}</h6>
+                    <h6>{menu.name} <p>({menu.category})</p></h6>
                     <p className="m-0">{symbol}{menu.price.toFixed(2)} </p>
                     <p className="m-0">
                       Stock:{" "}

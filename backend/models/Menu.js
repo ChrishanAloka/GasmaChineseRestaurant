@@ -49,7 +49,7 @@ const menuSchema = new mongoose.Schema({
       return this.price - this.cost;
     }
   }
-});
+},{ timestamps: true });
 
 // Optional: Add index on name + category if needed later
 // menuSchema.index({ name: 1, category: 1 }, { unique: false });
