@@ -492,217 +492,276 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
     <div className="container-fluid px-4">
       <h2 className="mb-4 text-primary border-bottom pb-2 fw-bold">Order Management</h2>
 
-      {/* Customer Info */}
-      <div className="mb-4 bg-white p-4 rounded shadow-sm">
-        <h4>Customer Details</h4>
-        <div className="row g-3 position-relative">
-          <div className="col-md-3">
-          <label>Phone *</label>
-          {/* <AsyncSelect
-            cacheOptions
-            defaultOptions
-            loadOptions={loadCustomerOptions}
-            value={customer.phone ? { value: customer.phone, label: `${customer.name || 'Unknown'} (${customer.phone})` } : null}
-            onChange={(opt) => {
-              if (opt) {
-                setCustomer({ ...customer, phone: opt.value, name: opt.name });
-              } else {
-                setCustomer({ ...customer, phone: '', name: '' });
-              }
-            }}
-            placeholder="Type phone or name..."
-            noOptionsMessage={() => "No matching customers"}
-            classNamePrefix="select"
-            components={makeAnimated()}
-          /> */}
-          
-          <input
-            type="text"
-            value={customer.phone}
-            onChange={(e) => handlePhoneChange(e.target.value)}
-            onFocus={() => {
-              setNumberPadTarget('phone');
-              setShowNumberPad(true);
-            }}
-            className="form-control"
-            placeholder="Type phone..."
-          />
-
-          {/* Search Results Dropdown */}
-          {customerSearchResults.length > 0 && (
-            <div className="text-muted small mt-1">
-              <ul className="list-group z-3 w-100 shadow" style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                {customerSearchResults.map((cust) => (
-                  <li
-                    key={cust._id || cust.phone}
-                    className="list-group-item list-group-item-action"
-                    onClick={() => {
-                      setCustomer({
-                        ...customer,
-                        phone: cust.phone,
-                        name: cust.name || ''
-                      });
-                      setCustomerSearchResults([]);
-                    }}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    {cust.name ? `${cust.name} (${cust.phone})` : cust.phone}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {isSearching && (
-            <div className="text-muted small mt-1">Searching...</div>
-          )}
-        </div>
-
-          <div className="col-md-3">
-            <label>Name *</label>
-            <input
-              name="name"
-              value={customer.name}
-              onChange={(e) =>
-                setCustomer({
-                  ...customer,
-                  name: e.target.value
-                })
-              }
-              className="form-control"
-              placeholder="John Doe"
-            />
-          </div>
-
-          <div className="col-md-3">
-            <label>Order Type</label>
-            <select
-              name="orderType"
-              value={customer.orderType}
-              onChange={(e) =>
-                setCustomer({
-                  ...customer,
-                  orderType: e.target.value
-                })
-              }
-              className="form-select"
-            >
-              <option value="table">Dine In</option>
-              <option value="takeaway">Takeaway</option>
-            </select>
-          </div>
-          
-          {/* {customer.orderType === "table" && (
-            <>
+      <div className="row g-3 position-relative">
+        <div className="col-md-9">
+          {/* Customer Info */}
+          <div className="mb-4 bg-white p-4 rounded shadow-sm" style={{ minHeight: '245px' }}>
+            <h4>Customer Details</h4>
+            <div className="row g-3 position-relative">
               <div className="col-md-3">
-                <label>Table No</label>
+                <label>Phone *</label>
+                {/* <AsyncSelect
+                  cacheOptions
+                  defaultOptions
+                  loadOptions={loadCustomerOptions}
+                  value={customer.phone ? { value: customer.phone, label: `${customer.name || 'Unknown'} (${customer.phone})` } : null}
+                  onChange={(opt) => {
+                    if (opt) {
+                      setCustomer({ ...customer, phone: opt.value, name: opt.name });
+                    } else {
+                      setCustomer({ ...customer, phone: '', name: '' });
+                    }
+                  }}
+                  placeholder="Type phone or name..."
+                  noOptionsMessage={() => "No matching customers"}
+                  classNamePrefix="select"
+                  components={makeAnimated()}
+                /> */}
+                
                 <input
-                  name="tableNo"
-                  value={customer.tableNo}
+                  type="text"
+                  value={customer.phone}
+                  onChange={(e) => handlePhoneChange(e.target.value)}
+                  onFocus={() => {
+                    setNumberPadTarget('phone');
+                    setShowNumberPad(true);
+                  }}
+                  className="form-control"
+                  placeholder="Type phone..."
+                />
+
+                {/* Search Results Dropdown */}
+                {customerSearchResults.length > 0 && (
+                  <div className="text-muted small mt-1">
+                    <ul className="list-group position-absolute z-3 w-100 shadow" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                      {customerSearchResults.map((cust) => (
+                        <li
+                          key={cust._id || cust.phone}
+                          className="list-group-item list-group-item-action"
+                          onClick={() => {
+                            setCustomer({
+                              ...customer,
+                              phone: cust.phone,
+                              name: cust.name || ''
+                            });
+                            setCustomerSearchResults([]);
+                          }}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          {cust.name ? `${cust.name} (${cust.phone})` : cust.phone}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {isSearching && (
+                  <div className="text-muted small mt-1">Searching...</div>
+                )}
+              </div>
+
+              <div className="col-md-3">
+                <label>Name *</label>
+                <input
+                  name="name"
+                  value={customer.name}
                   onChange={(e) =>
                     setCustomer({
                       ...customer,
-                      tableNo: e.target.value
+                      name: e.target.value
                     })
                   }
                   className="form-control"
-                  placeholder="-"
+                  placeholder="John Doe"
                 />
               </div>
-            </>
-          )} */}
-
-          {customer.orderType === "table" && (
-            <div className="col-md-3">
-              <label>Table No</label>
-              <input
-                type="text"
-                inputMode="numeric"
-                value={customer.tableNo}
-                onChange={(e) => {
-                  const val = e.target.value.replace(/\D/g, '');
-                  setCustomer({ ...customer, tableNo: val });
-                }}
-                onFocus={() => {
-                  setNumberPadTarget('tableNo');
-                  setShowNumberPad(true);
-                }}
-                className="form-control"
-                placeholder="-"
-                required
-              />
-            </div>
-          )}
-
-          {/* Delivery Type (only for Takeaway) */}
-        {customer.orderType === "takeaway" && (
-          <div className="col-md-3">
-            <label>Delivery Type</label>
-            <select
-              name="deliveryType"
-              value={customer.deliveryType}
-              onChange={(e) =>
-                    setCustomer({
-                      ...customer,
-                      deliveryType: e.target.value
-                    })
-                  }
-              className="form-select"
-            >
-              <option value="">Select an option</option>
-              <option value="Customer Pickup">Customer Pickup</option>
-              <option value="Delivery Service">Delivery Service</option>
-            </select>
-          </div>
-        )}
-
-        {/* Delivery Note (only for Delivery Service) */}
-            {customer.deliveryType === "Delivery Service" && (
-              <div className="mt-3">
-                <label>Delivery Address or Note</label>
-                <textarea
-                  name="deliveryNote"
-                  value={customer.deliveryNote || ""}
-                  onChange={(e) =>
-                    setCustomer({
-                      ...customer,
-                      deliveryNote: e.target.value
-                    })
-                  }
-                  rows="2"
-                  className="form-control"
-                  placeholder="Enter delivery address or instructions"
-                  required
-                ></textarea>
-              </div>
-            )}
-
-            {/* Delivery Place Selector (only for Delivery Service) */}
-            {customer.orderType === "takeaway" && customer.deliveryType === "Delivery Service" && (
               <div className="col-md-3">
-                <label>Delivery Place *</label>
+                <label>Order Type</label>
                 <select
-                  name="deliveryPlaceId"
-                  value={customer.deliveryPlaceId}
+                  name="orderType"
+                  value={customer.orderType}
                   onChange={(e) =>
                     setCustomer({
                       ...customer,
-                      deliveryPlaceId: e.target.value
+                      orderType: e.target.value
                     })
                   }
                   className="form-select"
-                  required
                 >
-                  <option value="">Select a delivery zone</option>
-                  {deliveryPlaces.map((place) => (
-                    <option key={place._id} value={place._id}>
-                      {place.placeName} ({symbol}{place.charge.toFixed(2)})
-                    </option>
-                  ))}
+                  <option value="table">Dine In</option>
+                  <option value="takeaway">Takeaway</option>
                 </select>
               </div>
-            )}
+              
+              {/* {customer.orderType === "table" && (
+                <>
+                  <div className="col-md-3">
+                    <label>Table No</label>
+                    <input
+                      name="tableNo"
+                      value={customer.tableNo}
+                      onChange={(e) =>
+                        setCustomer({
+                          ...customer,
+                          tableNo: e.target.value
+                        })
+                      }
+                      className="form-control"
+                      placeholder="-"
+                    />
+                  </div>
+                </>
+              )} */}
 
+              {customer.orderType === "table" && (
+                <div className="col-md-3">
+                  <label>Table No</label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={customer.tableNo}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '');
+                      setCustomer({ ...customer, tableNo: val });
+                    }}
+                    onFocus={() => {
+                      setNumberPadTarget('tableNo');
+                      setShowNumberPad(true);
+                    }}
+                    className="form-control"
+                    placeholder="-"
+                    required
+                  />
+                </div>
+              )}
+
+              {/* Delivery Type (only for Takeaway) */}
+              {customer.orderType === "takeaway" && (
+                <div className="col-md-3">
+                  <label>Delivery Type</label>
+                  <select
+                    name="deliveryType"
+                    value={customer.deliveryType}
+                    onChange={(e) =>
+                          setCustomer({
+                            ...customer,
+                            deliveryType: e.target.value
+                          })
+                        }
+                    className="form-select"
+                  >
+                    <option value="">Select an option</option>
+                    <option value="Customer Pickup">Customer Pickup</option>
+                    <option value="Delivery Service">Delivery Service</option>
+                  </select>
+                </div>
+              )}
+
+            </div>
+            <div className="row g-3 position-relative mt-3">
+
+              {/* Delivery Note (only for Delivery Service) */}
+              {customer.deliveryType === "Delivery Service" && (
+                <div className="mt-3">
+                  <label>Delivery Address or Note</label>
+                  <textarea
+                    name="deliveryNote"
+                    value={customer.deliveryNote || ""}
+                    onChange={(e) =>
+                      setCustomer({
+                        ...customer,
+                        deliveryNote: e.target.value
+                      })
+                    }
+                    rows="2"
+                    className="form-control"
+                    placeholder="Enter delivery address or instructions"
+                    required
+                  ></textarea>
+                </div>
+              )}
+
+              {/* Delivery Place Selector (only for Delivery Service) */}
+              {customer.orderType === "takeaway" && customer.deliveryType === "Delivery Service" && (
+                <div className="col-md-3">
+                  <label>Delivery Place *</label>
+                  <select
+                    name="deliveryPlaceId"
+                    value={customer.deliveryPlaceId}
+                    onChange={(e) =>
+                      setCustomer({
+                        ...customer,
+                        deliveryPlaceId: e.target.value
+                      })
+                    }
+                    className="form-select"
+                    required
+                  >
+                    <option value="">Select a delivery zone</option>
+                    {deliveryPlaces.map((place) => (
+                      <option key={place._id} value={place._id}>
+                        {place.placeName} ({symbol}{place.charge.toFixed(2)})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+            </div>
+          </div>
+        </div>
+        <div className="col-md-3">
+          <div className="row g-0 mb-4">
+            <div className="card shadow-sm">
+              <div className="card-header bg-light d-flex justify-content-between align-items-center">
+                <span>Enter {numberPadTarget === 'phone' ? 'Phone' : 'Table No'}</span>
+                <button
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={() => setShowNumberPad(false)}
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="card-body p-2">
+                <div className="row g-1">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                    <div key={num} className="col-4">
+                      <button
+                        className="btn btn-light w-100 py-2 border"
+                        onClick={() => handleNumberPadInput(num.toString())}
+                      >
+                        {num}
+                      </button>
+                    </div>
+                  ))}
+                  <div className="col-4">
+                    <button
+                      className="btn btn-light w-100 py-2 border"
+                      onClick={() => handleNumberPadInput('0')}
+                    >
+                      0
+                    </button>
+                  </div>
+                  <div className="col-4">
+                    <button
+                      className="btn btn-light w-100 py-2 border"
+                      onClick={handleBackspace}
+                    >
+                      ⌫
+                    </button>
+                  </div>
+                  <div className="col-4">
+                    <button
+                      className="btn btn-success w-100 py-2"
+                      onClick={() => setShowNumberPad(false)}
+                    >
+                      Done
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -806,60 +865,6 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
         </div>
         
         <div className="col-md-4">
-          {showNumberPad && (
-            <div className="row g-0 mb-4">
-              <div className="card shadow-sm">
-                <div className="card-header bg-light d-flex justify-content-between align-items-center">
-                  <span>Enter {numberPadTarget === 'phone' ? 'Phone' : 'Table No'}</span>
-                  <button
-                    className="btn btn-sm btn-outline-secondary"
-                    onClick={() => setShowNumberPad(false)}
-                  >
-                    ✕
-                  </button>
-                </div>
-                <div className="card-body p-2">
-                  <div className="row g-1">
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-                      <div key={num} className="col-4">
-                        <button
-                          className="btn btn-light w-100 py-2 border"
-                          onClick={() => handleNumberPadInput(num.toString())}
-                        >
-                          {num}
-                        </button>
-                      </div>
-                    ))}
-                    <div className="col-4">
-                      <button
-                        className="btn btn-light w-100 py-2 border"
-                        onClick={() => handleNumberPadInput('0')}
-                      >
-                        0
-                      </button>
-                    </div>
-                    <div className="col-4">
-                      <button
-                        className="btn btn-light w-100 py-2 border"
-                        onClick={handleBackspace}
-                      >
-                        ⌫
-                      </button>
-                    </div>
-                    <div className="col-4">
-                      <button
-                        className="btn btn-success w-100 py-2"
-                        onClick={() => setShowNumberPad(false)}
-                      >
-                        Done
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Right Side - Cart & Receipt */}
           <div className="row g-0 mb-4">
             <div className="card shadow-sm">

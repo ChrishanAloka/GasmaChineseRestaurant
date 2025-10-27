@@ -13,13 +13,14 @@ import "./Sidebar.css";
 import NotificationCenter from "./NotificationCenter";
 
 const RoleLayout = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userDropdown, setUserDropdown] = useState(false);
   const { user, logout } = useAuth();
   const countdown = useTokenCountdown();
   const location = useLocation();
   const dropdownRef = useRef();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isHovered, setIsHovered] = useState(false);
 
   // Auto detect mobile view
   useEffect(() => {
@@ -43,13 +44,15 @@ const RoleLayout = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const isSidebarExpanded = sidebarOpen || (isHovered && !isMobile);
+
   const createMenuItem = (to, label, Icon) => {
     const isActive = location.pathname === to;
     return (
-      <li title={!sidebarOpen ? label : ""} key={to}>
+      <li title={!isSidebarExpanded ? label : ""} key={to}>
         <Link to={to} className={`menu-link ${isActive ? "active" : ""}`}>
           <Icon className="menu-icon" />
-          {sidebarOpen && <span className="menu-label">{label}</span>}
+          {isSidebarExpanded && <span className="menu-label">{label}</span>}
         </Link>
       </li>
     );
@@ -124,12 +127,30 @@ const RoleLayout = () => {
     }
   };
 
+  const getSidebarClass = () => {
+  // Open if: user toggled it OR (hovering + desktop + not manually opened)
+    const isOpen = sidebarOpen || (isHovered && !isMobile);
+    return isOpen ? "open" : "collapsed";
+  };
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+    if (!sidebarOpen) {
+      setIsHovered(false); // close hover if manually opening
+    }
+  };
+
   return (
     <div className="layout d-flex">
       {!isMobile || sidebarOpen ? (
-        <aside className={`sidebar ${sidebarOpen ? "open" : "collapsed"}`}>
+        <aside 
+        // className={`sidebar ${sidebarOpen ? "open" : "collapsed"}`}
+        className={`sidebar ${getSidebarClass()}`}
+        onMouseEnter={() => !isMobile && !sidebarOpen && setIsHovered(true)}
+        onMouseLeave={() => !isMobile && !sidebarOpen && setIsHovered(false)}
+        >
           <div className="sidebar-header d-flex align-items-center">
-            {sidebarOpen && (
+            {isSidebarExpanded && (
               <>
                 <img
                   src="/logo.jpg"
@@ -154,7 +175,7 @@ const RoleLayout = () => {
       <div className="main-content flex-grow-1">
         <header className="top-navbar">
           <div className="navbar-left">
-            <button className="btn-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}>
+            <button className="btn-toggle" onClick={toggleSidebar}>
               <FaBars />
             </button>
             <span className="session-timer">⏳ Session expires in: {countdown}</span>
