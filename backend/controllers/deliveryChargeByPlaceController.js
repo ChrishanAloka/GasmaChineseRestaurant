@@ -4,7 +4,7 @@ const DeliveryCharge = require("../models/DeliveryChargeByPlace");
 // Get all delivery charges (max 2)
 exports.getDeliveryCharges = async (req, res) => {
   try {
-    const charges = await DeliveryCharge.find().sort({ createdAt: 1 });
+    const charges = await DeliveryCharge.find().sort({ placeName: 1 });
     res.json(charges);
   } catch (err) {
     res.status(500).json({ error: "Failed to load delivery charges" });

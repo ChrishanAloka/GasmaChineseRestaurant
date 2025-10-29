@@ -62,6 +62,8 @@ exports.getAdminSummary = async (req, res) => {
 
     const totalOrders= orders.length;
 
+    const totalServiceChargeIncome = orders.reduce((sum, order) => sum + (order.serviceCharge || 0), 0);
+
     // ✅ Count by status
     const statusCounts = orders.reduce((acc, order) => {
       acc[order.status] = (acc[order.status] || 0) + 1;
@@ -119,6 +121,49 @@ exports.getAdminSummary = async (req, res) => {
       .sort((a, b) => b.count - a.count)
       .slice(0, 10); // Top 10
 
+    // ✅ Waiter Service Charge Earnings (only for dine-in orders with waiterName)
+    const waiterEarnings = {};
+    orders.forEach(order => {
+      // Only include orders with a waiter and service charge > 0
+      if (order.waiterName && order.serviceCharge > 0) {
+        waiterEarnings[order.waiterName] = (waiterEarnings[order.waiterName] || 0) + order.serviceCharge;
+      }
+    });
+
+    const waiterServiceEarnings = Object.entries(waiterEarnings)
+      .map(([waiterName, totalServiceCharge]) => ({ waiterName, totalServiceCharge }))
+      .sort((a, b) => b.totalServiceCharge - a.totalServiceCharge);
+
+    // ✅ 1. Total Dine-In (Table) Orders
+    const totalTableOrders = orders.filter(order => 
+      order.tableNo && order.tableNo !== "Takeaway"
+    ).length;
+
+    // ✅ 2. Delivery Places Stats
+    const deliveryPlaceStats = {};
+    orders.forEach(order => {
+      if (
+        order.deliveryType === "Delivery Service" &&
+        order.deliveryPlaceName &&
+        order.deliveryCharge > 0
+      ) {
+        const name = order.deliveryPlaceName;
+        if (!deliveryPlaceStats[name]) {
+          deliveryPlaceStats[name] = { count: 0, totalCharge: 0 };
+        }
+        deliveryPlaceStats[name].count += 1;
+        deliveryPlaceStats[name].totalCharge += order.deliveryCharge;
+      }
+    });
+
+    const deliveryPlacesBreakdown = Object.entries(deliveryPlaceStats)
+      .map(([placeName, { count, totalCharge }]) => ({
+        placeName,
+        count,
+        totalCharge
+      }))
+      .sort((a, b) => b.count - a.count); // or sort by totalCharge if preferred
+
     res.json({
       totalIncome,
       totalOtherIncome,
@@ -133,11 +178,15 @@ exports.getAdminSummary = async (req, res) => {
       totaldeliveryOrdersIncome,
       totalOrdersIncome,
       totalOrdersNetIncome,
+      totalServiceChargeIncome,
+      totalTableOrders,              // 👈 NEW
+      deliveryPlacesBreakdown, 
       statusCounts,
       delayedOrders,           // ✅ new
       nextDayStatusUpdates,    // ✅ new
       paymentBreakdown,
-      topMenus
+      topMenus,
+      waiterServiceEarnings
     });
   } catch (err) {
     console.error("Failed to fetch admin summary:", err.message);

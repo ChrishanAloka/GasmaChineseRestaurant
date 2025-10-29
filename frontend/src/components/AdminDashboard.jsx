@@ -215,17 +215,15 @@ const AdminDashboard = () => {
     {/* <div className="row g-3 mb-5 row-cols-5"> */}
     <div className="row g-3 mb-5">
       {[
-        { label: "", value: ``, color: "", icon: "" },
         { label: 
             // "Total Orders / Delivery Orders", 
             (
               <>
-                Total Orders /
+                Total Orders 
                 <br />
-                Delivery Orders
               </>
             ), 
-          value: `${summary.totalOrders} / ${summary.totaldeliveryOrders}`, color: "primary", icon: "🛒" },
+          value: `${summary.totalOrders} `, color: "primary", icon: "🛒" },
         { label: 
             // "Orders Income ( Net Income )",
              (
@@ -249,21 +247,40 @@ const AdminDashboard = () => {
             // "Total Delevery Charges",
             (
               <>
-                Total Delevery Charges
+                Delivery Orders
                 <br />
+                ( Total Delevery Charges )
+                
               </>
             ), 
           value: 
             // `${symbol}${formatCurrency(summary.totaldeliveryOrdersIncome)}`, 
             (
               <>
-                
+                {summary.totaldeliveryOrders} 
                 <br />
                 ( {symbol}{formatCurrency(summary.totaldeliveryOrdersIncome)} )
               </>
             ),
           color: "primary", icon: "🚚" },
-        { label: "", value: ``, color: "", icon: "" },
+        {
+          label: (
+            <>
+              Total Dine-In Orders
+              <br />
+              ( Total Service Charge )
+            </>
+          ),
+          value: (
+            <>
+              {summary.totalTableOrders}
+              <br />
+              ( {symbol}{formatCurrency(summary.totalServiceChargeIncome)} )
+            </>
+          ),
+          color: "primary",
+          icon: "%"
+        },
         { label: "Other Income", value: `${symbol}${formatCurrency(summary.totalOtherIncome)}`, color: "success", icon: "🎁"}, // ✅ NEW
         { label: "Other Expenses", value: `${symbol}${formatCurrency(summary.totalOtherExpenses)}`, color: "danger", icon: "🔧"}, // ✅ NEW
         
@@ -397,6 +414,67 @@ const AdminDashboard = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* Waiter Service Charge Earnings */}
+    <div className="row g-4 mt-2">
+      <div className="col-md-12">
+        <div className="card shadow-sm">
+          <div className="card-body">
+            <h6 className="fw-bold mb-3">🧑‍🍳 Waiters – Total Service Charge Earned</h6>
+            {summary.waiterServiceEarnings?.length > 0 ? (
+              <ul className="list-group">
+                {summary.waiterServiceEarnings.slice(0, 10).map((entry, idx) => (
+                  <li
+                    key={idx}
+                    className="list-group-item d-flex justify-content-between align-items-center"
+                  >
+                    <span>{entry.waiterName || "Unknown Waiter"}</span>
+                    <span className="badge bg-success">
+                      {symbol}{formatCurrency(entry.totalServiceCharge)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-muted">No waiter service charge data available</p>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* Delivery Places Breakdown */}
+    <div className="row g-4 mt-2">
+      <div className="col-md-12">
+        <div className="card shadow-sm">
+          <div className="card-body">
+            <h6 className="fw-bold mb-3">📍 Delivery Places – Order Count & Revenue</h6>
+            {summary.deliveryPlacesBreakdown?.length > 0 ? (
+              <table className="table table-sm table-hover table-striped">
+                <thead>
+                  <tr>
+                    <th>Place</th>
+                    <th>Orders</th>
+                    <th>Revenue ({symbol})</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {summary.deliveryPlacesBreakdown.map((place, idx) => (
+                    <tr key={idx}>
+                      <td>{place.placeName}</td>
+                      <td>{place.count}</td>
+                      <td>{formatCurrency(place.totalCharge)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p className="text-muted">No delivery place data available</p>
+            )}
           </div>
         </div>
       </div>

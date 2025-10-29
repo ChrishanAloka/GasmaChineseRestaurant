@@ -94,6 +94,15 @@ const orderSchema = new mongoose.Schema({
     ref: "User",
     required: true
   },
+  waiterId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Employee", // or whatever your employee/user model is named
+    default: null
+  },
+  waiterName: {
+    type: String,
+    default: null
+  },
   status: {
     type: String,
     default: "Pending"

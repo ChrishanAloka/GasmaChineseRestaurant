@@ -3,7 +3,7 @@
 const mongoose = require("mongoose");
 const Order = require("../models/Order");
 const Driver = require("../models/Driver");
-
+const Employee = require("../models/Employee");
 const Menu = require("../models/Menu");
 const DeliveryCharge = require("../models/DeliveryChargeByPlace");
 const ServiceCharge = require("../models/ServiceCharge");
@@ -20,7 +20,8 @@ exports.createOrder = async (req, res) => {
     deliveryPlaceId,
     deliveryNote,
     payment, // { cash, card, bankTransfer, notes }
-    invoiceNo
+    invoiceNo,
+    waiterId
   } = req.body;
 
   if (!items || items.length === 0) {
@@ -33,6 +34,27 @@ exports.createOrder = async (req, res) => {
     if (!finalCustomerName && customerPhone) {
       const lastOrder = await Order.findOne({ customerPhone }).sort({ createdAt: -1 });
       finalCustomerName = lastOrder?.customerName || customerName;
+    }
+
+    // Validate waiterId if it's a Dine-In order
+    let validatedWaiterId = null;
+    if (tableNo && tableNo !== "Takeaway") {
+      if (!waiterId) {
+        return res.status(400).json({ error: "Waiter is required for Dine-In orders" });
+      }
+
+      const employee = await Employee.findById(waiterId); // 👈 assumes you have an Employee model
+      if (!employee) {
+        return res.status(400).json({ error: "Invalid waiter selected" });
+      }
+
+      // Adjust field name if your employee role is stored as 'position', 'jobTitle', etc.
+      if (employee.role?.toLowerCase() !== "waiter") {
+        return res.status(400).json({ error: "Selected employee is not a waiter" });
+      }
+
+      validatedWaiterId = waiterId;
+      waiterName = employee.name || employee.fullName || "Unknown Waiter"; // 👈 capture name
     }
 
     // Validate and enrich items
@@ -107,6 +129,8 @@ exports.createOrder = async (req, res) => {
       customerName: finalCustomerName,
       customerPhone,
       tableNo,
+      waiterId: validatedWaiterId,
+      waiterName: waiterName,
       items: validItems,
       subtotal,
       serviceCharge,

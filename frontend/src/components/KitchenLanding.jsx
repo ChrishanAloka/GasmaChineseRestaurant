@@ -111,7 +111,7 @@ const KitchenLanding = () => {
           {liveOrders.map((order) => {
             const createdAt = new Date(order.createdAt);
             const timeElapsed = currentTime - createdAt.getTime();
-            const timeLimit = 5 * 60 * 1000; // 30 minutes in ms
+            const timeLimit = 20 * 60 * 1000; // 30 minutes in ms
             const timeRemaining = timeLimit - timeElapsed;
             const isOverdue = timeRemaining <= 0;
             const orderIsFromToday = isToday(order.createdAt);
@@ -167,9 +167,9 @@ const KitchenLanding = () => {
                     <p className="mb-2">
                       <strong>Table / Type:</strong>{" "}
                       {order.tableNo > 0 ? (
-                        <span className="badge bg-primary">Table {order.tableNo}</span>
+                        <span className="badge bg-primary fs-8">Table {order.tableNo} - {order.waiterName}</span>
                       ) : (
-                        <span className="badge bg-info text-dark">Takeaway</span>
+                        <span className="badge bg-info text-dark">Takeaway - ({order.deliveryType})</span>
                       )}
                     </p>
 

@@ -7,6 +7,7 @@ import ReceiptModal from "./ReceiptModal";
 import 'react-toastify/dist/ReactToastify.css'; 
 import AsyncSelect from 'react-select/async';
 import makeAnimated from 'react-select/animated';
+import Select from 'react-select';
 
 const CashierLanding = () => {
   const [menus, setMenus] = useState([]);
@@ -44,6 +45,8 @@ const CashierLanding = () => {
   const [showNumberPad, setShowNumberPad] = useState(false);
   const [customerSearchResults, setCustomerSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [waiters, setWaiters] = useState([]);
+  const [selectedWaiterId, setSelectedWaiterId] = useState("");
 
 
   // Load menus and service charge
@@ -53,6 +56,7 @@ const CashierLanding = () => {
     // fetchDeliveryCharge();
     fetchDeliveryPlaces();
     fetchOrdersAndComputePopularity();
+    fetchWaiters();
   }, []);
 
   // Auto-fill customer name when phone changes
@@ -98,6 +102,55 @@ const CashierLanding = () => {
       return () => clearTimeout(timer);
     }
   }, [customer.phone]);
+
+  const fetchWaiters = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get("https://gasmachineserestaurantrms.onrender.com/api/auth/employees", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      // Filter employees with role "waiter" (adjust field name if needed, e.g., "role" or "position")
+      const waiterList = res.data.filter(emp => 
+        emp.role?.toLowerCase() === "waiter" || emp.position?.toLowerCase() === "waiter"
+      );
+
+      setWaiters(waiterList);
+    } catch (err) {
+      console.error("Failed to load waiters:", err.message);
+      toast.error("Could not load waiters");
+    }
+  };
+
+  const handleOrderTypeChange = (e) => {
+    const newType = e.target.value;
+
+    setCustomer((prev) => {
+      // Start with the current customer state
+      const updated = { ...prev, orderType: newType };
+
+      if (newType === "table") {
+        // Reset all takeaway-related fields
+        updated.deliveryType = "";
+        updated.deliveryPlaceId = "";
+        updated.deliveryNote = "";
+        // Keep tableNo? You might want to clear it too for a fresh start
+        // updated.tableNo = ""; // optional — uncomment if you want to clear tableNo too
+      } else if (newType === "takeaway") {
+        // Reset table-specific fields
+        updated.tableNo = "";
+        // Waiter is only for "table", so clear it
+        // (you already do this via setSelectedWaiterId below)
+      }
+
+      return updated;
+    });
+
+    // Always clear waiter when not "table"
+    if (newType !== "table") {
+      setSelectedWaiterId("");
+    }
+  };
 
   const handlePhoneChange = async (value) => {
     const digits = value.replace(/\D/g, '');
@@ -331,6 +384,10 @@ const CashierLanding = () => {
         toast.warn("Table number is required for Dine-In orders");
         return;
       }
+      if (!selectedWaiterId) {
+        toast.warn("Please assign a waiter for Dine-In orders");
+        return;
+      }
     }
 
     // Takeaway specific
@@ -396,13 +453,26 @@ const CashierLanding = () => {
       // const invoiceNo = `INV-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
       // Get last invoice number from localStorage, default to 99 so next is 100
-      let lastInvoiceNo = parseInt(localStorage.getItem("lastInvoiceNo")) || 99;
-      lastInvoiceNo += 1;
-      localStorage.setItem("lastInvoiceNo", lastInvoiceNo.toString());
-      const invoiceNo = `INV-${lastInvoiceNo}`;
+
+      // let lastInvoiceNo = parseInt(localStorage.getItem("lastInvoiceNo")) || 99;
+      // lastInvoiceNo += 1;
+      // localStorage.setItem("lastInvoiceNo", lastInvoiceNo.toString());
+      // const invoiceNo = `INV-${lastInvoiceNo}`;
+
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+
+      const timestamp = `${year}${month}${day}${hours}${minutes}${seconds}`;
+      const invoiceNo = `INV-${timestamp}`;
 
       const payload = {
         ...customer,
+        waiterId: customer.orderType === "table" ? selectedWaiterId : null,
         deliveryPlaceId: selectedDeliveryPlace?._id,
         deliveryPlaceName: selectedDeliveryPlace?.placeName || null,
         deliveryCharge: deliveryCharge,
@@ -580,12 +650,7 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
                 <select
                   name="orderType"
                   value={customer.orderType}
-                  onChange={(e) =>
-                    setCustomer({
-                      ...customer,
-                      orderType: e.target.value
-                    })
-                  }
+                  onChange={handleOrderTypeChange} 
                   className="form-select"
                 >
                   <option value="table">Dine In</option>
@@ -614,25 +679,44 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
               )} */}
 
               {customer.orderType === "table" && (
-                <div className="col-md-3">
-                  <label>Table No</label>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    value={customer.tableNo}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, '');
-                      setCustomer({ ...customer, tableNo: val });
-                    }}
-                    onFocus={() => {
-                      setNumberPadTarget('tableNo');
-                      setShowNumberPad(true);
-                    }}
-                    className="form-control"
-                    placeholder="-"
-                    required
-                  />
-                </div>
+                <> 
+                  <div className="col-md-3">
+                    <label>Table No</label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={customer.tableNo}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '');
+                        setCustomer({ ...customer, tableNo: val });
+                      }}
+                      onFocus={() => {
+                        setNumberPadTarget('tableNo');
+                        setShowNumberPad(true);
+                      }}
+                      className="form-control"
+                      placeholder="-"
+                      required
+                    />
+                  </div>
+
+                  <div className="col-md-3">
+                    <label>Assign Waiter *</label>
+                    <select
+                      value={selectedWaiterId}
+                      onChange={(e) => setSelectedWaiterId(e.target.value)}
+                      className="form-select"
+                      required
+                    >
+                      <option value="">Select a waiter</option>
+                      {waiters.map((waiter) => (
+                        <option key={waiter._id} value={waiter._id}>
+                          {waiter.name || waiter.fullName || waiter._id}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </>
               )}
 
               {/* Delivery Type (only for Takeaway) */}
@@ -661,7 +745,7 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
             <div className="row g-3 position-relative mt-3">
 
               {/* Delivery Note (only for Delivery Service) */}
-              {customer.deliveryType === "Delivery Service" && (
+              {customer.orderType === "takeaway" && customer.deliveryType === "Delivery Service" && (
                 <div className="mt-3">
                   <label>Delivery Address or Note</label>
                   <textarea
@@ -685,7 +769,7 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
               {customer.orderType === "takeaway" && customer.deliveryType === "Delivery Service" && (
                 <div className="col-md-3">
                   <label>Delivery Place *</label>
-                  <select
+                  {/* <select
                     name="deliveryPlaceId"
                     value={customer.deliveryPlaceId}
                     onChange={(e) =>
@@ -703,7 +787,36 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
                         {place.placeName} ({symbol}{place.charge.toFixed(2)})
                       </option>
                     ))}
-                  </select>
+                  </select> */}
+                  <Select
+                    name="deliveryPlaceId"
+                    value={
+                      customer.deliveryPlaceId
+                        ? deliveryPlaces.find(place => place._id === customer.deliveryPlaceId)
+                          ? {
+                              value: customer.deliveryPlaceId,
+                              label: `${deliveryPlaces.find(p => p._id === customer.deliveryPlaceId).placeName} (${symbol}${deliveryPlaces.find(p => p._id === customer.deliveryPlaceId).charge.toFixed(2)})`
+                            }
+                          : null
+                        : null
+                    }
+                    onChange={(selectedOption) => {
+                      setCustomer({
+                        ...customer,
+                        deliveryPlaceId: selectedOption ? selectedOption.value : ""
+                      });
+                    }}
+                    options={deliveryPlaces.map(place => ({
+                      value: place._id,
+                      label: `${place.placeName} (${symbol}${place.charge.toFixed(2)})`
+                    }))}
+                    placeholder="Select a delivery zone..."
+                    isClearable
+                    isSearchable
+                    classNamePrefix="select"
+                    styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
+                    menuPortalTarget={document.body}
+                  />
                 </div>
               )}
 

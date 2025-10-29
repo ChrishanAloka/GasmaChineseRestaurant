@@ -411,7 +411,7 @@ const CashierOrderHistory = () => {
                 <tr key={order._id}>
                   <td>{new Date(order.createdAt).toLocaleString()}</td>
                   <td>{order.customerName}</td>
-                  <td>{order.tableNo > 0 ? `Table ${order.tableNo}` : `Takeaway`}</td>
+                  <td>{order.tableNo > 0 ? `Table ${order.tableNo} - ${order.waiterName || ""}` : `Takeaway (${order.deliveryType || ""} - ${order.deliveryPlaceName || ""})`}</td>
                   <td>
                     <span
                       className={`badge ${

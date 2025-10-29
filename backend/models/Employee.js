@@ -36,7 +36,6 @@ const employeeSchema = new mongoose.Schema(
     bankAccountNo: String,
     role: {
       type: String,
-      enum: ["cashier", "kitchen", "waiter", "cleaner"],
       required: true
     }
   },
