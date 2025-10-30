@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import AsyncSelect from 'react-select/async';
 import makeAnimated from 'react-select/animated';
 import Select from 'react-select';
+import { createFilter } from 'react-select';
 
 const CashierLanding = () => {
   const [menus, setMenus] = useState([]);
@@ -47,6 +48,10 @@ const CashierLanding = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [waiters, setWaiters] = useState([]);
   const [selectedWaiterId, setSelectedWaiterId] = useState("");
+
+  const [selectedMenuItem, setSelectedMenuItem] = useState(null);
+  const [itemQuantity, setItemQuantity] = useState(1);
+  const [tempStock, setTempStock] = useState({}); // e.g., { "menuId1": 5, "menuId2": 10 }
 
 
   // Load menus and service charge
@@ -216,7 +221,15 @@ const CashierLanding = () => {
       setMenus(res.data);
       const uniqueCategories = [...new Set(res.data.map(menu => menu.category).filter(Boolean))];
       setCategories(uniqueCategories);
-      setLoadingCategories(false); // Done loading categories
+      
+      // ✅ Initialize tempStock from currentQty
+      const initialTempStock = {};
+      res.data.forEach(menu => {
+        initialTempStock[menu._id] = menu.currentQty;
+      });
+      setTempStock(initialTempStock);
+
+      setLoadingCategories(false);
     } catch (err) {
       console.error("Failed to load menus:", err.message);
       setLoadingCategories(false); // Ensure loading stops even on error
@@ -328,36 +341,93 @@ const CashierLanding = () => {
 
   // Add item to cart
   const addToCart = (menu) => {
+    const { _id, quantity = 1 } = menu;
+
+    // ✅ Check against tempStock, not original stock
+    const available = tempStock[_id] || 0;
+    if (quantity > available) {
+      toast.warn(`Only ${available} of "${menu.name}" available!`);
+      return;
+    }
+    
     const existing = cart.find((item) => item._id === menu._id);
 
     if (existing) {
       setCart(
         cart.map((item) =>
-          item._id === menu._id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
+          item._id === _id ? { ...item, quantity: item.quantity + quantity } : item
         )
       );
     } else {
-      setCart([...cart, { ...menu, quantity: 1 }]);
+      setCart([...cart, { ...menu, quantity }]);
     }
+
+    // ✅ Deduct from tempStock
+    setTempStock(prev => ({
+      ...prev,
+      [_id]: (prev[_id] || 0) - quantity
+    }));
   };
 
   // Remove item from cart
   const removeFromCart = (menu) => {
-    const existing = cart.find((item) => item._id === menu._id);
+    const existing = cart.find(item => item._id === menu._id);
+    if (!existing) return;
 
-    if (existing && existing.quantity <= 1) {
-      setCart(cart.filter((item) => item._id !== menu._id));
+    let newCart;
+    if (existing.quantity <= 1) {
+      newCart = cart.filter(item => item._id !== menu._id);
     } else {
-      setCart(
-        cart.map((item) =>
-          item._id === menu._id
-            ? { ...item, quantity: item.quantity - 1 }
-            : item
-        ).filter((item) => item.quantity > 0)
-      );
+      newCart = cart.map(item =>
+        item._id === menu._id ? { ...item, quantity: item.quantity - 1 } : item
+      ).filter(item => item.quantity > 0);
     }
+
+    setCart(newCart);
+
+    // ✅ Return 1 unit to tempStock
+    setTempStock(prev => ({
+      ...prev,
+      [menu._id]: (prev[menu._id] || 0) + 1
+    }));
+  };
+
+  const loadMenuOptions = (inputValue) => {
+    if (!inputValue?.trim()) {
+      // Return all in-stock (temp) items when no search
+      return menus
+        .filter(menu => (tempStock[menu._id] || 0) > 0)
+        .map(menu => ({
+          ...menu,
+          label: `${menu.name} (${symbol}${menu.price.toFixed(2)}) — Stock: ${tempStock[menu._id] || 0}`,
+          value: menu._id
+        }));
+    }
+
+    return menus
+      .filter(menu =>
+        menu.name.toLowerCase().includes(inputValue.toLowerCase()) &&
+        (tempStock[menu._id] || 0) > 0
+      )
+      .map(menu => ({
+        ...menu,
+        label: `${menu.name} (${symbol}${menu.price.toFixed(2)}) — Stock: ${tempStock[menu._id] || 0}`,
+        value: menu._id
+      }));
+  };
+
+  const filterMenuOptions = (inputValue) => {
+    const filtered = menus.filter(menu => {
+      const available = tempStock[menu._id] || 0;
+      const matchesSearch = !inputValue || menu.name.toLowerCase().includes(inputValue.toLowerCase());
+      return matchesSearch && available > 0;
+    });
+
+    return filtered.map(menu => ({
+      ...menu,
+      value: menu._id,
+      label: `${menu.name} (${symbol}${menu.price.toFixed(2)}) — Stock: ${tempStock[menu._id] || 0}`
+    }));
   };
 
   // Proceed to payment
@@ -878,10 +948,71 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
         </div>
       </div>
 
-      {/* Cart Summary */}
-      <div className="row g-4">
+      <div className="row g-3">
         <div className="col-md-8">
-          {/* Search & Filter */}
+          <div className="bg-white p-3 mb-3 rounded shadow-sm">
+            <div className="row g-3">
+              <div className="col-md-4">
+                <label>Select Menu Item</label>
+                <Select
+                  options={menus
+                    .filter(menu => (tempStock[menu._id] || 0) > 0)
+                    .map(menu => ({
+                      ...menu,
+                      value: menu._id,
+                      label: `${menu.name} (${symbol}${menu.price.toFixed(2)}) — Stock: ${tempStock[menu._id]}`
+                    }))
+                  }
+                  value={selectedMenuItem}
+                  onChange={setSelectedMenuItem}
+                  placeholder="Search menu items..."
+                  isClearable
+                  isSearchable
+                  noOptionsMessage={() => "No in-stock items"}
+                  classNamePrefix="select"
+                  components={makeAnimated()}
+                />
+              </div>
+
+              <div className="col-md-4">
+                <label>Quantity</label>
+                <input
+                  type="number"
+                  min="1"
+                  max={selectedMenuItem ? tempStock[selectedMenuItem._id] || 1 : 1}
+                  className="form-control"
+                  value={itemQuantity}
+                  onFocus={(e) => e.target.select()}
+                  onWheel={(e) => e.target.blur()}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value) || 1;
+                    const max = selectedMenuItem ? tempStock[selectedMenuItem._id] || 1 : 1;
+                    setItemQuantity(Math.max(1, Math.min(val, max)));
+                  }}
+                  disabled={!selectedMenuItem}
+                />
+                {selectedMenuItem && selectedMenuItem.currentQty <= selectedMenuItem.minimumQty && (
+                  <small className="text-warning">⚠️ Low stock!</small>
+                )}
+              </div>
+              
+              <div className="col-md-4">
+                <button
+                  className="btn btn-success w-100 mt-4"
+                  onClick={() => {
+                    if (!selectedMenuItem) return;
+                    addToCart({ ...selectedMenuItem, quantity: itemQuantity });
+                    setSelectedMenuItem(null);
+                    setItemQuantity(1);
+                  }}
+                  disabled={!selectedMenuItem}
+                >
+                  Add to Order
+                </button>
+              </div>
+            </div>
+          </div>
+
           <div className="bg-white p-3 mb-3 rounded shadow-sm">
             <div className="row g-3">
               <div className="col-md-4">
@@ -927,7 +1058,6 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
             </div>
           </div>
 
-          {/* Menu Items */}
           <div className="row g-3">
             {filteredMenus.map((menu) => {
               
@@ -956,7 +1086,8 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
                     <p className="m-0">
                       Stock:{" "}
                     <span className={`badge ${lowStock ? "bg-warning text-dark" : "bg-success"}`}>
-                      {menu.currentQty}
+                      {/* {menu.currentQty} */}
+                      {tempStock[menu._id]}
                     </span>
                     </p>
                     {inStock ? (
@@ -976,7 +1107,7 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
             })}
           </div>
         </div>
-        
+
         <div className="col-md-4">
           {/* Right Side - Cart & Receipt */}
           <div className="row g-0 mb-4">
@@ -1042,6 +1173,14 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
               </div>
             </div>
           </div>
+        </div>
+
+      {/* Cart Summary */}
+        <div className="col-md-8">
+          {/* Search & Filter */}
+
+          {/* Menu Items */}
+          
         </div>
       </div>
 

@@ -9,8 +9,21 @@ const PaymentModal = ({ totalAmount, onConfirm, onClose }) => {
   const [notes, setNotes] = useState("");
   const [numberPadTarget, setNumberPadTarget] = useState(null);
   const [showNumberPad, setShowNumberPad] = useState(false);
+  const [useOtherPaymentMethods, setUseOtherPaymentMethods] = useState(false); // 👈 NEW
 
-  const totalPaid = (parseFloat(cash) || 0) + (parseFloat(card) || 0) + (parseFloat(bankTransfer) || 0);
+  // Reset card & bank when disabling other methods
+  const toggleOtherPayments = () => {
+    const newValue = !useOtherPaymentMethods;
+    setUseOtherPaymentMethods(newValue);
+    if (!newValue) {
+      setCard(0);
+      setBankTransfer(0);
+    }
+  };
+
+  const totalPaid = (parseFloat(cash) || 0) + 
+                    (useOtherPaymentMethods ? (parseFloat(card) || 0) : 0) + 
+                    (useOtherPaymentMethods ? (parseFloat(bankTransfer) || 0) : 0);
   const changeDue = Math.max(0, totalPaid - totalAmount).toFixed(2);
 
   const handleSubmit = () => {
@@ -18,7 +31,14 @@ const PaymentModal = ({ totalAmount, onConfirm, onClose }) => {
       toast.warn("Total paid must be equal or greater than order total");
       return;
     }
-    onConfirm({ cash, card, bankTransfer, totalPaid, changeDue, notes });
+    onConfirm({ 
+      cash, 
+      card: useOtherPaymentMethods ? card : 0, 
+      bankTransfer: useOtherPaymentMethods ? bankTransfer : 0, 
+      totalPaid, 
+      changeDue, 
+      notes 
+    });
   };
 
   // Handle manual keyboard input
@@ -142,29 +162,48 @@ const PaymentModal = ({ totalAmount, onConfirm, onClose }) => {
                       placeholder="0.00"
                     />
                   </div>
-                  <div className="col-md-4">
-                    <label className="form-label">Card ({symbol})</label>
-                    <input
-                      type="text"
-                      inputMode="decimal"
-                      value={card === 0 ? '' : card}
-                      onChange={(e) => handleInputChange('card', e.target.value)}
-                      onFocus={() => focusField('card')}
-                      className="form-control text-end"
-                      placeholder="0.00"
-                    />
-                  </div>
-                  <div className="col-md-4">
-                    <label className="form-label">Bank Transfer ({symbol})</label>
-                    <input
-                      type="text"
-                      inputMode="decimal"
-                      value={bankTransfer === 0 ? '' : bankTransfer}
-                      onChange={(e) => handleInputChange('bankTransfer', e.target.value)}
-                      onFocus={() => focusField('bankTransfer')}
-                      className="form-control text-end"
-                      placeholder="0.00"
-                    />
+                  {useOtherPaymentMethods && (
+                    <>
+                      <div className="col-md-4">
+                        <label className="form-label">Card ({symbol})</label>
+                        <input
+                          type="text"
+                          inputMode="decimal"
+                          value={card === 0 ? '' : card}
+                          onChange={(e) => handleInputChange('card', e.target.value)}
+                          onFocus={() => focusField('card')}
+                          className="form-control text-end"
+                          placeholder="0.00"
+                        />
+                      </div>
+                      <div className="col-md-4">
+                        <label className="form-label">Bank Transfer ({symbol})</label>
+                        <input
+                          type="text"
+                          inputMode="decimal"
+                          value={bankTransfer === 0 ? '' : bankTransfer}
+                          onChange={(e) => handleInputChange('bankTransfer', e.target.value)}
+                          onFocus={() => focusField('bankTransfer')}
+                          className="form-control text-end"
+                          placeholder="0.00"
+                        />
+                      </div>
+                    </>
+                  )}
+                  {/* Checkbox to toggle other methods */}
+                  <div className="col-md-12 mt-2">
+                    <div className="form-check">
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        id="otherPayments"
+                        checked={useOtherPaymentMethods}
+                        onChange={toggleOtherPayments}
+                      />
+                      <label className="form-check-label" htmlFor="otherPayments">
+                        Use other payment methods (Card / Bank Transfer)
+                      </label>
+                    </div>
                   </div>
                 </div>
 

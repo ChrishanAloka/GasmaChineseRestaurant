@@ -405,19 +405,21 @@ const CashierOrderHistory = () => {
         </div>
 
         {/* Delivery Type Filter (only relevant for Takeaway) */}
-        <div className="col-md-2">
-          <label className="form-label">Delivery Type</label>
-          <select
-            name="deliveryType"
-            className="form-select"
-            value={filters.deliveryType}
-            onChange={handleFilterChange}
-          >
-            <option value="">All</option>
-            <option value="Customer Pickup">Customer Pickup</option>
-            <option value="Delivery Service">Delivery Service</option>
-          </select>
-        </div>
+        {filters.orderType === "takeaway" || filters.orderType === "" && (
+          <div className="col-md-2">
+            <label className="form-label">Delivery Type</label>
+            <select
+              name="deliveryType"
+              className="form-select"
+              value={filters.deliveryType}
+              onChange={handleFilterChange}
+            >
+              <option value="">All</option>
+              <option value="Customer Pickup">Customer Pickup</option>
+              <option value="Delivery Service">Delivery Service</option>
+            </select>
+          </div>
+        )}
         <div className="col-md-2 d-flex gap-2">
           <button className="btn btn-primary w-100" onClick={fetchOrders}>Apply</button>
         </div>
@@ -493,20 +495,22 @@ const CashierOrderHistory = () => {
                   </td>
                   <td>{symbol}{order.totalPrice?.toFixed(2)}</td>
                   <td>
-                    <button
-                      className="btn btn-sm btn-outline-secondary"
-                      // onClick={() => generateReceipt(order)}
-                      onClick={() => setReceiptOrder(order)}
-                    >
-                      🖨️ Print
-                    </button>
-                    <button
-                      className="btn btn-sm btn-outline-danger"
-                      onClick={() => handleDeleteOrder(order._id, order.customerName)}
-                      title="Delete Order"
-                    >
-                      🗑️
-                    </button>
+                    <div className="d-flex gap-2">
+                      <button
+                        className="btn btn-sm btn-outline-secondary"
+                        // onClick={() => generateReceipt(order)}
+                        onClick={() => setReceiptOrder(order)}
+                      >
+                        🖨️ Print
+                      </button>
+                      <button
+                        className="btn btn-sm btn-outline-danger"
+                        onClick={() => handleDeleteOrder(order._id, order.customerName)}
+                        title="Delete Order"
+                      >
+                        🗑️
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
