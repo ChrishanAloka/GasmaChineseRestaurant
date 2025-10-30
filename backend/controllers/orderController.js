@@ -173,7 +173,7 @@ exports.createOrder = async (req, res) => {
 
 // GET /api/auth/orders/history
 exports.getOrderHistory = async (req, res) => {
-  const { startDate, endDate, status } = req.query;
+  const { startDate, endDate, status, orderType, deliveryType } = req.query;
   const query = {};
 
   // ✅ Handle date range properly
@@ -199,6 +199,18 @@ exports.getOrderHistory = async (req, res) => {
   // ✅ Handle status filter
   if (status) {
     query.status = status;
+  }
+
+  // Order Type: "table" = Dine-In, "takeaway" = Takeaway
+  if (orderType === "table") {
+    query.tableNo = { $ne: "Takeaway" }; // Dine-In has real table numbers
+  } else if (orderType === "takeaway") {
+    query.tableNo = "Takeaway";
+  }
+
+  // Delivery Type (only applies to Takeaway)
+  if (deliveryType) {
+    query.deliveryType = deliveryType;
   }
 
   try {
@@ -407,6 +419,42 @@ exports.updateDeliveryStatus = async (req, res) => {
     res.json(updatedOrder);
   } catch (err) {
     console.error("Failed to update delivery status:", err.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// DELETE /api/auth/order/:id
+exports.deleteOrder = async (req, res) => {
+  const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ error: "Invalid order ID" });
+  }
+
+  try {
+    const order = await Order.findById(id);
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    // Optional: Only allow deletion if status is "Pending"
+    // if (order.status !== "Pending") {
+    //   return res.status(403).json({ error: "Only pending orders can be deleted" });
+    // }
+
+    // Restore stock
+    // for (const item of order.items) {
+    //   await Menu.findByIdAndUpdate(item.menuId, {
+    //     $inc: { currentQty: item.quantity }
+    //   });
+    // }
+
+    // Delete the order
+    await Order.findByIdAndDelete(id);
+
+    res.json({ message: "Order deleted successfully" });
+  } catch (err) {
+    console.error("Failed to delete order:", err.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };

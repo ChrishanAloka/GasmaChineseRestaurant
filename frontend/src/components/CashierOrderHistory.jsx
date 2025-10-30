@@ -31,7 +31,9 @@ const CashierOrderHistory = () => {
   const [filters, setFilters] = useState({
     startDate: "",
     endDate: "",
-    status: ""
+    status: "",
+    orderType: "",        // "table" or "takeaway"
+    deliveryType: ""
   });
   const [receiptOrder, setReceiptOrder] = useState(null);
 
@@ -55,6 +57,8 @@ const CashierOrderHistory = () => {
     if (filters.startDate) params.append("startDate", start);
     if (filters.endDate) params.append("endDate", end);
     if (filters.status) params.append("status", filters.status);
+    if (filters.orderType) params.append("orderType", filters.orderType);
+    if (filters.deliveryType) params.append("deliveryType", filters.deliveryType);
 
     try {
       const res = await axios.get(
@@ -316,6 +320,28 @@ const CashierOrderHistory = () => {
     }, 5000);
   };
 
+  const handleDeleteOrder = async (orderId, customerName) => {
+    if (!window.confirm(`Are you sure you want to delete the order for ${customerName}? This cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(
+        `https://gasmachineserestaurantrms.onrender.com/api/auth/order/${orderId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+
+      // Remove from UI
+      setOrders(prev => prev.filter(order => order._id !== orderId));
+      alert("Order deleted successfully");
+    } catch (err) {
+      console.error("Delete failed:", err.response?.data || err.message);
+      alert("Failed to delete order: " + (err.response?.data?.error || "Unknown error"));
+    }
+  };
 
 
 
@@ -331,7 +357,7 @@ const CashierOrderHistory = () => {
 
       {/* Filters & Actions */}
       <div className="row g-3 align-items-end mb-4" style={{ overflowX: "auto", width: "100%" }}>
-        <div className="col-md-3">
+        <div className="col-md-2">
           <label className="form-label">Start Date</label>
           <input
             name="startDate"
@@ -340,7 +366,7 @@ const CashierOrderHistory = () => {
             onChange={handleFilterChange}
           />
         </div>
-        <div className="col-md-3">
+        <div className="col-md-2">
           <label className="form-label">End Date</label>
           <input
             name="endDate"
@@ -349,7 +375,7 @@ const CashierOrderHistory = () => {
             onChange={handleFilterChange}
           />
         </div>
-        <div className="col-md-3">
+        <div className="col-md-2">
           <label className="form-label">Status</label>
           <select
             name="status"
@@ -363,7 +389,36 @@ const CashierOrderHistory = () => {
             <option value="Completed">Completed</option>
           </select>
         </div>
-        <div className="col-md-3 d-flex gap-2">
+        {/* Order Type Filter */}
+        <div className="col-md-2">
+          <label className="form-label">Order Type</label>
+          <select
+            name="orderType"
+            className="form-select"
+            value={filters.orderType}
+            onChange={handleFilterChange}
+          >
+            <option value="">All Types</option>
+            <option value="table">Dine-In</option>
+            <option value="takeaway">Takeaway</option>
+          </select>
+        </div>
+
+        {/* Delivery Type Filter (only relevant for Takeaway) */}
+        <div className="col-md-2">
+          <label className="form-label">Delivery Type</label>
+          <select
+            name="deliveryType"
+            className="form-select"
+            value={filters.deliveryType}
+            onChange={handleFilterChange}
+          >
+            <option value="">All</option>
+            <option value="Customer Pickup">Customer Pickup</option>
+            <option value="Delivery Service">Delivery Service</option>
+          </select>
+        </div>
+        <div className="col-md-2 d-flex gap-2">
           <button className="btn btn-primary w-100" onClick={fetchOrders}>Apply</button>
         </div>
       </div>
@@ -444,6 +499,13 @@ const CashierOrderHistory = () => {
                       onClick={() => setReceiptOrder(order)}
                     >
                       🖨️ Print
+                    </button>
+                    <button
+                      className="btn btn-sm btn-outline-danger"
+                      onClick={() => handleDeleteOrder(order._id, order.customerName)}
+                      title="Delete Order"
+                    >
+                      🗑️
                     </button>
                   </td>
                 </tr>
