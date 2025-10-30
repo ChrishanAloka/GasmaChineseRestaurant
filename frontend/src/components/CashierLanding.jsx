@@ -50,7 +50,7 @@ const CashierLanding = () => {
   const [selectedWaiterId, setSelectedWaiterId] = useState("");
 
   const [selectedMenuItem, setSelectedMenuItem] = useState(null);
-  const [itemQuantity, setItemQuantity] = useState(1);
+  const [itemQuantity, setItemQuantity] = useState(0);
   const [tempStock, setTempStock] = useState({}); // e.g., { "menuId1": 5, "menuId2": 10 }
 
 
@@ -195,6 +195,18 @@ const CashierLanding = () => {
         ...prev,
         tableNo: (prev.tableNo || '') + value
       }));
+    } else if (numberPadTarget === 'quantity') {
+      // Update itemQuantity via number pad
+      setItemQuantity(prev => {
+        const newQty = parseInt((prev.toString() + value)) || 0;
+        const max = selectedMenuItem ? (tempStock[selectedMenuItem._id] || 0) : 0;
+
+        if (newQty > max) {
+          toast.warn(`Only ${max} available for "${selectedMenuItem.name}"!`);
+          return prev; // keep previous value
+        }
+        return Math.min(newQty, max);
+      });
     }
   };
 
@@ -209,6 +221,13 @@ const CashierLanding = () => {
         ...prev,
         tableNo: (prev.tableNo || '').slice(0, -1)
       }));
+    } else if (numberPadTarget === 'quantity') {
+      setItemQuantity(prev => {
+        const str = prev.toString();
+        if (str.length <= 1) return 0;
+        const newQty = parseInt(str.slice(0, -1)) || 0;
+        return newQty;
+      });
     }
   };
 
@@ -897,7 +916,7 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
           <div className="row g-0 mb-4">
             <div className="card shadow-sm">
               <div className="card-header bg-light d-flex justify-content-between align-items-center">
-                <span>Enter {numberPadTarget === 'phone' ? 'Phone' : 'Table No'}</span>
+                <span>Enter {numberPadTarget === 'phone' ? 'Phone' : numberPadTarget === 'quantity' ? 'Quantity' : 'Table No'}</span>
                 <button
                   className="btn btn-sm btn-outline-secondary"
                   onClick={() => setShowNumberPad(false)}
@@ -952,7 +971,7 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
         <div className="col-md-8">
           <div className="bg-white p-3 mb-3 rounded shadow-sm">
             <div className="row g-3">
-              <div className="col-md-4">
+              <div className="col-md-6">
                 <label>Select Menu Item</label>
                 <Select
                   options={menus
@@ -974,19 +993,28 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
                 />
               </div>
 
-              <div className="col-md-4">
+              <div className="col-md-2">
                 <label>Quantity</label>
                 <input
                   type="number"
-                  min="1"
+                  min="0"
                   max={selectedMenuItem ? tempStock[selectedMenuItem._id] || 1 : 1}
                   className="form-control"
                   value={itemQuantity}
-                  onFocus={(e) => e.target.select()}
+                  // onFocus={(e) => e.target.select()}
+                  onFocus={(e) => {
+                    if (selectedMenuItem) {
+                      setNumberPadTarget('quantity');
+                      setShowNumberPad(true);
+                    }
+                  }}
                   onWheel={(e) => e.target.blur()}
                   onChange={(e) => {
                     const val = parseInt(e.target.value) || 1;
                     const max = selectedMenuItem ? tempStock[selectedMenuItem._id] || 1 : 1;
+                    if (val > max) {
+                      toast.warn(`Only ${max} available for "${selectedMenuItem.name}"!`);
+                    }
                     setItemQuantity(Math.max(1, Math.min(val, max)));
                   }}
                   disabled={!selectedMenuItem}
