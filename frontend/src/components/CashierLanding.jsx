@@ -357,6 +357,10 @@ const CashierLanding = () => {
     }
   };
 
+  const cleanMenuName = (name) => {
+    const match = name.match(/^[^a-zA-Z]*([a-zA-Z].*)/);
+    return match ? match[1] : name; // fallback to original if no letter found
+  };
 
   // Add item to cart
   const addToCart = (menu) => {
@@ -368,6 +372,8 @@ const CashierLanding = () => {
       toast.warn(`Only ${available} of "${menu.name}" available!`);
       return;
     }
+
+    const cleanedName = cleanMenuName(menu.name);
     
     const existing = cart.find((item) => item._id === menu._id);
 
@@ -378,7 +384,7 @@ const CashierLanding = () => {
         )
       );
     } else {
-      setCart([...cart, { ...menu, quantity }]);
+      setCart([...cart, { ...menu, name: cleanedName, quantity }]);
     }
 
     // ✅ Deduct from tempStock
@@ -626,13 +632,13 @@ const CashierLanding = () => {
     });
 
   // ✅ LIVE subtotal calculation
-const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-const serviceCharge = customer.orderType === "table" && serviceChargeSettings.isActive
-  ? subtotal * (serviceChargeSettings.dineInCharge / 100)
-  : 0;
-// const deliveryCharge = customer.orderType === "takeaway" && deliveryChargeSettings.isActive && customer.deliveryType === "Delivery Service"
-//     ? deliveryChargeSettings.amount
-//     : 0;
+  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const serviceCharge = customer.orderType === "table" && serviceChargeSettings.isActive
+    ? subtotal * (serviceChargeSettings.dineInCharge / 100)
+    : 0;
+  // const deliveryCharge = customer.orderType === "takeaway" && deliveryChargeSettings.isActive && customer.deliveryType === "Delivery Service"
+  //     ? deliveryChargeSettings.amount
+  //     : 0;
   const selectedDeliveryPlace = deliveryPlaces.find(
     (place) => place._id === customer.deliveryPlaceId
   );
@@ -643,7 +649,7 @@ const serviceCharge = customer.orderType === "table" && serviceChargeSettings.is
     ? selectedDeliveryPlace.charge
     : 0;
 
-const finalTotal = subtotal + serviceCharge + deliveryCharge;
+  const finalTotal = subtotal + serviceCharge + deliveryCharge;
 
   const symbol = localStorage.getItem("currencySymbol") || "$";
 

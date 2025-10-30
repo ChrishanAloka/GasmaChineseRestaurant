@@ -81,7 +81,7 @@ exports.createOrder = async (req, res) => {
 
       validItems.push({
         menuId: menuItem._id,
-        name: menuItem.name,
+        name: item.name,
         price: menuItem.price,
         netProfit: netProfitPerUnit,
         imageUrl: menuItem.imageUrl,
