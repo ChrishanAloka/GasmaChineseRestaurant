@@ -7,6 +7,7 @@ const Employee = require("../models/Employee");
 const Menu = require("../models/Menu");
 const DeliveryCharge = require("../models/DeliveryChargeByPlace");
 const ServiceCharge = require("../models/ServiceCharge");
+const Customer = require('../models/Customer'); // adjust path as needed
 
 
 // POST /api/auth/order
@@ -36,6 +37,23 @@ exports.createOrder = async (req, res) => {
     if (!finalCustomerName && customerPhone) {
       const lastOrder = await Order.findOne({ customerPhone }).sort({ createdAt: -1 });
       finalCustomerName = lastOrder?.customerName || customerName;
+    }
+
+    // Upsert customer in Customer collection
+    if (customerPhone) {
+      await Customer.findOneAndUpdate(
+        { phone: customerPhone },
+        { 
+          phone: customerPhone,
+          name: finalCustomerName || undefined, // only update name if provided
+          $setOnInsert: { createdAt: new Date() }
+        },
+        { 
+          upsert: true, 
+          new: true,
+          setDefaultsOnInsert: true 
+        }
+      );
     }
 
     // Validate waiterId if it's a Dine-In order
