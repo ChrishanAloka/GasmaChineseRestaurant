@@ -968,6 +968,73 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
       </div>
 
       <div className="row g-3">
+        <div className="col-md-4">
+          {/* Right Side - Cart & Receipt */}
+          <div className="row g-0 mb-4">
+            <div className="card shadow-sm">
+              <div className="card-header bg-success text-white">
+                <h5 className="mb-0">🛒 Current Order</h5>
+              </div>
+              <div className="card-body">
+                <ul className="list-group mb-3">
+                  {cart.length === 0 ? (
+                    <li className="list-group-item">No items added</li>
+                  ) : (
+                    cart.map((item, idx) => (
+                      <li key={idx} className="list-group-item d-flex justify-content-between align-items-center">
+                        <span>{item.name}</span>
+                        <span>{symbol}{(item.price * item.quantity).toFixed(2)}</span>
+                        <span className="badge bg-secondary">{item.quantity}</span>
+                        <button
+                          className="btn btn-sm btn-outline-danger"
+                          onClick={() => removeFromCart(item)}
+                        >
+                          -
+                        </button>
+                      </li>
+                    ))
+                  )}
+                </ul>
+
+                <hr />
+
+                {/* Order Summary */}
+                <div className="d-flex justify-content-between mb-2">
+                  <strong>Subtotal</strong>
+                  <span>{symbol}{subtotal.toFixed(2)}</span> {/* ✅ UPDATED */}
+                </div>
+
+                {serviceCharge > 0 && (
+                  <div className="d-flex justify-content-between mb-2">
+                    <strong>Service Charge ({serviceChargeSettings.dineInCharge}%)</strong>
+                    <span>{symbol}{serviceCharge.toFixed(2)}</span> {/* ✅ UPDATED */}
+                  </div>
+                )}
+
+                {deliveryCharge > 0 && (
+                  <div className="d-flex justify-content-between mb-2">
+                    <strong>Delivery Fee</strong>
+                    <span>{symbol}{deliveryCharge.toFixed(2)}</span>
+                  </div>
+                )}
+
+                <div className="d-flex justify-content-between fw-bold fs-5">
+                  <strong>Total</strong>
+                  <span>{symbol}{finalTotal.toFixed(2)}</span> {/* ✅ UPDATED */}
+                </div>
+
+                <button
+                  className="btn btn-success w-100 py-2 mt-3"
+                  onClick={goToPayment}
+                  disabled={cart.length === 0}
+                >
+                  Proceed to Payment
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
         <div className="col-md-8">
           <div className="bg-white p-3 mb-3 rounded shadow-sm">
             <div className="row g-3">
@@ -1134,81 +1201,6 @@ const finalTotal = subtotal + serviceCharge + deliveryCharge;
             );
             })}
           </div>
-        </div>
-
-        <div className="col-md-4">
-          {/* Right Side - Cart & Receipt */}
-          <div className="row g-0 mb-4">
-            <div className="card shadow-sm">
-              <div className="card-header bg-success text-white">
-                <h5 className="mb-0">🛒 Current Order</h5>
-              </div>
-              <div className="card-body">
-                <ul className="list-group mb-3">
-                  {cart.length === 0 ? (
-                    <li className="list-group-item">No items added</li>
-                  ) : (
-                    cart.map((item, idx) => (
-                      <li key={idx} className="list-group-item d-flex justify-content-between align-items-center">
-                        <span>{item.name}</span>
-                        <span>{symbol}{(item.price * item.quantity).toFixed(2)}</span>
-                        <span className="badge bg-secondary">{item.quantity}</span>
-                        <button
-                          className="btn btn-sm btn-outline-danger"
-                          onClick={() => removeFromCart(item)}
-                        >
-                          -
-                        </button>
-                      </li>
-                    ))
-                  )}
-                </ul>
-
-                <hr />
-
-                {/* Order Summary */}
-                <div className="d-flex justify-content-between mb-2">
-                  <strong>Subtotal</strong>
-                  <span>{symbol}{subtotal.toFixed(2)}</span> {/* ✅ UPDATED */}
-                </div>
-
-                {serviceCharge > 0 && (
-                  <div className="d-flex justify-content-between mb-2">
-                    <strong>Service Charge ({serviceChargeSettings.dineInCharge}%)</strong>
-                    <span>{symbol}{serviceCharge.toFixed(2)}</span> {/* ✅ UPDATED */}
-                  </div>
-                )}
-
-                {deliveryCharge > 0 && (
-                  <div className="d-flex justify-content-between mb-2">
-                    <strong>Delivery Fee</strong>
-                    <span>{symbol}{deliveryCharge.toFixed(2)}</span>
-                  </div>
-                )}
-
-                <div className="d-flex justify-content-between fw-bold fs-5">
-                  <strong>Total</strong>
-                  <span>{symbol}{finalTotal.toFixed(2)}</span> {/* ✅ UPDATED */}
-                </div>
-
-                <button
-                  className="btn btn-success w-100 py-2 mt-3"
-                  onClick={goToPayment}
-                  disabled={cart.length === 0}
-                >
-                  Proceed to Payment
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      {/* Cart Summary */}
-        <div className="col-md-8">
-          {/* Search & Filter */}
-
-          {/* Menu Items */}
-          
         </div>
       </div>
 
