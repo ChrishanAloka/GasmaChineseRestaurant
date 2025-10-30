@@ -29,6 +29,8 @@ exports.createOrder = async (req, res) => {
   }
 
   try {
+    let waiterName = null; // or "N/A", "", etc.
+    
     // Auto-fill customer name from last order
     let finalCustomerName = customerName;
     if (!finalCustomerName && customerPhone) {
