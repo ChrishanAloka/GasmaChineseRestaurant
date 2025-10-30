@@ -164,6 +164,62 @@ exports.getAdminSummary = async (req, res) => {
       }))
       .sort((a, b) => b.count - a.count); // or sort by totalCharge if preferred
 
+    const orderTypeBreakdown = {
+      "Dine-In": { count: 0, total: 0 },
+      "Takeaway": { count: 0, total: 0 },
+      "Delivery": { count: 0, total: 0, byPlace: {} }
+    };
+
+    orders.forEach(order => {
+      const totalPrice = order.totalPrice || 0;
+
+      if (order.deliveryType === "Delivery Service") {
+        orderTypeBreakdown["Delivery"].count += 1;
+        orderTypeBreakdown["Delivery"].total += totalPrice;
+
+        const place = order.deliveryPlaceName || "Unknown";
+        if (!orderTypeBreakdown["Delivery"].byPlace[place]) {
+          orderTypeBreakdown["Delivery"].byPlace[place] = { count: 0, total: 0 };
+        }
+        orderTypeBreakdown["Delivery"].byPlace[place].count += 1;
+        orderTypeBreakdown["Delivery"].byPlace[place].total += totalPrice;
+      } else if (order.tableNo === "Takeaway") {
+        orderTypeBreakdown["Takeaway"].count += 1;
+        orderTypeBreakdown["Takeaway"].total += totalPrice;
+      } else {
+        // Assume Dine-In
+        orderTypeBreakdown["Dine-In"].count += 1;
+        orderTypeBreakdown["Dine-In"].total += totalPrice;
+      }
+    });
+
+    // Order types summary
+    let dineInCount = 0, dineInTotal = 0;
+    let takeawayCount = 0, takeawayTotal = 0;
+    let deliveryCount = 0, deliveryTotal = 0;
+
+    orders.forEach(order => {
+      const total = order.totalPrice || 0;
+
+      if (order.deliveryType === "Delivery Service") {
+        deliveryCount += 1;
+        deliveryTotal += total;
+      } else if (order.tableNo === "Takeaway") {
+        takeawayCount += 1;
+        takeawayTotal += total;
+      } else {
+        // Assume Dine-In (has tableNo and not Takeaway)
+        dineInCount += 1;
+        dineInTotal += total;
+      }
+    });
+
+    const orderTypeSummary = {
+      dineIn: { count: dineInCount, total: dineInTotal },
+      takeaway: { count: takeawayCount, total: takeawayTotal },
+      delivery: { count: deliveryCount, total: deliveryTotal }
+    };
+
     res.json({
       totalIncome,
       totalOtherIncome,
@@ -186,7 +242,9 @@ exports.getAdminSummary = async (req, res) => {
       nextDayStatusUpdates,    // ✅ new
       paymentBreakdown,
       topMenus,
-      waiterServiceEarnings
+      waiterServiceEarnings,
+      orderTypeBreakdown,
+      orderTypeSummary
     });
   } catch (err) {
     console.error("Failed to fetch admin summary:", err.message);
