@@ -16,9 +16,9 @@ const CashierLanding = () => {
   const [customer, setCustomer] = useState({
     phone: "",
     name: "",
-    orderType: "table",
+    orderType: "takeaway",
     tableNo: "",
-    deliveryType: "", // e.g., "Customer Pickup" or "Delivery Service"
+    deliveryType: "Customer Pickup", // e.g., "Customer Pickup" or "Delivery Service"
     deliveryPlaceId: "", // ✅ NEW: store selected place ID
     deliveryNote: ""
   });
