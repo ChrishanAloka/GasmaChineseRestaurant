@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const PaymentModal = ({ totalAmount, onConfirm, onClose }) => {
+const PaymentModal = ({ totalAmount, onConfirm, onClose, loading = false }) => {
   const [cash, setCash] = useState(parseFloat(totalAmount) || 0);
   const [card, setCard] = useState(0);
   const [bankTransfer, setBankTransfer] = useState(0);
@@ -224,8 +224,27 @@ const PaymentModal = ({ totalAmount, onConfirm, onClose }) => {
                 </div>
 
                 <div className="mt-4 d-flex justify-content-between">
-                  <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
-                  <button className="btn btn-success" onClick={handleSubmit}>Confirm Payment</button>
+                  <button 
+                    className="btn btn-secondary" 
+                    onClick={onClose}
+                    disabled={loading}
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    className="btn btn-success" 
+                    onClick={handleSubmit}
+                    disabled={loading} // ✅ disable during submit
+                  >
+                    {loading ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Processing...
+                      </>
+                    ) : (
+                      "Confirm Payment"
+                    )}
+                  </button>
                 </div>
               </div>
 

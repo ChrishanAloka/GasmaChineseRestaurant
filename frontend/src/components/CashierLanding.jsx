@@ -53,6 +53,7 @@ const CashierLanding = () => {
   const [itemQuantity, setItemQuantity] = useState(0);
   const [tempStock, setTempStock] = useState({}); // e.g., { "menuId1": 5, "menuId2": 10 }
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Load menus and service charge
   useEffect(() => {
@@ -542,7 +543,9 @@ const CashierLanding = () => {
   };
 
   // Confirm order and send to backend
+
   const submitConfirmedOrder = async (paymentData) => {
+    setIsSubmitting(true); // ✅ Start loading
     try {
       const token = localStorage.getItem("token");
       // const invoiceNo = `INV-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
@@ -608,6 +611,8 @@ const CashierLanding = () => {
     } catch (err) {
       console.error("Order failed:", err.response?.data || err.message);
       alert("Failed to place order");
+    } finally {
+      setIsSubmitting(false); // ✅ Stop loading
     }
   };
 
@@ -1219,6 +1224,7 @@ const CashierLanding = () => {
           deliveryCharge={orderData.deliveryCharge}
           onConfirm={submitConfirmedOrder}
           onClose={() => setShowPaymentModal(false)}
+          loading={isSubmitting}
         />
       )}
 
