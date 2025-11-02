@@ -21,9 +21,10 @@ exports.createOrder = async (req, res) => {
     deliveryPlaceId,
     deliveryNote,
     payment, // { cash, card, bankTransfer, notes }
-    invoiceNo,
     waiterId
   } = req.body;
+
+  const invoiceNo = `INV-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 
   if (!items || items.length === 0) {
     return res.status(400).json({ error: "No items provided" });
@@ -186,6 +187,12 @@ exports.createOrder = async (req, res) => {
 
     res.json(newOrder);
   } catch (err) {
+    if (err.code === 11000 && err.keyPattern?.invoiceNo) {
+      // Likely a duplicate submission (e.g., double-click, retry)
+      return res.status(409).json({
+        error: "This order has already been processed. Please do not submit again."
+      });
+    }
     console.error("Order creation failed:", err.message);
     res.status(500).json({ error: "Internal server error" });
   }

@@ -583,7 +583,6 @@ const CashierLanding = () => {
           changeDue: paymentData.changeDue,
           notes: paymentData.notes
         },
-        invoiceNo,
       };
 
       const res = await axios.post(
@@ -610,7 +609,14 @@ const CashierLanding = () => {
       // navigate("/cashier-summery");
     } catch (err) {
       console.error("Order failed:", err.response?.data || err.message);
-      alert("Failed to place order");
+      const errorMsg = err.response?.data?.error || "Failed to place order";
+      
+      if (err.response?.status === 409) {
+        toast.error("⚠️ " + errorMsg); // e.g., "This order has already been processed..."
+      } else {
+        toast.error("❌ " + errorMsg);
+      }
+      // alert("Failed to place order");
     } finally {
       setIsSubmitting(false); // ✅ Stop loading
     }
