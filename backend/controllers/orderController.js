@@ -24,8 +24,9 @@ exports.createOrder = async (req, res) => {
     waiterId
   } = req.body;
 
-  const randomPart = String(Math.floor(Math.random() * 1000000)).padStart(6, '0');
-  const invoiceNo = `INV-${Date.now()}-${randomPart}`;
+  // const randomPart = String(Math.floor(Math.random() * 1000000)).padStart(6, '0');
+  // const invoiceNo = `INV-${Date.now()}-${randomPart}`;
+  const invoiceNo = `INV-${String(Math.floor(Math.random() * 1000000)).padStart(6, '0')}`;
 
   if (!items || items.length === 0) {
     return res.status(400).json({ error: "No items provided" });
