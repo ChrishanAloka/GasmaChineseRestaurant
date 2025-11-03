@@ -296,7 +296,7 @@ const ReceiptModal = ({ order, onClose }) => {
 
         <div style={{ fontSize: "16px", marginBottom: "0px", lineHeight: "1.6" }}>
           {/* Row */}
-          <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "13px"  }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "14px"  }}>
             <div style={{ width: "90px",  lineHeight: "0", paddingBottom: "4px" }}>
               <strong>Invoice No:</strong>
             </div>
@@ -304,7 +304,7 @@ const ReceiptModal = ({ order, onClose }) => {
           </div>
 
           {/* Row */}
-          <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "13px"  }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "14px"  }}>
             <div style={{ width: "90px", lineHeight: "0", paddingBottom: "4px" }}>
               <strong>Date:</strong>
             </div>
@@ -312,7 +312,7 @@ const ReceiptModal = ({ order, onClose }) => {
           </div>
 
           {/* Row */}
-          <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "13px"  }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "14px"  }}>
             <div style={{ width: "90px",  lineHeight: "0", paddingBottom: "4px" }}>
               <strong>Customer:</strong>
             </div>
@@ -320,7 +320,7 @@ const ReceiptModal = ({ order, onClose }) => {
           </div>
 
           {/* Row */}
-          <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "13px"  }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "14px"  }}>
             <div style={{ width: "90px",  lineHeight: "0", paddingBottom: "4px" }}>
               <strong>Phone:</strong>
             </div>
@@ -328,7 +328,7 @@ const ReceiptModal = ({ order, onClose }) => {
           </div>
 
           {/* Row */}
-          <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "13px"  }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "14px"  }}>
             <div style={{ width: "90px", lineHeight: "0", paddingBottom: "4px" }}>
               <strong>Order Type:</strong>
             </div>
@@ -337,7 +337,7 @@ const ReceiptModal = ({ order, onClose }) => {
 
           {/* Conditional Row */}
           {tableNo === "Takeaway" && order.deliveryType === "Delivery Service" && (
-            <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "13px"  }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "14px"  }}>
               <div style={{ width: "90px",  lineHeight: "0", paddingBottom: "4px" }}>
                 <strong>Delivery Place:</strong>
               </div>
