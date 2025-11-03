@@ -146,28 +146,28 @@ const ReceiptModal = ({ order, onClose }) => {
           <hr />
 
           <div style="font-size:16px;margin-bottom:12px;">
-            <div style="display:flex;gap:4px;margin-bottom:4px; font-size:12px;">
+            <div style="display:flex;gap:4px;margin-bottom:4px; font-size:14px;">
               <div style="width:90px;"><strong>Invoice No:</strong></div>
               <div>${order.invoiceNo || 'N/A'}</div>
             </div>
-            <div style="display:flex;gap:4px;margin-bottom:4px; font-size:12px;">
+            <div style="display:flex;gap:4px;margin-bottom:4px; font-size:14px;">
               <div style="width:90px;"><strong>Date:</strong></div>
               <div>${now}</div>
             </div>
-            <div style="display:flex;gap:4px;margin-bottom:4px; font-size:12px;">
+            <div style="display:flex;gap:4px;margin-bottom:4px; font-size:14px;">
               <div style="width:90px;"><strong>Customer:</strong></div>
               <div>${order.customerName || 'Walk-in'}</div>
             </div>
-            <div style="display:flex;gap:4px;margin-bottom:4px; font-size:12px;">
+            <div style="display:flex;gap:4px;margin-bottom:4px; font-size:14px;">
               <div style="width:90px;"><strong>Phone:</strong></div>
               <div>${order.customerPhone || 'N/A'}</div>
             </div>
-            <div style="display:flex;gap:4px;margin-bottom:4px; font-size:12px;">
+            <div style="display:flex;gap:4px;margin-bottom:4px; font-size:14px;">
               <div style="width:90px;"><strong>Order Type:</strong></div>
               <div>${order.tableNo > 0 ? `Dine In - Table ${order.tableNo}` : `Takeaway ( ${order.deliveryType} )`}</div>
             </div>
             ${order.tableNo === "Takeaway" && order.deliveryType === "Delivery Service" ? `
-            <div style="display:flex;gap:4px;margin-bottom:4px; font-size:12px;">
+            <div style="display:flex;gap:4px;margin-bottom:4px; font-size:14px;">
               <div style="width:90px;"><strong>Delivery Place:</strong></div>
               <div>${order.deliveryPlaceName}</div>
             </div>` : ''}

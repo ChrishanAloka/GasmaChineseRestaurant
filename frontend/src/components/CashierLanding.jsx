@@ -54,6 +54,7 @@ const CashierLanding = () => {
   const [tempStock, setTempStock] = useState({}); // e.g., { "menuId1": 5, "menuId2": 10 }
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitLock, setSubmitLock] = useState(false);
 
   // Load menus and service charge
   useEffect(() => {
@@ -545,6 +546,8 @@ const CashierLanding = () => {
   // Confirm order and send to backend
 
   const submitConfirmedOrder = async (paymentData) => {
+    if (submitLock) return;
+    setSubmitLock(true);
     setIsSubmitting(true); // ✅ Start loading
     try {
       const token = localStorage.getItem("token");
@@ -619,7 +622,9 @@ const CashierLanding = () => {
       // alert("Failed to place order");
     } finally {
       setIsSubmitting(false); // ✅ Stop loading
+      setSubmitLock(false); // 🔓 unlock after success OR error
     }
+
   };
 
   const filteredMenus = menus
