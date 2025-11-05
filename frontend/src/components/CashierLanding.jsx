@@ -9,6 +9,7 @@ import AsyncSelect from 'react-select/async';
 import makeAnimated from 'react-select/animated';
 import Select from 'react-select';
 import { createFilter } from 'react-select';
+import CreatableSelect from 'react-select/creatable';
 
 const CashierLanding = () => {
   const [menus, setMenus] = useState([]);
@@ -878,7 +879,7 @@ const CashierLanding = () => {
 
               {/* Delivery Place Selector (only for Delivery Service) */}
               {customer.orderType === "takeaway" && customer.deliveryType === "Delivery Service" && (
-                <div className="col-md-3">
+                <div className="col-md-4">
                   <label>Delivery Place *</label>
                   {/* <select
                     name="deliveryPlaceId"
@@ -899,7 +900,8 @@ const CashierLanding = () => {
                       </option>
                     ))}
                   </select> */}
-                  <Select
+
+                  {/* <Select
                     name="deliveryPlaceId"
                     value={
                       customer.deliveryPlaceId
@@ -921,6 +923,85 @@ const CashierLanding = () => {
                       value: place._id,
                       label: `${place.placeName} (${symbol}${place.charge.toFixed(2)})`
                     }))}
+                    placeholder="Select a delivery zone..."
+                    isClearable
+                    isSearchable
+                    classNamePrefix="select"
+                    styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
+                    menuPortalTarget={document.body}
+                  /> */}
+
+                  <Select
+                    name="deliveryPlaceId"
+                    value={
+                      customer.deliveryPlaceId
+                        ? deliveryPlaces.find(place => place._id === customer.deliveryPlaceId)
+                          ? {
+                              value: customer.deliveryPlaceId,
+                              label: `${deliveryPlaces.find(p => p._id === customer.deliveryPlaceId).placeName} (${symbol}${deliveryPlaces.find(p => p._id === customer.deliveryPlaceId).charge.toFixed(2)})`
+                            }
+                          : null
+                        : null
+                    }
+                    onChange={async (selectedOption) => {
+                      if (selectedOption && selectedOption.value === "__CREATE_NEW__") {
+                        // Step 1: Get place name
+                        const placeName = prompt("Enter new delivery place name:");
+                        if (!placeName || !placeName.trim()) return;
+
+                        // Step 2: Get delivery charge
+                        const chargeStr = prompt(`Enter delivery charge for "${placeName}" (e.g., 5.99):`);
+                        const charge = parseFloat(chargeStr);
+
+                        if (isNaN(charge) || charge < 0) {
+                          toast.error("Invalid delivery charge. Must be a number ≥ 0.");
+                          return;
+                        }
+
+                        try {
+                          const token = localStorage.getItem("token");
+                          const res = await axios.post(
+                            "https://gasmachineserestaurantrms.onrender.com/api/auth/delivery-charges",
+                            { placeName: placeName.trim(), charge },
+                            { headers: { Authorization: `Bearer ${token}` } }
+                          );
+                          const newPlace = res.data;
+
+                          // Add to local state
+                          setDeliveryPlaces(prev => [...prev, newPlace]);
+
+                          // Select the newly created place
+                          setCustomer(prev => ({
+                            ...prev,
+                            deliveryPlaceId: newPlace._id
+                          }));
+
+                          toast.success(`✅ "${placeName}" added with charge ${symbol}${charge.toFixed(2)}`);
+                        } catch (err) {
+                          console.error("Failed to create delivery place:", err);
+                          toast.error("Failed to save new delivery place");
+                        }
+                      } else {
+                        // Regular selection
+                        setCustomer(prev => ({
+                          ...prev,
+                          deliveryPlaceId: selectedOption ? selectedOption.value : ""
+                        }));
+                      }
+                    }}
+                    options={[
+                      // ➕ Create option FIRST
+                      {
+                        value: "__CREATE_NEW__",
+                        label: "➕ Create New Delivery Place...",
+                        isDisabled: false
+                      },
+                      // Then existing places
+                      ...deliveryPlaces.map(place => ({
+                        value: place._id,
+                        label: `${place.placeName} (${symbol}${place.charge.toFixed(2)})`
+                      }))
+                    ]}
                     placeholder="Select a delivery zone..."
                     isClearable
                     isSearchable

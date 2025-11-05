@@ -36,6 +36,10 @@ const CashierOrderHistory = () => {
     deliveryType: ""
   });
   const [receiptOrder, setReceiptOrder] = useState(null);
+  const [isExportingPDF, setIsExportingPDF] = useState(false);
+  const [pdfProgress, setPdfProgress] = useState(0); // 0 to 100
+  const [isExportingExcel, setIsExportingExcel] = useState(false);
+  const [excelProgress, setExcelProgress] = useState(0);
 
   useEffect(() => {
     fetchOrders();
@@ -74,40 +78,190 @@ const CashierOrderHistory = () => {
     }
   };
 
-  const exportToExcel = () => {
-    import("xlsx").then((XLSX) => {
-      const worksheetData = orders.map((order) => ({
-        Date: new Date(order.date).toLocaleString(),
-        Customer: order.customerName,
-        Table: order.tableNo,
-        Status: order.status,
-        Total: order.totalPrice?.toFixed(2)
-      }));
+  const exportToExcel = async () => {
+    if (orders.length === 0) {
+      alert("No orders to export.");
+      return;
+    }
 
+    setIsExportingExcel(true);
+    setExcelProgress(0);
+
+    const formatDate = (dateStr) => {
+      if (!dateStr) return "N/A";
+      const d = new Date(dateStr);
+      return isNaN(d.getTime()) ? "Invalid Date" : d.toLocaleString();
+    };
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      setExcelProgress(20);
+
+      const symbol = localStorage.getItem("currencySymbol") || "$";
+      const total = orders.length;
+      const worksheetData = [];
+
+      for (let i = 0; i < orders.length; i++) {
+        const order = orders[i];
+
+        // ✅ 1. Format items as "Item xQty, ..."
+        const itemsText = order.items
+          ?.map(item => `${item.name} x${item.quantity}`)
+          .join(", ") || "—";
+
+        // ✅ 2. Format Table / Takeaway column exactly as requested
+        let tableTakeawayText;
+        if (order.tableNo > 0) {
+          tableTakeawayText = `Table ${order.tableNo}`;
+        } else {
+          if (order.deliveryType === "Customer Pickup") {
+            tableTakeawayText = `Takeaway - ${order.deliveryType}`;
+          } else {
+            tableTakeawayText = `Takeaway - ${order.deliveryPlaceName || order.deliveryType || "—"}`;
+          }
+        }
+
+        worksheetData.push({
+          Date: formatDate(order.createdAt),
+          Customer: order.customerName || "—",
+          "Table / Takeaway": tableTakeawayText, // Updated column name for clarity
+          Status: order.status || "—",
+          Items: itemsText,
+          Total: order.totalPrice ? `${symbol}${order.totalPrice.toFixed(2)}` : "—"
+        });
+
+        if (i % 100 === 0 || i === orders.length - 1) {
+          const progress = Math.min(90, Math.round(((i + 1) / total) * 100));
+          setExcelProgress(progress);
+        }
+      }
+
+      setExcelProgress(95);
+
+      const XLSX = await import("xlsx");
       const ws = XLSX.utils.json_to_sheet(worksheetData);
+      const range = XLSX.utils.decode_range(ws['!ref'] || "A1");
+      const colWidths = [];
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        const col = XLSX.utils.encode_col(C);
+        const maxWidth = worksheetData.reduce((w, row) => {
+          const cell = row[Object.keys(row)[C]] || "";
+          return Math.max(w, (cell?.toString()?.length || 10));
+        }, 10);
+        colWidths.push({ wch: Math.min(maxWidth + 2, 50) }); // cap at 50 chars
+      }
+      ws['!cols'] = colWidths;
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Orders");
       XLSX.writeFile(wb, "cashier_orders.xlsx");
-    });
+
+      setExcelProgress(100);
+    } catch (err) {
+      console.error("Excel export failed:", err);
+      alert("Failed to export Excel file.");
+    } finally {
+      setTimeout(() => {
+        setIsExportingExcel(false);
+        setExcelProgress(0);
+      }, 300);
+    }
   };
 
   const symbol = localStorage.getItem("currencySymbol") || "$";
 
-  const exportToPDF = () => {
-    const input = document.getElementById("order-table");
-    if (!input) {
-      alert("Could not find order table");
+  const exportToPDF = async () => {
+    if (orders.length === 0) {
+      alert("No orders to export.");
       return;
     }
 
-    html2canvas(input).then((canvas) => {
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "pt", "a4");
-      const width = pdf.internal.pageSize.getWidth();
-      const height = (canvas.height * width) / canvas.width;
-      pdf.addImage(imgData, "PNG", 0, 0, width, height);
+    setIsExportingPDF(true);
+    setPdfProgress(0);
+
+    const symbol = localStorage.getItem("currencySymbol") || "$";
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pageWidth = 210;
+    const margin = 10;
+    const tableWidth = pageWidth - 2 * margin;
+    const ROWS_PER_PAGE = 20;
+    const totalPages = Math.ceil(orders.length / ROWS_PER_PAGE);
+
+    try {
+      for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
+        if (pageIndex > 0) pdf.addPage();
+
+        // Create table for this page
+        const table = document.createElement("table");
+        table.style.width = `${tableWidth}mm`;
+        table.style.fontSize = "12px";
+        table.style.borderCollapse = "collapse";
+        table.style.fontFamily = "sans-serif";
+
+        const thead = document.createElement("thead");
+        thead.innerHTML = `
+          <tr>
+            <th style="border:0.5px solid #000; padding:4px; background:#f0f0f0;">Date</th>
+            <th style="border:0.5px solid #000; padding:4px; background:#f0f0f0;">Customer</th>
+            <th style="border:0.5px solid #000; padding:4px; background:#f0f0f0;">Table/Type</th>
+            <th style="border:0.5px solid #000; padding:4px; background:#f0f0f0;">Status</th>
+            <th style="border:0.5px solid #000; padding:4px; background:#f0f0f0;">Items</th>
+            <th style="border:0.5px solid #000; padding:4px; background:#f0f0f0;">Total</th>
+          </tr>
+        `;
+        table.appendChild(thead);
+
+        const tbody = document.createElement("tbody");
+        const start = pageIndex * ROWS_PER_PAGE;
+        const end = Math.min(start + ROWS_PER_PAGE, orders.length);
+        for (let i = start; i < end; i++) {
+          const order = orders[i];
+          const itemsText = order.items
+            .map(item => `${item.name} x${item.quantity}`)
+            .join(", ");
+
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td style="border:0.5px solid #000; padding:4px;">${new Date(order.createdAt).toLocaleString()}</td>
+            <td style="border:0.5px solid #000; padding:4px;">${order.customerName || ""}</td>
+            <td style="border:0.5px solid #000; padding:4px;">${order.tableNo > 0 ? `Table ${order.tableNo}` : order.deliveryType === "Customer Pickup" ? `Takeway - ${order.deliveryType}` : `Takeaway - ${order.deliveryPlaceName}`}</td>
+            <td style="border:0.5px solid #000; padding:4px;">${order.status || ""}</td>
+            <td style="border:0.5px solid #000; padding:4px; font-size:12px;">${itemsText}</td>
+            <td style="border:0.5px solid #000; padding:4px; text-align:right;">${symbol}${(order.totalPrice || 0).toFixed(2)}</td>
+          `;
+          tbody.appendChild(row);
+        }
+        table.appendChild(tbody);
+
+        table.style.position = "absolute";
+        table.style.left = "-10000px";
+        document.body.appendChild(table);
+
+        const canvas = await html2canvas(table, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: "#fff",
+        });
+
+        const imgData = canvas.toDataURL("image/png");
+        const imgWidth = tableWidth;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        pdf.addImage(imgData, "PNG", margin, margin, imgWidth, imgHeight);
+
+        document.body.removeChild(table);
+
+        // ✅ Update progress: (pageIndex + 1) / totalPages
+        const progress = Math.round(((pageIndex + 1) / totalPages) * 100);
+        setPdfProgress(progress);
+      }
+
       pdf.save("cashier_orders.pdf");
-    });
+    } catch (err) {
+      console.error("PDF export failed:", err);
+      alert("Failed to generate PDF. Please try with fewer orders.");
+    } finally {
+      setIsExportingPDF(false);
+      setPdfProgress(0); // Reset when done
+    }
   };
 
   
@@ -430,12 +584,26 @@ const CashierOrderHistory = () => {
         <div className="d-flex gap-2"></div>
         
         <div className="d-flex gap-2">
-          <button className="btn btn-success" onClick={exportToExcel}>
+          <button className="btn btn-success" onClick={exportToExcel} disabled={isExportingExcel || isExportingPDF}>
             📤 Export Excel
+            {isExportingExcel && (
+              <span className="ms-2 pdf-export-loader">
+                <span>{excelProgress}%</span>
+              </span>
+            )}
           </button>
-          <button className="btn btn-danger" onClick={exportToPDF}>
+          <button className="btn btn-danger" onClick={exportToPDF} disabled={isExportingPDF}>
             📄 Export PDF
+            {isExportingPDF && (
+              <span className="ms-2 pdf-export-loader">
+                <span>{pdfProgress}%</span>
+              </span>
+            )}
+            {/* <span className="progress-text" style={{ color: 'red', background: 'white', borderRadius: '50%' }}>
+              {pdfProgress}%
+            </span> */}
           </button>
+          
         </div>
       </div>
 

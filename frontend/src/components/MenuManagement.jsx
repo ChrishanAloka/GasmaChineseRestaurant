@@ -13,7 +13,8 @@ const MenuManagement = () => {
     price: "0",
     cost: "0",
     category: "Main Course",
-    minimumQty: 5
+    minimumQty: 5,
+    imageUrl: "" // <-- new field
   });
   const [editingMenu, setEditingMenu] = useState(null);
   const [editData, setEditData] = useState({ ...newMenu });
@@ -99,6 +100,7 @@ const MenuManagement = () => {
     if (file) {
       setImage(file);
       setPreview(URL.createObjectURL(file));
+      setNewMenu(prev => ({ ...prev, imageUrl: "" }));
     }
   };
 
@@ -108,6 +110,7 @@ const MenuManagement = () => {
     if (file) {
       setEditImage(file);
       setEditPreview(URL.createObjectURL(file));
+      setEditData(prev => ({ ...prev, imageUrl: "" }));
     }
   };
 
@@ -166,7 +169,8 @@ const MenuManagement = () => {
       cost: "0",
       category: "Main Course",
       minimumQty: 5,
-      menuImage: ""
+      menuImage: "",
+      imageUrl: ""
     });
     setImage(null);
     setPreview("");
@@ -182,10 +186,11 @@ const MenuManagement = () => {
       cost: menu.cost,
       category: menu.category,
       minimumQty: menu.minimumQty,
-      currentQty: menu.currentQty
+      currentQty: menu.currentQty,
+      imageUrl: menu.imageUrl || "" // ✅ include imageUrl
     });
     setEditImage(null);
-    setEditPreview("");
+    setEditPreview(menu.imageUrl?.startsWith("http") ? "" : "");
   };
 
   // Submit edit
@@ -337,6 +342,15 @@ const MenuManagement = () => {
     }
   };
 
+  const convertGoogleDriveUrl = (url) => {
+    const regex = /\/file\/d\/([^\/]+)/;
+    const match = url.match(regex);
+    if (match) {
+      return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+    }
+    return url; // return original if not a Drive link
+  };
+
   return (
     <div className="container my-4">
       <h2 className="mb-2 fw-bold text-primary"> Menu Management</h2>
@@ -447,6 +461,17 @@ const MenuManagement = () => {
           </div>
 
           <div className="col-12">
+            <label className="form-label">Paste an image URL</label>
+            <input
+              type="url"
+              className="form-control"
+              placeholder="https://example.com/image.jpg"
+              value={newMenu.imageUrl}
+              onChange={(e) => setNewMenu(prev => ({ ...prev, imageUrl: e.target.value }))}
+            />
+          </div>
+
+          {/* <div className="col-12">
             <label className="form-label">Image Upload *</label>
             <input
               type="file"
@@ -454,8 +479,9 @@ const MenuManagement = () => {
               accept="image/*"
               onChange={handleImageChange}
               className="form-control"
+              disabled={!!(newMenu.imageUrl?.trim())} // ✅ safe check
             />
-          </div>
+          </div> */}
 
           {preview && (
             <div className="col-12 mt-2">
@@ -584,7 +610,23 @@ const MenuManagement = () => {
                       </select>
                     </div>
 
+                    {/* Edit: Image URL */}
                     <div className="col-12">
+                      <label>Paste image URL</label>
+                      <input
+                        type="url"
+                        className="form-control"
+                        placeholder="https://example.com/image.jpg"
+                        value={editData.imageUrl || ""}
+                        onChange={(e) => {
+                          setEditData(prev => ({ ...prev, imageUrl: e.target.value }));
+                          setEditImage(null);
+                          setEditPreview("");
+                        }}
+                      />
+                    </div>
+                    
+                    {/* <div className="col-12">
                       <label className="form-label">Image Upload</label>
                       <input
                         type="file"
@@ -592,8 +634,9 @@ const MenuManagement = () => {
                         accept="image/*"
                         onChange={handleEditImageChange}
                         className="form-control"
+                        disabled={!!(editData.imageUrl?.trim())}
                       />
-                    </div>
+                    </div> */}
 
                     {editPreview && (
                       <div className="col-12 mt-2">
@@ -739,14 +782,19 @@ const MenuManagement = () => {
             <div key={menu._id} className="col-md-3 mb-3">
               <div className="card shadow-sm h-100 position-relative">
                 <img
+                  // src={
+                  //   menu.imageUrl.startsWith("https")
+                  //     ? menu.imageUrl
+                  //     : `https://gasmachineserestaurantrms.onrender.com${menu.imageUrl}`
+                  // }
                   src={
                     menu.imageUrl.startsWith("https")
-                      ? menu.imageUrl
-                      : `https://gasmachineserestaurantrms.onrender.com${menu.imageUrl}`
+                      ? convertGoogleDriveUrl(menu.imageUrl)
+                      : `${menu.imageUrl}`
                   }
                   alt={menu.name}
                   className="card-img-top"
-                  style={{ height: "100px", objectFit: "cover" }}
+                  style={{ height: "100px", objectFit: "contain" }}
                 />
                 <div className="card-body d-flex flex-column">
                   <><h5>{menu.name}</h5><h6>({menu.category})</h6></>

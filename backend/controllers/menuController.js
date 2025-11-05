@@ -31,10 +31,10 @@ exports.getMenus = async (req, res) => {
 exports.createMenu = async (req, res) => {
   const formData = req.body;
   const file = req.file;
+  const providedImageUrl = formData.imageUrl?.trim();
 
   if (file) {
     // return res.status(400).json({ error: "Image is required" });
-  
 
     console.log("✅ Upload started for file:", file.originalname);
     console.log("📁 File size:", (file.size / 1024).toFixed(2), "KB");
@@ -84,7 +84,32 @@ exports.createMenu = async (req, res) => {
       res.status(500).json({ error: "Internal server error" });
     }
   }
-  else if(!file){
+
+  else if (!file && providedImageUrl) {
+    // Optional: validate URL format
+    try {
+      new URL(providedImageUrl);
+    } catch (e) {
+      return res.status(400).json({ error: "Invalid image URL" });
+    }
+
+    try {
+      const newMenu = new Menu({
+        ...formData,
+        imageUrl: providedImageUrl // use directly
+      });
+
+      await newMenu.save();
+      console.log("💾 Menu saved with external image:", newMenu.name);
+      return res.json(newMenu);
+    } catch (err) {
+      console.error("Creation failed:", err.message);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  }
+
+  else {
+
     try {
       const newMenu = new Menu({
         ...formData
@@ -100,6 +125,7 @@ exports.createMenu = async (req, res) => {
       res.status(500).json({ error: "Internal server error" });
     }
   }
+
 };
 
 // PUT /menu/:id - Update menu
@@ -107,6 +133,7 @@ exports.updateMenu = async (req, res) => {
   const { id } = req.params;
   const updates = req.body;
   const file = req.file;
+  const providedImageUrl = updates.imageUrl?.trim();
 
   const name = (updates.name);
   const description = (updates.description);
@@ -193,28 +220,43 @@ exports.updateMenu = async (req, res) => {
 
       blobStream.end(file.buffer);
 
-      } catch (err) {
-        return res.status(500).json({ error: "Failed to upload image to Google Drive" });
-      }
-  }
-  else{
-
-  try {
-    const updated = await Menu.findByIdAndUpdate(id, { $set: updateFields }, {
-      new: true,
-      runValidators: true
-    });
-
-    if (!updated) {
-      return res.status(404).json({ error: "Menu not found" });
+    } catch (err) {
+      return res.status(500).json({ error: "Failed to upload image to Google Drive" });
+    }
+  } 
+  else if (!file && providedImageUrl) {
+    try {
+      new URL(providedImageUrl); // basic validation
+      updateFields.imageUrl = providedImageUrl;
+    } catch (e) {
+      return res.status(400).json({ error: "Invalid image URL" });
     }
 
-    res.json(updated);
-  } catch (err) {
-    console.error("Update failed:", err.message);
-    res.status(500).json({ error: "Failed to update menu" });
+    try {
+      const updated = await Menu.findByIdAndUpdate(id, { $set: updateFields }, { new: true, runValidators: true });
+      if (!updated) return res.status(404).json({ error: "Menu not found" });
+      return res.json(updated);
+    } catch (err) {
+      console.error("Update failed:", err.message);
+      return res.status(500).json({ error: "Failed to update menu" });
+    }
   }
+  else {
+    try {
+      const updated = await Menu.findByIdAndUpdate(id, { $set: updateFields }, {
+        new: true,
+        runValidators: true
+      });
 
+      if (!updated) {
+        return res.status(404).json({ error: "Menu not found" });
+      }
+
+      res.json(updated);
+    } catch (err) {
+      console.error("Update failed:", err.message);
+      res.status(500).json({ error: "Failed to update menu" });
+    }
   }
 };
 
