@@ -497,6 +497,51 @@ const CashierOrderHistory = () => {
     }
   };
 
+  // Add this after handleDeleteOrder
+  const markAsReady = async (orderId) => {
+    if (!window.confirm("Mark this order as Ready?")) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      
+      // Update order status to "Ready"
+      await axios.put(
+        `https://gasmachineserestaurantrms.onrender.com/api/auth/order/${orderId}/status`,
+        { status: "Ready" },
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+
+      // Optional: Send notification (same as KitchenLanding)
+      // You can skip if not needed for cashier
+      /*
+      await axios.post(
+        "https://gasmachineserestaurantrms.onrender.com/api/auth/notifications/send",
+        {
+          userId: orderId,
+          message: `Order #${orderId} is ready.`,
+          type: "update",
+          role: "cashier",
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      */
+
+      // Update UI: change status locally
+      setOrders(prev =>
+        prev.map(order =>
+          order._id === orderId ? { ...order, status: "Ready" } : order
+        )
+      );
+
+      alert("✅ Order marked as Ready!");
+    } catch (err) {
+      console.error("Failed to mark as ready:", err.response?.data || err.message);
+      alert("❌ Failed to update order status");
+    }
+  };
+
 
 
   const handleFilterChange = (e) => {
@@ -664,6 +709,16 @@ const CashierOrderHistory = () => {
                   <td>{symbol}{order.totalPrice?.toFixed(2)}</td>
                   <td>
                     <div className="d-flex gap-2">
+                      {/* Mark as Ready Button (only for Pending/Processing) */}
+                      {(order.status === "Pending" || order.status === "Processing") && (
+                        <button
+                          className="btn btn-sm btn-success"
+                          onClick={() => markAsReady(order._id)}
+                          title="Mark order as ready for pickup"
+                        >
+                          ✅ Ready
+                        </button>
+                      )}
                       <button
                         className="btn btn-sm btn-outline-secondary"
                         // onClick={() => generateReceipt(order)}
