@@ -64,7 +64,7 @@ const RoleLayout = () => {
         return (
           <>
             {createMenuItem("/admin", "Dashboard", FaTachometerAlt)}
-            {createMenuItem("/cashier/today", "View Today", FaBookOpen)}
+            {createMenuItem("/cashier/today", "Daily Report", FaBookOpen)}
             {createMenuItem("/cashier", "Order Management", FaCashRegister)}
             {createMenuItem("/kitchen/menu", "Manage Menu", FaClipboardList)}
             {createMenuItem("/kitchen", "Live Orders", FaShoppingCart)}
@@ -101,7 +101,7 @@ const RoleLayout = () => {
             {createMenuItem("/kitchen", "Live Orders", FaShoppingCart)}
             {createMenuItem("/cashier/orders", "Order History", FaHistory)}
             {createMenuItem("/cashier/takeaway-orders", "Takeaway Orders", FaFirstOrder)}
-            {createMenuItem("/cashier/today", "View Today", FaBookOpen)}
+            {createMenuItem("/cashier/today", "Daily Report", FaBookOpen)}
             {createMenuItem("/cashier-summery", "Cashier Summery", FaBookReader)}
             {createMenuItem("/cashier/other-income", "Other Incomes", FaCoins)}
             {createMenuItem("/cashier/other-expences", "Other Expences", FaWallet)}
