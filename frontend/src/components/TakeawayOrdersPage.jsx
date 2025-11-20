@@ -19,12 +19,19 @@ const TakeawayOrdersPage = () => {
 
   const UserId = localStorage.getItem("userId");
   const UserRole = localStorage.getItem("userRole");
+  
+  const [currentPage, setCurrentPage] = useState(1);
+  const ORDERS_PER_PAGE = 15; // adjustable
 
   // Load orders
   useEffect(() => {
     fetchOrders();
     const interval = setInterval(fetchOrders, 30000); // Auto-refresh every 30s
     return () => clearInterval(interval);
+  }, [filterStatus]);
+
+  useEffect(() => {
+    setCurrentPage(1);
   }, [filterStatus]);
 
   const fetchOrders = async () => {
@@ -135,6 +142,17 @@ const TakeawayOrdersPage = () => {
 
   const symbol = localStorage.getItem("currencySymbol") || "$";
 
+  // Pagination
+  const indexOfLastOrder = currentPage * ORDERS_PER_PAGE;
+  const indexOfFirstOrder = indexOfLastOrder - ORDERS_PER_PAGE;
+  const currentOrders = orders.slice(indexOfFirstOrder, indexOfLastOrder);
+  const totalPages = Math.ceil(orders.length / ORDERS_PER_PAGE);
+
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: 'smooth' }); // Optional: scroll to top
+  };
+
   return (
     <div className="container my-4 mobile-scroll-container container-fluid px-3">
       <h2 className="mb-2 fw-bold text-primary">Takeaway Orders</h2>
@@ -160,96 +178,161 @@ const TakeawayOrdersPage = () => {
 
       {/* Orders Table */}
       {loading ? (
-        <p>Loading orders...</p>
-      ) : orders.length === 0 ? (
-        <p className="text-muted">No takeaway orders found.</p>
-      ) : (
-        <div className="table-responsive rounded shadow-sm border">
-          <table className="table table-hover align-middle table-bordered mb-0">
-            <thead className="table-primary">
-              <tr>
-                <th>Invoice No</th>
-                <th>Customer</th>
-                <th>Total</th>
-                <th>Status</th>
-                <th>Delivery Type</th>
-                <th>Delivery Status</th>
-                <th>Driver</th>
-                <th>Date</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((order) => {
-                const canEdit =
-                  order.deliveryType === "Delivery Service"
-                    ? ["Driver Pending", "Driver On the Way"].includes(order.deliveryStatus)
-                    : ["Customer Pending"].includes(order.deliveryStatus);
-
-                return (
-                  <tr key={order._id}>
-                    <td>{order.invoiceNo}</td>
-                    <td>{order.customerName}</td>
-                    <td>{symbol}{order.totalPrice.toFixed(2)}</td>
-                    <td>
-                      {order.status === "Pending" && (
-                        <span className="badge bg-warning text-dark">{order.status}</span>
-                      )}
-                      {order.status === "Processing" && (
-                        <span className="badge bg-primary">{order.status}</span>
-                      )}
-                      {order.status === "Ready" && (
-                        <span className="badge bg-success">{order.status}</span>
-                      )}
-                      {order.status === "Completed" && (
-                        <span className="badge bg-secondary">{order.status}</span>
-                      )}
-                    </td>
-                    <td>
-                      {order.deliveryType === "Customer Pickup" ? (
-                        <span className="badge bg-secondary">{order.deliveryType}</span>
-                      ) : (
-                        <span className="badge bg-info text-white">{order.deliveryType}</span>
-                      )}
-                    </td>
-                    <td>{getStatusBadge(order.deliveryStatus)}</td>
-                    <td>
-                      {order.driverId ? (
-                        <>
-                          <strong>{order.driverId.name}</strong>
-                          <br />
-                          <small>{order.driverId.vehicle} ({order.driverId.numberPlate})</small>
-                        </>
-                      ) : (
-                        <span className="text-muted">Not Assigned</span>
-                      )}
-                    </td>
-                    <td>{new Date(order.createdAt).toLocaleString()}</td>
-                    <td>
-                      <div className="d-flex gap-1">
-                        <button
-                          className="btn btn-sm btn-primary me-2"
-                          onClick={() => setSelectedOrder(order)}
-                        >
-                          View
-                        </button>
-                        
-                        {canEdit && (
-                          <button
-                            className="btn btn-sm btn-warning"
-                            onClick={() => openEditModal(order)}
-                          >
-                            Edit
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        <div className="text-center my-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="mt-2">Loading takeaway orders...</p>
         </div>
+      ) : orders.length === 0 ? (
+        <div className="text-center my-5">
+          <p className="text-muted">No takeaway orders found.</p>
+        </div>
+      ) : (
+        <>
+          <div className="table-responsive rounded shadow-sm border">
+            <table className="table table-hover align-middle table-bordered mb-0">
+              <thead className="table-primary">
+                <tr>
+                  <th>Invoice No</th>
+                  <th>Customer</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Delivery Type</th>
+                  <th>Delivery Status</th>
+                  <th>Driver</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentOrders.map((order) => {
+                  const canEdit =
+                    order.deliveryType === "Delivery Service"
+                      ? ["Driver Pending", "Driver On the Way"].includes(order.deliveryStatus)
+                      : ["Customer Pending"].includes(order.deliveryStatus);
+
+                  return (
+                    <tr key={order._id}>
+                      <td>{order.invoiceNo}</td>
+                      <td>{order.customerName}</td>
+                      <td>{symbol}{order.totalPrice.toFixed(2)}</td>
+                      <td>
+                        {order.status === "Pending" && (
+                          <span className="badge bg-warning text-dark">{order.status}</span>
+                        )}
+                        {order.status === "Processing" && (
+                          <span className="badge bg-primary">{order.status}</span>
+                        )}
+                        {order.status === "Ready" && (
+                          <span className="badge bg-success">{order.status}</span>
+                        )}
+                        {order.status === "Completed" && (
+                          <span className="badge bg-secondary">{order.status}</span>
+                        )}
+                      </td>
+                      <td>
+                        {order.deliveryType === "Customer Pickup" ? (
+                          <span className="badge bg-secondary">{order.deliveryType}</span>
+                        ) : (
+                          <span className="badge bg-info text-white">{order.deliveryType}</span>
+                        )}
+                      </td>
+                      <td>{getStatusBadge(order.deliveryStatus)}</td>
+                      <td>
+                        {order.driverId ? (
+                          <>
+                            <strong>{order.driverId.name}</strong>
+                            <br />
+                            <small>{order.driverId.vehicle} ({order.driverId.numberPlate})</small>
+                          </>
+                        ) : (
+                          <span className="text-muted">Not Assigned</span>
+                        )}
+                      </td>
+                      <td>{new Date(order.createdAt).toLocaleString()}</td>
+                      <td>
+                        <div className="d-flex gap-1">
+                          <button
+                            className="btn btn-sm btn-primary me-2"
+                            onClick={() => setSelectedOrder(order)}
+                          >
+                            View
+                          </button>
+                          
+                          {canEdit && (
+                            <button
+                              className="btn btn-sm btn-warning"
+                              onClick={() => openEditModal(order)}
+                            >
+                              Edit
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {totalPages > 1 && (
+          <nav className="mt-4">
+            <ul className="pagination justify-content-center">
+              <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                <button
+                  className="page-link"
+                  onClick={() => paginate(currentPage - 1)}
+                  disabled={currentPage === 1}
+                >
+                  &laquo; Prev
+                </button>
+              </li>
+
+              {[...Array(totalPages)].map((_, i) => {
+                const pageNum = i + 1;
+                if (
+                  pageNum === 1 ||
+                  pageNum === totalPages ||
+                  (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                ) {
+                  return (
+                    <li
+                      key={pageNum}
+                      className={`page-item ${currentPage === pageNum ? "active" : ""}`}
+                    >
+                      <button className="page-link" onClick={() => paginate(pageNum)}>
+                        {pageNum}
+                      </button>
+                    </li>
+                  );
+                } else if (
+                  (pageNum === currentPage - 2 && currentPage > 3) ||
+                  (pageNum === currentPage + 2 && currentPage < totalPages - 2)
+                ) {
+                  return (
+                    <li key={pageNum} className="page-item disabled">
+                      <span className="page-link">...</span>
+                    </li>
+                  );
+                }
+                return null;
+              })}
+
+              <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+                <button
+                  className="page-link"
+                  onClick={() => paginate(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                >
+                  Next &raquo;
+                </button>
+              </li>
+            </ul>
+          </nav>
+        )}
+        </>  
       )}
 
       {/* Receipt Modal */}

@@ -59,7 +59,7 @@ const {  getIncomes,  addIncome,  updateIncome,  deleteIncome, getIncomesByDate}
 const {  getExpenses,  addExpense,  updateExpense,  deleteExpense, getExpensesByDate} = require("../controllers/otherExpenseController");
 const { getPrinters, upsertPrinter, deletePrinter } = require("../controllers/printerController");
 
-const { getRefreshStatus, updateRefreshStatus } = require('../controllers/refreshStatusController');
+const {getRefreshStatus, resetRefreshStatus, markAsRefreshed } = require('../controllers/refreshStatusController');
 
 // Only admin can manage printers (adjust roles as needed)
 router.get("/printers", authMiddleware(["admin", "kitchen", "cashier"]), getPrinters);
@@ -213,10 +213,8 @@ router.put("/expense/other/:id", authMiddleware(["admin", "cashier"]), updateExp
 router.delete("/expense/other/:id", authMiddleware(["admin", "cashier"]), deleteExpense);
 router.get("/expense/other/by-date", authMiddleware(["admin", "cashier"]), getExpensesByDate);
 
-// GET /api/auth/admin/refresh-status
 router.get('/refresh-status', authMiddleware(["admin", "cashier", "kitchen"]), getRefreshStatus);
-
-// PUT /api/auth/admin/refresh-status
-router.put('/refresh-status', authMiddleware(["admin", "cashier", "kitchen"]), updateRefreshStatus);
+router.post('/refresh-status/reset', authMiddleware(["admin", "cashier", "kitchen"]), resetRefreshStatus); // ← POST reset
+router.post('/refresh-status/mark', authMiddleware(["admin", "cashier", "kitchen"]), markAsRefreshed); 
 
 module.exports = router;

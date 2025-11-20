@@ -61,11 +61,14 @@ import SupplierRegistration from "./components/SupplierRegistration";
 import ExpensePage from "./components/ExpensePage";
 import SalaryPage from "./components/SalaryPage";
 
+
 import AdminKitchenRequests from "./components/AdminKitchenRequests";
 import KitchenRequestForm from "./components/KitchenRequestForm";
 
 import AdminServiceCharge from "./components/AdminServiceCharge";
 import AdminDeliveryCharge from "./components/AdminDeliveryCharge";
+import AdminRefreshStatus from "./components/AdminRefreshStatus";
+
 import TakeawayOrdersPage from "./components/TakeawayOrdersPage";
 import RegisterDriverPage from "./components/RegisterDriverPage";
 
@@ -99,6 +102,7 @@ function App() {
           </ProtectedRoute>
         }
       >
+
         <Route index path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/users" element={<AdminUsers />} />
         <Route path="/admin/signup-key" element={<AdminSignupKey />} />
@@ -119,7 +123,7 @@ function App() {
         <Route path="/admin/kitchen-requests" element={<AdminKitchenRequests />} />
         <Route path="/admin/service-charge" element={<AdminServiceCharge />} />
         <Route path="/admin/delivery-charge" element={<AdminDeliveryCharge />} />
-        
+        <Route path="/admin/refresh-update" element={<AdminRefreshStatus />} />
         <Route path="/admin/delivery-charges" element={<DeliveryCharges />} />
 
       </Route>

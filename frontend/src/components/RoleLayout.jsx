@@ -11,6 +11,8 @@ import {
 } from "react-icons/fa";
 import "./Sidebar.css";
 import NotificationCenter from "./NotificationCenter";
+import useRefreshStatus from "../hooks/useRefreshStatus";
+import { FaRedo } from "react-icons/fa";
 
 const RoleLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -21,6 +23,12 @@ const RoleLayout = () => {
   const dropdownRef = useRef();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isHovered, setIsHovered] = useState(false);
+  const { refreshed, markAsRefreshed } = useRefreshStatus();
+
+  const handleHardRefresh = async () => {
+    await markAsRefreshed();
+    window.location.reload(); // hard reload
+  };
 
   // Auto detect mobile view
   useEffect(() => {
@@ -88,9 +96,12 @@ const RoleLayout = () => {
             {createMenuItem("/admin/salaries", "Salary Payments", FaMoneyCheckAlt)}
             {createMenuItem("/admin/service-charge", "Service Charge", FaPercentage)}
             {createMenuItem("/admin/delivery-charges", "Delivery Charge", FaTruckLoading)}
+            
+            
             {createMenuItem("/printer-settings", "Printer Settings", FaPrint)}
             {createMenuItem("/admin/signup-key", "Signup Key", FaKey)}
             {createMenuItem("/admin/currency", "Currency", FaDollarSign)}
+            {createMenuItem("/admin/refresh-update", "Update Refresh", FaRedo)}
           </>
         );
       case "cashier":
@@ -182,6 +193,20 @@ const RoleLayout = () => {
             <div >
               <NotificationCenter />
             </div>
+            <button 
+              className="btn btn-outline-secondary ms-2 d-flex align-items-center justify-content-center position-relative"
+              onClick={handleHardRefresh}
+              title="Hard refresh page"
+              style={{ width: '36px', height: '36px', padding: 0 }}
+            >
+              <FaRedo />
+              {!refreshed && (
+                <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                      style={{ fontSize: '0.65em', minWidth: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  1
+                </span>
+              )}
+            </button>
           </div>
           <div className="navbar-right" ref={dropdownRef}>
             <div className="user-dropdown">

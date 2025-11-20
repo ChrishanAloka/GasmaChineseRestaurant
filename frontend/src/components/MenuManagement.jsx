@@ -587,10 +587,11 @@ const MenuManagement = () => {
                       <input
                         type="number"
                         name="currentQty"
+                        min="1"
                         onFocus={(e) => e.target.select()}
                         onWheel={(e) => e.target.blur()}
-                        value={editData.currentQty = editData.minimumQty}
-                        readOnly
+                        onChange={handleEditChange}
+                        value={editData.currentQty}
                         className="form-control"
                       />
                     </div>

@@ -40,12 +40,16 @@ const CashierOrderHistory = () => {
   const [pdfProgress, setPdfProgress] = useState(0); // 0 to 100
   const [isExportingExcel, setIsExportingExcel] = useState(false);
   const [excelProgress, setExcelProgress] = useState(0);
+  const [loading, setLoading] = useState(false); // ← New
+  const [currentPage, setCurrentPage] = useState(1); // ← New
+  const ORDERS_PER_PAGE = 20; // ← Configurable
 
   useEffect(() => {
     fetchOrders();
   }, [filters]);
 
   const fetchOrders = async () => {
+    setLoading(true); 
     const token = localStorage.getItem("token");
 
     // Get start and end of selected date
@@ -75,6 +79,8 @@ const CashierOrderHistory = () => {
     } catch (err) {
       console.error("Failed to load orders:", err.response?.data || err.message);
       alert("Failed to load order history");
+    } finally {
+      setLoading(false); // ← Stop loading
     }
   };
 
@@ -549,6 +555,14 @@ const CashierOrderHistory = () => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Pagination logic
+  const indexOfLastOrder = currentPage * ORDERS_PER_PAGE;
+  const indexOfFirstOrder = indexOfLastOrder - ORDERS_PER_PAGE;
+  const currentOrders = orders.slice(indexOfFirstOrder, indexOfLastOrder);
+  const totalPages = Math.ceil(orders.length / ORDERS_PER_PAGE);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   return (
     // <div className="mobile-scroll-container container-fluid px-3">
    <div className="mobile-scroll-container container my-4"> 
@@ -653,93 +667,160 @@ const CashierOrderHistory = () => {
       </div>
 
       {/* Order Table */}
-      {orders.length === 0 ? (
+      {loading ? (
+        <div className="text-center my-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="mt-2">Fetching orders...</p>
+        </div>
+      ) : orders.length === 0 ? (
         <p className="text-muted">No orders found.</p>
       ) : (
-        <div
-          id="order-table"
-          className="shadow-sm border rounded"
-          style={{
-            overflowX: "auto",
-            width: "100%"
-          }}
-        >
-          <table className="table table-hover align-middle table-bordered mb-0">
-            <thead className="table-light">
-              <tr>
-                <th>Date</th>
-                <th>Customer</th>
-                <th>Table No/ Takeaway</th>
-                <th>Status</th>
-                <th>Items</th>
-                <th>Total</th>
-                <th>Receipt</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((order) => (
-                <tr key={order._id}>
-                  <td>{new Date(order.createdAt).toLocaleString()}</td>
-                  <td>{order.customerName}</td>
-                  <td>{order.tableNo > 0 ? `Table ${order.tableNo} - ${order.waiterName || ""}` : `Takeaway (${order.deliveryType || ""} - ${order.deliveryPlaceName || ""})`}</td>
-                  <td>
-                    <span
-                      className={`badge ${
-                        order.status === "Ready"
-                          ? "bg-success"
-                          : order.status === "Processing"
-                          ? "bg-primary"
-                          : order.status === "Completed"
-                          ? "bg-secondary"
-                          : "bg-warning text-dark"
-                      }`}
-                    >
-                      {order.status}
-                    </span>
-                  </td>
-                  <td>
-                    <ul className="mb-0 small list-unstyled">
-                      {order.items.map((item, idx) => (
-                        <li key={idx}>
-                          {item.name} x{item.quantity}
-                        </li>
-                      ))}
-                    </ul>
-                  </td>
-                  <td>{symbol}{order.totalPrice?.toFixed(2)}</td>
-                  <td>
-                    <div className="d-flex gap-2">
-                      {/* Mark as Ready Button (only for Pending/Processing) */}
-                      {(order.status === "Pending" || order.status === "Processing") && (
-                        <button
-                          className="btn btn-sm btn-success"
-                          onClick={() => markAsReady(order._id)}
-                          title="Mark order as ready for pickup"
-                        >
-                          ✅ Ready
-                        </button>
-                      )}
-                      <button
-                        className="btn btn-sm btn-outline-secondary"
-                        // onClick={() => generateReceipt(order)}
-                        onClick={() => setReceiptOrder(order)}
-                      >
-                        🖨️ Print
-                      </button>
-                      <button
-                        className="btn btn-sm btn-outline-danger"
-                        onClick={() => handleDeleteOrder(order._id, order.customerName)}
-                        title="Delete Order"
-                      >
-                        🗑️
-                      </button>
-                    </div>
-                  </td>
+         <>
+          <div
+            id="order-table"
+            className="shadow-sm border rounded"
+            style={{
+              overflowX: "auto",
+              width: "100%"
+            }}
+          >
+            <table className="table table-hover align-middle table-bordered mb-0">
+              <thead className="table-light">
+                <tr>
+                  <th>Date</th>
+                  <th>Customer</th>
+                  <th>Table No/ Takeaway</th>
+                  <th>Status</th>
+                  <th>Items</th>
+                  <th>Total</th>
+                  <th>Receipt</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {currentOrders.map((order) => (
+                  <tr key={order._id}>
+                    <td>{new Date(order.createdAt).toLocaleString()}</td>
+                    <td>{order.customerName}</td>
+                    <td>
+                      {order.tableNo > 0 
+                        ? `Table ${order.tableNo} - ${order.waiterName || ""}` 
+                        : `Takeaway (${order.deliveryType || ""} - ${order.deliveryPlaceName || ""})`}
+                    </td>
+                    <td>
+                      <span
+                        className={`badge ${
+                          order.status === "Ready"
+                            ? "bg-success"
+                            : order.status === "Processing"
+                            ? "bg-primary"
+                            : order.status === "Completed"
+                            ? "bg-secondary"
+                            : "bg-warning text-dark"
+                        }`}
+                      >
+                        {order.status}
+                      </span>
+                    </td>
+                    <td>
+                      <ul className="mb-0 small list-unstyled">
+                        {order.items.map((item, idx) => (
+                          <li key={idx}>
+                            {item.name} x{item.quantity}
+                          </li>
+                        ))}
+                      </ul>
+                    </td>
+                    <td>{symbol}{order.totalPrice?.toFixed(2)}</td>
+                    <td>
+                      <div className="d-flex gap-2">
+                        {/* Mark as Ready Button (only for Pending/Processing) */}
+                        {(order.status === "Pending" || order.status === "Processing") && (
+                          <button
+                            className="btn btn-sm btn-success"
+                            onClick={() => markAsReady(order._id)}
+                            title="Mark order as ready for pickup"
+                          >
+                            ✅ Ready
+                          </button>
+                        )}
+                        <button
+                          className="btn btn-sm btn-outline-secondary"
+                          // onClick={() => generateReceipt(order)}
+                          onClick={() => setReceiptOrder(order)}
+                        >
+                          🖨️ Print
+                        </button>
+                        <button
+                          className="btn btn-sm btn-outline-danger"
+                          onClick={() => handleDeleteOrder(order._id, order.customerName)}
+                          title="Delete Order"
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <nav className="mt-3">
+              <ul className="pagination justify-content-center">
+                <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                  <button
+                    className="page-link"
+                    onClick={() => paginate(currentPage - 1)}
+                    disabled={currentPage === 1}
+                  >
+                    &laquo; Prev
+                  </button>
+                </li>
+
+                {[...Array(totalPages)].map((_, i) => {
+                  const pageNum = i + 1;
+                  if (
+                    pageNum === 1 ||
+                    pageNum === totalPages ||
+                    (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                  ) {
+                    return (
+                      <li key={pageNum} className={`page-item ${currentPage === pageNum ? "active" : ""}`}>
+                        <button className="page-link" onClick={() => paginate(pageNum)}>
+                          {pageNum}
+                        </button>
+                      </li>
+                    );
+                  } else if (
+                    (pageNum === currentPage - 2 && currentPage > 3) ||
+                    (pageNum === currentPage + 2 && currentPage < totalPages - 2)
+                  ) {
+                    return (
+                      <li key={pageNum} className="page-item disabled">
+                        <span className="page-link">...</span>
+                      </li>
+                    );
+                  }
+                  return null;
+                })}
+
+                <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+                  <button
+                    className="page-link"
+                    onClick={() => paginate(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next &raquo;
+                  </button>
+                </li>
+              </ul>
+            </nav>
+          )}
+        </>
       )}
 
       {receiptOrder && (

@@ -635,7 +635,9 @@ const CashierLanding = () => {
 
       let matchesSize = true;
       if (sizeFilter) {
-        const parts = menu.name?.split('-');
+        const parts = menu.name
+          ? menu.name.split(/\s*-\s*/).map(part => part.trim()).filter(Boolean)
+          : [];
         const suffix = parts?.[parts.length - 1];
         matchesSize = suffix === sizeFilter;
       }

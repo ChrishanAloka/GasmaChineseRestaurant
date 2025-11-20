@@ -1,6 +1,5 @@
 const RefreshStatus = require("../models/refreshStatus");
 
-// GET /api/auth/admin/refresh-status
 exports.getRefreshStatus = async (req, res) => {
   try {
     const status = await RefreshStatus.findOne({});
@@ -14,27 +13,36 @@ exports.getRefreshStatus = async (req, res) => {
   }
 };
 
-// PUT /api/auth/admin/refresh-status
-exports.updateRefreshStatus = async (req, res) => {
-  const { refreshed } = req.body;
-
-  if (typeof refreshed !== "boolean") {
-    return res.status(400).json({ error: "Invalid 'refreshed' value. Must be true or false." });
-  }
-
+// POST /api/auth/admin/refresh-status/reset → set to FALSE
+exports.resetRefreshStatus = async (req, res) => {
   try {
     let status = await RefreshStatus.findOne({});
-
     if (!status) {
-      status = new RefreshStatus({ refreshed });
+      status = new RefreshStatus({ refreshed: false });
     } else {
-      status.refreshed = refreshed;
+      status.refreshed = false;
     }
-
     await status.save();
     res.json(status);
   } catch (err) {
-    console.error("Failed to update refresh status:", err.message);
+    console.error("Failed to reset refresh status:", err.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// POST /api/auth/admin/refresh-status/mark → set to TRUE
+exports.markAsRefreshed = async (req, res) => {
+  try {
+    let status = await RefreshStatus.findOne({});
+    if (!status) {
+      status = new RefreshStatus({ refreshed: true });
+    } else {
+      status.refreshed = true;
+    }
+    await status.save();
+    res.json(status);
+  } catch (err) {
+    console.error("Failed to mark as refreshed:", err.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
