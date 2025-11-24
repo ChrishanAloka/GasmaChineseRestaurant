@@ -118,8 +118,8 @@ exports.getAdminSummary = async (req, res) => {
 
     const topMenus = Object.entries(menuItemCount)
       .map(([name, count]) => ({ name, count }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 10); // Top 10
+      .sort((a, b) => b.count - a.count);
+      // .slice(0, 10); // Top 10
 
     // ✅ Waiter Service Charge Earnings (only for dine-in orders with waiterName)
     const waiterEarnings = {};
