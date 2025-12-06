@@ -61,6 +61,8 @@ const { getPrinters, upsertPrinter, deletePrinter } = require("../controllers/pr
 
 const {getRefreshStatus, resetRefreshStatus, markAsRefreshed } = require('../controllers/refreshStatusController');
 
+const { getDbStats } = require("../controllers/dbStatsController");
+
 // Only admin can manage printers (adjust roles as needed)
 router.get("/printers", authMiddleware(["admin", "kitchen", "cashier"]), getPrinters);
 router.post("/printers", authMiddleware(["admin", "kitchen", "cashier"]), upsertPrinter);
@@ -216,5 +218,8 @@ router.get("/expense/other/by-date", authMiddleware(["admin", "cashier"]), getEx
 router.get('/refresh-status', authMiddleware(["admin", "cashier", "kitchen"]), getRefreshStatus);
 router.post('/refresh-status/reset', authMiddleware(["admin", "cashier", "kitchen"]), resetRefreshStatus); // ← POST reset
 router.post('/refresh-status/mark', authMiddleware(["admin", "cashier", "kitchen"]), markAsRefreshed); 
+
+// MongoDB Storage Usage — Admin only
+router.get("/admin/db-stats", authMiddleware(["admin"]), getDbStats);
 
 module.exports = router;
