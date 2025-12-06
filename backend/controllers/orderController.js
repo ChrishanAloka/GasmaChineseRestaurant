@@ -8,6 +8,7 @@ const Menu = require("../models/Menu");
 const DeliveryCharge = require("../models/DeliveryChargeByPlace");
 const ServiceCharge = require("../models/ServiceCharge");
 const Customer = require('../models/Customer'); // adjust path as needed
+const InvoiceCounter = require('../models/InvoiceCounter');
 
 
 // POST /api/auth/order
@@ -26,7 +27,22 @@ exports.createOrder = async (req, res) => {
 
   // const randomPart = String(Math.floor(Math.random() * 1000000)).padStart(6, '0');
   // const invoiceNo = `INV-${Date.now()}-${randomPart}`;
-  const invoiceNo = `INV-${String(Math.floor(Math.random() * 1000000)).padStart(6, '0')}`;
+  // const invoiceNo = `INV-${String(Math.floor(Math.random() * 1000000)).padStart(6, '0')}`;
+
+  const today = new Date();
+  const dateStr = today.getFullYear() + 
+                  String(today.getMonth() + 1).padStart(2, '0') + 
+                  String(today.getDate()).padStart(2, '0');
+
+  // Atomically increment the counter for today
+  const counter = await InvoiceCounter.findOneAndUpdate(
+    { date: dateStr },
+    { $inc: { seq: 1 } },
+    { upsert: true, new: true, setDefaultsOnInsert: true }
+  );
+
+  const sequence = String(counter.seq).padStart(2, '0');
+  const invoiceNo = `INV-${dateStr}-${sequence}`; // e.g., "20251208-01"
 
   if (!items || items.length === 0) {
     return res.status(400).json({ error: "No items provided" });

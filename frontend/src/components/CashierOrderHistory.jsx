@@ -481,6 +481,12 @@ const CashierOrderHistory = () => {
   };
 
   const handleDeleteOrder = async (orderId, customerName) => {
+    const userRole = localStorage.getItem("userRole");
+    if (userRole !== "admin") {
+      alert("Only admins can delete orders.");
+      return;
+    }
+
     if (!window.confirm(`Are you sure you want to delete the order for ${customerName}? This cannot be undone.`)) {
       return;
     }
@@ -752,13 +758,16 @@ const CashierOrderHistory = () => {
                         >
                           🖨️ Print
                         </button>
-                        <button
-                          className="btn btn-sm btn-outline-danger"
-                          onClick={() => handleDeleteOrder(order._id, order.customerName)}
-                          title="Delete Order"
-                        >
-                          🗑️
-                        </button>
+                        {/* Delete Button — ONLY for admins */}
+                        {localStorage.getItem("userRole") === "admin" && (
+                          <button
+                            className="btn btn-sm btn-outline-danger"
+                            onClick={() => handleDeleteOrder(order._id, order.customerName)}
+                            title="Delete Order"
+                          >
+                            🗑️
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
