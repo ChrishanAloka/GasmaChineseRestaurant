@@ -1,49 +1,56 @@
 // backend/controllers/dbStatsController.js
 const mongoose = require('mongoose');
 
+// Helper: Estimate average doc size (roughly)
+const estimateAvgDocSize = (modelName) => {
+  // You can customize per model if you want more accuracy
+  switch (modelName) {
+    case 'Order': return 1024;        // ~1KB
+    case 'Menu': return 512;          // ~0.5KB
+    case 'Employee': return 300;
+    case 'OtherIncome': return 200;
+    case 'Expense': return 200;
+    case 'Customer': return 300;
+    default: return 500; // fallback
+  }
+};
+
 exports.getDbStats = async (req, res) => {
   try {
-    // Get top-level DB stats
-    const dbStats = await mongoose.connection.db.stats();
+    const collections = [];
+    let totalEstimatedSize = 0;
 
-    // Get all collection names
-    const collections = await mongoose.connection.db.listCollections().toArray();
-    const collectionStats = [];
+    // Get all Mongoose models
+    const models = mongoose.models;
 
-    // Fetch stats for each collection
-    for (const col of collections) {
-      const stats = await mongoose.connection.db.collection(col.name).stats();
-      collectionStats.push({
-        name: col.name,
-        count: stats.count || 0,
-        sizeBytes: stats.size || 0,
-        storageSizeBytes: stats.storageSize || 0,
-        sizeMB: ((stats.size || 0) / (1024 * 1024)).toFixed(2),
-        storageSizeMB: ((stats.storageSize || 0) / (1024 * 1024)).toFixed(2)
+    for (const modelName in models) {
+      const model = models[modelName];
+      const count = await model.estimatedDocumentCount();
+      const avgSize = estimateAvgDocSize(modelName);
+      const estimatedSizeBytes = count * avgSize;
+      const estimatedSizeMB = (estimatedSizeBytes / (1024 * 1024)).toFixed(2);
+
+      totalEstimatedSize += estimatedSizeBytes;
+
+      collections.push({
+        name: modelName,
+        count,
+        estimatedSizeMB
       });
     }
 
-    // Calculate totals
-    const totalSizeMB = ((dbStats.dataSize || 0) / (1024 * 1024)).toFixed(2);
-    const totalStorageMB = ((dbStats.storageSize || 0) / (1024 * 1024)).toFixed(2);
-    
-    // fsUsedSize only exists on WiredTiger (MongoDB 3.2+); used in Atlas
-    const fileSizeMB = dbStats.fsUsedSize 
-      ? (dbStats.fsUsedSize / (1024 * 1024)).toFixed(2)
-      : null;
+    const totalSizeMB = (totalEstimatedSize / (1024 * 1024)).toFixed(2);
 
     res.json({
       database: {
-        name: dbStats.db,
-        totalSizeMB,
-        totalStorageMB,
-        fileSizeMB,
-        collections: collectionStats.length
+        name: mongoose.connection.name || 'restaurant_rms',
+        totalEstimatedSizeMB: totalSizeMB,
+        collections: collections.length
       },
-      collections: collectionStats
+      collections: collections.sort((a, b) => parseFloat(b.estimatedSizeMB) - parseFloat(a.estimatedSizeMB))
     });
   } catch (err) {
-    console.error('Failed to fetch DB stats:', err);
-    res.status(500).json({ error: 'Failed to retrieve database usage stats' });
+    console.error('DB Stats Error:', err.message);
+    res.status(500).json({ error: 'Unable to retrieve database stats', details: err.message });
   }
 };
