@@ -74,7 +74,7 @@ import RegisterDriverPage from "./components/RegisterDriverPage";
 
 import OtherExpenses from "./components/OtherExpenses";
 import OtherIncome from "./components/OtherIncome";
-
+import DbStatus from "./components/DbStatus";
 
 <Route path="/unauthorized" element={<Unauthorized />} />
 
@@ -125,6 +125,8 @@ function App() {
         <Route path="/admin/delivery-charge" element={<AdminDeliveryCharge />} />
         <Route path="/admin/refresh-update" element={<AdminRefreshStatus />} />
         <Route path="/admin/delivery-charges" element={<DeliveryCharges />} />
+        <Route path="/admin/db-Status" element={<DbStatus />} />
+        
 
       </Route>
       

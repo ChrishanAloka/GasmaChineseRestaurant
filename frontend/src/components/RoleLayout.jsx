@@ -7,7 +7,7 @@ import {
   FaChartBar, FaUserTie, FaCalendarCheck, FaTruck, FaMoneyBillWave,
   FaMoneyCheckAlt, FaUtensils, FaDollarSign, FaShoppingCart, FaHistory,
   FaBookOpen, FaClipboardList, FaUserCircle, FaPercentage, FaTruckLoading, 
-  FaFirstOrder,FaMotorcycle,FaUserClock,FaCashRegister,FaBookReader,FaCoins,FaWallet,FaPrint,FaUserTag
+  FaFirstOrder,FaMotorcycle,FaUserClock,FaCashRegister,FaBookReader,FaCoins,FaWallet,FaPrint,FaUserTag,FaDatabase
 } from "react-icons/fa";
 import "./Sidebar.css";
 import NotificationCenter from "./NotificationCenter";
@@ -101,6 +101,8 @@ const RoleLayout = () => {
             {createMenuItem("/printer-settings", "Printer Settings", FaPrint)}
             {createMenuItem("/admin/signup-key", "Signup Key", FaKey)}
             {createMenuItem("/admin/currency", "Currency", FaDollarSign)}
+            {createMenuItem("/admin/db-Status", "Database Status", FaDatabase)}
+            
             {createMenuItem("/admin/refresh-update", "Update Refresh", FaRedo)}
           </>
         );
