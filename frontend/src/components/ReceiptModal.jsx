@@ -146,28 +146,28 @@ const ReceiptModal = ({ order, onClose }) => {
           <hr />
 
           <div style="font-size:16px;margin-bottom:12px;">
-            <div style="display:flex;gap:4px;margin-bottom:4px; font-size:14px;">
+            <div style="display:flex;gap:4px;margin-bottom:4px; font-size:15px;">
               <div style="width:90px;"><strong>Invoice No:</strong></div>
               <div>${order.invoiceNo || 'N/A'}</div>
             </div>
-            <div style="display:flex;gap:4px;margin-bottom:4px; font-size:14px;">
+            <div style="display:flex;gap:4px;margin-bottom:4px; font-size:15px;">
               <div style="width:90px;"><strong>Date:</strong></div>
               <div>${now}</div>
             </div>
-            <div style="display:flex;gap:4px;margin-bottom:4px; font-size:14px;">
+            <div style="display:flex;gap:4px;margin-bottom:4px; font-size:15px;">
               <div style="width:90px;"><strong>Customer:</strong></div>
               <div>${order.customerName || 'Walk-in'}</div>
             </div>
-            <div style="display:flex;gap:4px;margin-bottom:4px; font-size:14px;">
+            <div style="display:flex;gap:4px;margin-bottom:4px; font-size:15px;">
               <div style="width:90px;"><strong>Phone:</strong></div>
               <div>${order.customerPhone || 'N/A'}</div>
             </div>
-            <div style="display:flex;gap:4px;margin-bottom:4px; font-size:14px;">
+            <div style="display:flex;gap:4px;margin-bottom:4px; font-size:15px;">
               <div style="width:90px;"><strong>Order Type:</strong></div>
               <div>${order.tableNo > 0 ? `Dine In - Table ${order.tableNo}` : `Takeaway ( ${order.deliveryType} )`}</div>
             </div>
             ${order.tableNo === "Takeaway" && order.deliveryType === "Delivery Service" ? `
-            <div style="display:flex;gap:4px;margin-bottom:4px; font-size:14px;">
+            <div style="display:flex;gap:4px;margin-bottom:4px; font-size:15px;">
               <div style="width:90px;"><strong>Delivery Place:</strong></div>
               <div>${order.deliveryPlaceName}</div>
             </div>` : ''}
@@ -175,7 +175,7 @@ const ReceiptModal = ({ order, onClose }) => {
 
           <hr />
 
-          <table style="font-size:12px;">
+          <table style="font-size:15px;">
             <thead>
               <tr>
                 <th style="text-align:left;">Items</th>
@@ -296,7 +296,7 @@ const ReceiptModal = ({ order, onClose }) => {
 
         <div style={{ fontSize: "16px", marginBottom: "0px", lineHeight: "1.6" }}>
           {/* Row */}
-          <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "14px"  }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "15px"  }}>
             <div style={{ width: "90px",  lineHeight: "0", paddingBottom: "4px" }}>
               <strong>Invoice No:</strong>
             </div>
@@ -304,7 +304,7 @@ const ReceiptModal = ({ order, onClose }) => {
           </div>
 
           {/* Row */}
-          <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "14px"  }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "15px"  }}>
             <div style={{ width: "90px", lineHeight: "0", paddingBottom: "4px" }}>
               <strong>Date:</strong>
             </div>
@@ -312,7 +312,7 @@ const ReceiptModal = ({ order, onClose }) => {
           </div>
 
           {/* Row */}
-          <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "14px"  }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "15px"  }}>
             <div style={{ width: "90px",  lineHeight: "0", paddingBottom: "4px" }}>
               <strong>Customer:</strong>
             </div>
@@ -320,7 +320,7 @@ const ReceiptModal = ({ order, onClose }) => {
           </div>
 
           {/* Row */}
-          <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "14px"  }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "15px"  }}>
             <div style={{ width: "90px",  lineHeight: "0", paddingBottom: "4px" }}>
               <strong>Phone:</strong>
             </div>
@@ -328,7 +328,7 @@ const ReceiptModal = ({ order, onClose }) => {
           </div>
 
           {/* Row */}
-          <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "14px"  }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "15px"  }}>
             <div style={{ width: "90px", lineHeight: "0", paddingBottom: "4px" }}>
               <strong>Order Type:</strong>
             </div>
@@ -337,7 +337,7 @@ const ReceiptModal = ({ order, onClose }) => {
 
           {/* Conditional Row */}
           {tableNo === "Takeaway" && order.deliveryType === "Delivery Service" && (
-            <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "14px"  }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "15px"  }}>
               <div style={{ width: "90px",  lineHeight: "0", paddingBottom: "4px" }}>
                 <strong>Delivery Place:</strong>
               </div>
@@ -372,7 +372,7 @@ const ReceiptModal = ({ order, onClose }) => {
         </ul> */}
 
         {/* ✅ Replaced list with table for cleaner, aligned display */}
-        <table style={{ width: "100%", borderCollapse: "collapse", paddingTop: "0px", paddingBottom:"0px", fontSize: "13px"  }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", paddingTop: "0px", paddingBottom:"0px", fontSize: "15px"  }}>
           <thead>
               <th style={{ padding: "4px 0", width: "50%", textAlign: "left" }}> Items</th>
               <th style={{ padding: "4px 0", width: "20%", textAlign: "center" }}> Qty</th>
