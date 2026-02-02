@@ -12,7 +12,7 @@ const DatabaseUsage = () => {
       try {
         const token = localStorage.getItem("token");
         const res = await axios.get(
-          "https://gasmachineserestaurantrms.onrender.com/api/auth/admin/db-stats",
+          "https://gasmachineserestaurantapp.onrender.com/api/auth/admin/db-stats",
           {
             headers: { Authorization: `Bearer ${token}` },
           }

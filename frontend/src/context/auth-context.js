@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }) => {
     const fetchCurrency = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get("https://gasmachineserestaurantrms.onrender.com/api/auth/settings/currency", {
+        const res = await axios.get("https://gasmachineserestaurantapp.onrender.com/api/auth/settings/currency", {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -87,7 +87,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const token = localStorage.getItem("token");
       await axios.put(
-        "https://gasmachineserestaurantrms.onrender.com/api/auth/settings/currency",
+        "https://gasmachineserestaurantapp.onrender.com/api/auth/settings/currency",
         { symbol, currency: code },
         {
           headers: { Authorization: `Bearer ${token}` }

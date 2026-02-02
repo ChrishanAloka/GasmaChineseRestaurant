@@ -27,7 +27,7 @@ const Signup = () => {
     }
 
     try {
-      await axios.post("https://gasmachineserestaurantrms.onrender.com/api/auth/signup", {
+      await axios.post("https://gasmachineserestaurantapp.onrender.com/api/auth/signup", {
         name,
         email,
         password,

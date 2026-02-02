@@ -37,7 +37,7 @@ const KitchenLanding = () => {
     if (initial) setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("https://gasmachineserestaurantrms.onrender.com/api/auth/orders", {
+      const res = await axios.get("https://gasmachineserestaurantapp.onrender.com/api/auth/orders", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setOrders(res.data);
@@ -66,13 +66,13 @@ const KitchenLanding = () => {
     const token = localStorage.getItem("token");
     try {
       await axios.put(
-        `https://gasmachineserestaurantrms.onrender.com/api/auth/order/${id}/status`,
+        `https://gasmachineserestaurantapp.onrender.com/api/auth/order/${id}/status`,
         { status: "Ready" },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       await axios.post(
-        "https://gasmachineserestaurantrms.onrender.com/api/auth/notifications/send",
+        "https://gasmachineserestaurantapp.onrender.com/api/auth/notifications/send",
         {
           userId: id,
           message: `Order #${id} is ready for pickup.`,
@@ -104,13 +104,13 @@ const KitchenLanding = () => {
     const updatePromises = liveOrderIds.map(async (id) => {
       try {
         await axios.put(
-          `https://gasmachineserestaurantrms.onrender.com/api/auth/order/${id}/status`,
+          `https://gasmachineserestaurantapp.onrender.com/api/auth/order/${id}/status`,
           { status: "Ready" },
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
         await axios.post(
-          "https://gasmachineserestaurantrms.onrender.com/api/auth/notifications/send",
+          "https://gasmachineserestaurantapp.onrender.com/api/auth/notifications/send",
           {
             userId: id,
             message: `Order #${id} is ready for pickup.`,

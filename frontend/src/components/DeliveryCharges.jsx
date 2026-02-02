@@ -19,7 +19,7 @@ const DeliveryCharges = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.get(
-        "https://gasmachineserestaurantrms.onrender.com/api/auth/delivery-charges",
+        "https://gasmachineserestaurantapp.onrender.com/api/auth/delivery-charges",
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setCharges(res.data);
@@ -50,7 +50,7 @@ const DeliveryCharges = () => {
       };
 
       await axios.post(
-        "https://gasmachineserestaurantrms.onrender.com/api/auth/delivery-charges",
+        "https://gasmachineserestaurantapp.onrender.com/api/auth/delivery-charges",
         payload,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -76,7 +76,7 @@ const DeliveryCharges = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.delete(
-        `https://gasmachineserestaurantrms.onrender.com/api/auth/delivery-charges/${id}`,
+        `https://gasmachineserestaurantapp.onrender.com/api/auth/delivery-charges/${id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       toast.success("Deleted successfully");

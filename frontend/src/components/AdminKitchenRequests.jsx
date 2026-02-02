@@ -10,7 +10,7 @@ const AdminKitchenRequests = () => {
     const fetchRequests = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get("https://gasmachineserestaurantrms.onrender.com/api/auth/kitchen/requests", {
+        const res = await axios.get("https://gasmachineserestaurantapp.onrender.com/api/auth/kitchen/requests", {
           headers: { Authorization: `Bearer ${token}` }
         });
         setRequests(res.data);
@@ -28,7 +28,7 @@ const AdminKitchenRequests = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.put(
-        `https://gasmachineserestaurantrms.onrender.com/api/auth/kitchen/request/${id}/status`,
+        `https://gasmachineserestaurantapp.onrender.com/api/auth/kitchen/request/${id}/status`,
         { status: newStatus },
         {
           headers: { Authorization: `Bearer ${token}` }

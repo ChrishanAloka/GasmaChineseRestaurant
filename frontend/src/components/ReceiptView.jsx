@@ -14,7 +14,7 @@ const ReceiptView = () => {
     const fetchOrder = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get(`https://gasmachineserestaurantrms.onrender.com/api/auth/order/${orderId}`, {
+        const res = await axios.get(`https://gasmachineserestaurantapp.onrender.com/api/auth/order/${orderId}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }

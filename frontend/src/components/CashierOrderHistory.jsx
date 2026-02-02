@@ -70,7 +70,7 @@ const CashierOrderHistory = () => {
 
     try {
       const res = await axios.get(
-        `https://gasmachineserestaurantrms.onrender.com/api/auth/orders?${params.toString()}`,
+        `https://gasmachineserestaurantapp.onrender.com/api/auth/orders?${params.toString()}`,
         {
           headers: { Authorization: `Bearer ${token}` }
         }
@@ -494,7 +494,7 @@ const CashierOrderHistory = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.delete(
-        `https://gasmachineserestaurantrms.onrender.com/api/auth/order/${orderId}`,
+        `https://gasmachineserestaurantapp.onrender.com/api/auth/order/${orderId}`,
         {
           headers: { Authorization: `Bearer ${token}` }
         }
@@ -518,7 +518,7 @@ const CashierOrderHistory = () => {
       
       // Update order status to "Ready"
       await axios.put(
-        `https://gasmachineserestaurantrms.onrender.com/api/auth/order/${orderId}/status`,
+        `https://gasmachineserestaurantapp.onrender.com/api/auth/order/${orderId}/status`,
         { status: "Ready" },
         {
           headers: { Authorization: `Bearer ${token}` }
@@ -529,7 +529,7 @@ const CashierOrderHistory = () => {
       // You can skip if not needed for cashier
       /*
       await axios.post(
-        "https://gasmachineserestaurantrms.onrender.com/api/auth/notifications/send",
+        "https://gasmachineserestaurantapp.onrender.com/api/auth/notifications/send",
         {
           userId: orderId,
           message: `Order #${orderId} is ready.`,

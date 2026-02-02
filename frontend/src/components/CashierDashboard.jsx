@@ -42,11 +42,11 @@ const DailyReport = () => {
 
     try {
       const [summaryRes, ordersRes] = await Promise.all([
-        axios.get("https://gasmachineserestaurantrms.onrender.com/api/auth/admin/summary", {
+        axios.get("https://gasmachineserestaurantapp.onrender.com/api/auth/admin/summary", {
           headers: { Authorization: `Bearer ${token}` },
           params: { startDate, endDate }
         }),
-        axios.get("https://gasmachineserestaurantrms.onrender.com/api/auth/orders", {
+        axios.get("https://gasmachineserestaurantapp.onrender.com/api/auth/orders", {
           headers: { Authorization: `Bearer ${token}` },
           params: { startDate, endDate }
         })

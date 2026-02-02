@@ -7,7 +7,7 @@ const KitchenOrderHistory = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       const token = localStorage.getItem("token");
-      const res = await axios.get("https://gasmachineserestaurantrms.onrender.com/api/auth/orders", {
+      const res = await axios.get("https://gasmachineserestaurantapp.onrender.com/api/auth/orders", {
         headers: { Authorization: `Bearer ${token}` }
       });
       setOrders(res.data);

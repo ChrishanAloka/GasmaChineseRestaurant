@@ -22,7 +22,7 @@ const SupplierRegistration = () => {
   const fetchSuppliers = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("https://gasmachineserestaurantrms.onrender.com/api/auth/suppliers", {
+      const res = await axios.get("https://gasmachineserestaurantapp.onrender.com/api/auth/suppliers", {
         headers: { Authorization: `Bearer ${token}` }
       });
       setSuppliers(res.data);
@@ -45,7 +45,7 @@ const SupplierRegistration = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.post(
-        "https://gasmachineserestaurantrms.onrender.com/api/auth/supplier/register",
+        "https://gasmachineserestaurantapp.onrender.com/api/auth/supplier/register",
         newSupplier,
         {
           headers: { Authorization: `Bearer ${token}` }
@@ -96,7 +96,7 @@ const SupplierRegistration = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.put(
-        `https://gasmachineserestaurantrms.onrender.com/api/auth/supplier/${editingSupplier}`,
+        `https://gasmachineserestaurantapp.onrender.com/api/auth/supplier/${editingSupplier}`,
         editData,
         {
           headers: { Authorization: `Bearer ${token}` }
@@ -116,7 +116,7 @@ const SupplierRegistration = () => {
     if (!window.confirm("Are you sure you want to delete this supplier?")) return;
 
     axios
-      .delete(`https://gasmachineserestaurantrms.onrender.com/api/auth/supplier/${id}`, {
+      .delete(`https://gasmachineserestaurantapp.onrender.com/api/auth/supplier/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
       })
       .then(() => {
