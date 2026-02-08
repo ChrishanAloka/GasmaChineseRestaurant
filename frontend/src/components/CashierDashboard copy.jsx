@@ -66,15 +66,14 @@ const CashierDashboard = () => {
                   <p className="mb-1">
                     <strong>Status:</strong>{" "}
                     <span
-                      className={`badge ${
-                        order.status === "Completed"
-                          ? "bg-secondary"
-                          : order.status === "Ready"
+                      className={`badge ${order.status === "Completed"
+                        ? "bg-secondary"
+                        : order.status === "Ready"
                           ? "bg-success"
                           : order.status === "Processing"
-                          ? "bg-primary"
-                          : "bg-warning text-dark"
-                      }`}
+                            ? "bg-primary"
+                            : "bg-warning text-dark"
+                        }`}
                     >
                       {order.status}
                     </span>

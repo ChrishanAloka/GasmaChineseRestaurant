@@ -196,19 +196,19 @@ const CashierSummary = () => {
   // ✅ Add Other Income (Cash In)
   const addOtherIncome = async () => {
     if (isReadOnly) return;
-    if (incomeSource.trim() === "Other"){
+    if (incomeSource.trim() === "Other") {
       if (!incomeDesc.trim() || !incomeAmount || parseFloat(incomeAmount) <= 0) {
         toast.error("Please enter valid description and amount");
         return;
       }
     }
-    else{
+    else {
       if (!incomeSource || !incomeAmount || parseFloat(incomeAmount) <= 0) {
         toast.error("Please enter valid description and amount");
         return;
       }
     }
-  
+
     try {
       const payload = {
         source: incomeSource,
@@ -239,13 +239,13 @@ const CashierSummary = () => {
   const addOtherExpense = async () => {
     if (isReadOnly) return;
 
-    if (expenseSource.trim() === "Other"){
+    if (expenseSource.trim() === "Other") {
       if (!expenseDesc.trim() || !expenseAmount || parseFloat(expenseAmount) <= 0) {
         toast.error("Please enter valid description and amount");
         return;
       }
     }
-    else{
+    else {
       if (!expenseSource || !expenseAmount || parseFloat(expenseAmount) <= 0) {
         toast.error("Please enter valid description and amount");
         return;
@@ -332,7 +332,7 @@ const CashierSummary = () => {
   const [cashInAmount, setCashInAmount] = useState("");
   const [cashOutDesc, setCashOutDesc] = useState("");
   const [cashOutAmount, setCashOutAmount] = useState("");
-  
+
   const addCashIn = () => {
     if (isReadOnly) return;
     if (!cashInDesc.trim() || !cashInAmount || parseFloat(cashInAmount) <= 0) return;
@@ -378,7 +378,7 @@ const CashierSummary = () => {
       return;
     }
     setStartingCashLocked(true);
-    localStorage.setItem('startingCashLocked', 'true'); 
+    localStorage.setItem('startingCashLocked', 'true');
   };
 
   const formatCurrency = (value) => {
@@ -388,7 +388,7 @@ const CashierSummary = () => {
 
   const formatDate = (isoString) => {
     // return new Date(isoString).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-     const date = new Date(isoString);
+    const date = new Date(isoString);
     return date.toISOString().split('T')[0];
   };
 
@@ -530,7 +530,7 @@ const CashierSummary = () => {
                   onClick={() => {
                     setStartingCash(forwardBalance.expectedClosingCash);
                     setStartingCashLocked(true);
-                    localStorage.setItem('startingCashLocked', 'true'); 
+                    localStorage.setItem('startingCashLocked', 'true');
                     toast.success(" Starting Cash set from yesterday’s closing balance.");
                   }}
                 >
@@ -588,7 +588,7 @@ const CashierSummary = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="row g-2">
                 <div className="col-md-10">
                   <div className="input-group">
@@ -653,7 +653,7 @@ const CashierSummary = () => {
                   </button>
                 </div>
               </div> */}
-              
+
             </>
           )}
 
@@ -732,7 +732,7 @@ const CashierSummary = () => {
                 <div className="col-md-6">
                   <div className="input-group">
                     <select
-                      name="category"                
+                      name="category"
                       placeholder="Expense Category"
                       value={expenseSource}
                       onChange={(e) => setExpenseSource(e.target.value)}
@@ -762,7 +762,7 @@ const CashierSummary = () => {
                     />
                   </div>
                 </div>
-                
+
               </div>
               <div className="row g-2">
                 <div className="col-md-10">
@@ -1020,13 +1020,12 @@ const CashierSummary = () => {
                         <td className="fw-bold text-success">{symbol}{formatCurrency(netCash)}</td>
                         <td>
                           <span
-                            className={`badge bg-${
-                              order.status === "completed"
-                                ? "success"
-                                : order.status === "pending"
+                            className={`badge bg-${order.status === "completed"
+                              ? "success"
+                              : order.status === "pending"
                                 ? "warning"
                                 : "secondary"
-                            }`}
+                              }`}
                           >
                             {order.status}
                           </span>

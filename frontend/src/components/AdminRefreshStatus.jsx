@@ -61,11 +61,10 @@ const AdminRefreshStatus = () => {
           <div>
             <h5 className="mb-1">Current Status</h5>
             <span
-              className={`badge fs-6 px-3 py-2 ${
-                refreshed
-                  ? "bg-success text-white"
-                  : "bg-warning text-dark"
-              }`}
+              className={`badge fs-6 px-3 py-2 ${refreshed
+                ? "bg-success text-white"
+                : "bg-warning text-dark"
+                }`}
             >
               {refreshed ? "✅ Refreshed" : "⚠️ Not Refreshed"}
             </span>

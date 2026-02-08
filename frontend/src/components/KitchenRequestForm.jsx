@@ -67,7 +67,7 @@ const KitchenRequestForm = () => {
   return (
     <div className="container py-4">
       <h2 className="text-primary mb-4 border-bottom pb-2">
-         Request Kitchen Supplies
+        Request Kitchen Supplies
       </h2>
       <ToastContainer />
 
@@ -171,13 +171,12 @@ const KitchenRequestForm = () => {
                   </td>
                   <td>
                     <span
-                      className={`badge rounded-pill px-3 py-2 ${
-                        req.status === "Approved"
-                          ? "bg-success"
-                          : req.status === "Rejected"
+                      className={`badge rounded-pill px-3 py-2 ${req.status === "Approved"
+                        ? "bg-success"
+                        : req.status === "Rejected"
                           ? "bg-danger"
                           : "bg-warning text-dark"
-                      }`}
+                        }`}
                     >
                       {req.status}
                     </span>

@@ -102,7 +102,7 @@ const DailyReport = () => {
     labels: ["Cash", "Card", "Bank Transfer"],
     datasets: [{
       label: "Payment Methods",
-      data:[
+      data: [
         Math.max(0, summary.paymentBreakdown.cash - summary.paymentBreakdown.cashdue),
         summary.paymentBreakdown.card || 0,
         summary.paymentBreakdown.bank || 0
@@ -115,7 +115,7 @@ const DailyReport = () => {
     labels: ["Other Expenses"],
     datasets: [{
       label: "Expenses",
-      data:[summary.totalOtherExpenses || 0],
+      data: [summary.totalOtherExpenses || 0],
       backgroundColor: ["#FF9F40"]
     }]
   };
@@ -192,8 +192,8 @@ const DailyReport = () => {
           const tableTakeaway = order.tableNo > 0
             ? `Table ${order.tableNo}`
             : order.deliveryType === "Customer Pickup"
-            ? `Takeaway - ${order.deliveryType}`
-            : `Takeaway - ${order.deliveryPlaceName || order.deliveryType || "—"}`;
+              ? `Takeaway - ${order.deliveryType}`
+              : `Takeaway - ${order.deliveryPlaceName || order.deliveryType || "—"}`;
 
           const row = document.createElement("tr");
 
@@ -464,16 +464,15 @@ const DailyReport = () => {
                       {order.tableNo > 0
                         ? `Table ${order.tableNo}`
                         : order.deliveryType === "Customer Pickup"
-                        ? `Takeaway - ${order.deliveryType}`
-                        : `Takeaway - ${order.deliveryPlaceName || order.deliveryType || "—"}`}
+                          ? `Takeaway - ${order.deliveryType}`
+                          : `Takeaway - ${order.deliveryPlaceName || order.deliveryType || "—"}`}
                     </td>
                     <td>
-                      <span className={`badge ${
-                        order.status === "Ready" ? "bg-success" :
+                      <span className={`badge ${order.status === "Ready" ? "bg-success" :
                         order.status === "Processing" ? "bg-primary" :
-                        order.status === "Completed" ? "bg-secondary" :
-                        "bg-warning text-dark"
-                      }`}>
+                          order.status === "Completed" ? "bg-secondary" :
+                            "bg-warning text-dark"
+                        }`}>
                         {order.status}
                       </span>
                     </td>

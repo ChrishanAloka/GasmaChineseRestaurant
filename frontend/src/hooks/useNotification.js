@@ -37,8 +37,8 @@ const useNotifications = () => {
       await axios.post(
         "https://gasmachineserestaurantapp.onrender.com/api/auth/notifications/send",
         {
-          userId, 
-          role, 
+          userId,
+          role,
           message,
           type
         },

@@ -241,13 +241,12 @@ const AttendancePage = () => {
                       <td>{totalHours.toFixed(2)}</td>
                       <td>
                         <span
-                          className={`badge ${
-                            status === "Overtime"
+                          className={`badge ${status === "Overtime"
                               ? "bg-success text-white"
                               : status === "Undertime"
-                              ? "bg-warning text-dark"
-                              : "bg-secondary"
-                          }`}
+                                ? "bg-warning text-dark"
+                                : "bg-secondary"
+                            }`}
                         >
                           {status}
                         </span>

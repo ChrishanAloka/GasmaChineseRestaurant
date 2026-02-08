@@ -46,21 +46,21 @@ const MenuManagement = () => {
       const res = await axios.get("https://gasmachineserestaurantapp.onrender.com/api/auth/menus", {
         headers: { Authorization: `Bearer ${token}` }
       });
-      
+
       const menuData = res.data;
       setMenus(menuData);
 
       // Format unique categories as react-select options
       const uniqueCats = [...new Set(menuData.map(menu => menu.category).filter(Boolean))];
       const options = uniqueCats.map(cat => ({ value: cat, label: cat }));
-      
+
       // Ensure at least one default option
       if (options.length === 0) {
         setCategoryOptions([{ value: "Main Course", label: "Main Course" }]);
       } else {
         setCategoryOptions(options);
       }
-      
+
     } catch (err) {
       console.error("Failed to load menus:", err.message);
     }
@@ -84,7 +84,7 @@ const MenuManagement = () => {
   // Handle create input change
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
+
     setNewMenu((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -278,9 +278,9 @@ const MenuManagement = () => {
       const token = localStorage.getItem("token");
       const res = await axios.put(
         `https://gasmachineserestaurantapp.onrender.com/api/auth/menu/${restockMenu._id}`,
-        { 
+        {
           minimumQty: updatedAvailableQty,
-          currentQty: updatedCurrentQty 
+          currentQty: updatedCurrentQty
         },
         {
           headers: { Authorization: `Bearer ${token}` }
@@ -366,7 +366,7 @@ const MenuManagement = () => {
               onChange={(selectedOption) => {
                 const value = selectedOption ? selectedOption.value : "Main Course";
                 setNewMenu(prev => ({ ...prev, category: value }));
-                
+
                 // Auto-add new category to options if it's not there
                 if (selectedOption && !categoryOptions.some(opt => opt.value === value)) {
                   setCategoryOptions(prev => [...prev, { value, label: value }]);
@@ -598,17 +598,29 @@ const MenuManagement = () => {
 
                     <div className="col-12">
                       <label className="form-label">Category</label>
-                      <select
-                        name="category"
-                        value={editData.category}
-                        onChange={handleEditChange}
-                        className="form-select"
-                      >
-                        <option>Main Course</option>
-                        <option>Appetizer</option>
-                        <option>Dessert</option>
-                        <option>Drink</option>
-                      </select>
+                      <CreatableSelect
+                        value={categoryOptions.find(option => option.value === editData.category) || { value: editData.category, label: editData.category }}
+                        onChange={(selectedOption) => {
+                          const value = selectedOption ? selectedOption.value : "Main Course";
+                          setEditData(prev => ({ ...prev, category: value }));
+
+                          // Auto-add new category to options if it's not there
+                          if (selectedOption && !categoryOptions.some(opt => opt.value === value)) {
+                            setCategoryOptions(prev => [...prev, { value, label: value }]);
+                          }
+                        }}
+                        onCreateOption={(inputValue) => {
+                          const newOption = { value: inputValue, label: inputValue };
+                          setCategoryOptions(prev => [...prev, newOption]);
+                          setEditData(prev => ({ ...prev, category: inputValue }));
+                        }}
+                        options={categoryOptions}
+                        placeholder="Select or create category..."
+                        className="basic-single"
+                        classNamePrefix="select"
+                        isClearable={false}
+                        components={makeAnimated()}
+                      />
                     </div>
 
                     {/* Edit: Image URL */}
@@ -626,7 +638,7 @@ const MenuManagement = () => {
                         }}
                       />
                     </div>
-                    
+
                     {/* <div className="col-12">
                       <label className="form-label">Image Upload</label>
                       <input
@@ -803,7 +815,7 @@ const MenuManagement = () => {
                     Price: {symbol}
                     {menu.price.toFixed(2)}
                     <br />
-                    <span>Cost: </span> 
+                    <span>Cost: </span>
                     <span className={`${calculateNetProfit(menu.price, menu.cost)}` >= 0 ? `bg-light fw-bold text-success` : `fw-bold bg-light text-danger`}>
                       {symbol}{(menu.cost || 0).toFixed(2)}
                     </span>

@@ -17,20 +17,20 @@ const CashierLogin = () => {
     e.preventDefault();
     setLoading(true);
     try {
-        const res = await axios.post("https://gasmachineserestaurantapp.onrender.com/api/auth/login", { email, password });
-        const data = res.data;
-    
-        if (data.role !== "cashier") {
-          alert("Unauthorized access");
-          setLoading(false);
-          return;
-        }
-    
-        login(data); // Comes from useAuth()
-        navigate("/cashier"); // Redirect after login
-      } catch (err) {
-        alert("Login failed. Please check your credentials.");
+      const res = await axios.post("https://gasmachineserestaurantapp.onrender.com/api/auth/login", { email, password });
+      const data = res.data;
+
+      if (data.role !== "cashier") {
+        alert("Unauthorized access");
         setLoading(false);
+        return;
+      }
+
+      login(data); // Comes from useAuth()
+      navigate("/cashier"); // Redirect after login
+    } catch (err) {
+      alert("Login failed. Please check your credentials.");
+      setLoading(false);
     }
   };
 

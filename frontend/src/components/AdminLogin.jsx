@@ -12,26 +12,26 @@ const AdminLogin = () => {
   const [loading, setLoading] = useState(false);
   const { login } = useContext(AuthContext);
 
-const handleLogin = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  try {
-    const res = await axios.post("https://gasmachineserestaurantapp.onrender.com/api/auth/login", { email, password });
-    const data = res.data;
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await axios.post("https://gasmachineserestaurantapp.onrender.com/api/auth/login", { email, password });
+      const data = res.data;
 
-    if (data.role !== "admin") {
-      alert("Unauthorized access");
+      if (data.role !== "admin") {
+        alert("Unauthorized access");
+        setLoading(false);
+        return;
+      }
+
+      login(data); // Comes from useAuth()
+      navigate("/admin"); // Redirect after login
+    } catch (err) {
+      alert("Login failed. Please check your credentials.");
       setLoading(false);
-      return;
     }
-
-    login(data); // Comes from useAuth()
-    navigate("/admin"); // Redirect after login
-  } catch (err) {
-    alert("Login failed. Please check your credentials.");
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <div className="d-flex justify-content-center align-items-center min-vh-100 bg-light">

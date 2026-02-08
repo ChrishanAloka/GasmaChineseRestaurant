@@ -122,9 +122,8 @@ const AdminDeliveryCharge = () => {
             <li className="list-group-item d-flex justify-content-between">
               <span>Status</span>
               <span
-                className={`badge ${
-                  deliveryCharge.isActive ? "bg-success" : "bg-danger"
-                } text-white`}
+                className={`badge ${deliveryCharge.isActive ? "bg-success" : "bg-danger"
+                  } text-white`}
               >
                 {deliveryCharge.isActive ? "Enabled" : "Disabled"}
               </span>

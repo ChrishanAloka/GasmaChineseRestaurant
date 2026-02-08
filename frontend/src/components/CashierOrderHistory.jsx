@@ -49,7 +49,7 @@ const CashierOrderHistory = () => {
   }, [filters]);
 
   const fetchOrders = async () => {
-    setLoading(true); 
+    setLoading(true);
     const token = localStorage.getItem("token");
 
     // Get start and end of selected date
@@ -270,7 +270,7 @@ const CashierOrderHistory = () => {
     }
   };
 
-  
+
 
   // 🧾 Generate Receipt & Print/Export
   const generateReceipt = (order) => {
@@ -515,7 +515,7 @@ const CashierOrderHistory = () => {
 
     try {
       const token = localStorage.getItem("token");
-      
+
       // Update order status to "Ready"
       await axios.put(
         `https://gasmachineserestaurantapp.onrender.com/api/auth/order/${orderId}/status`,
@@ -571,7 +571,7 @@ const CashierOrderHistory = () => {
 
   return (
     // <div className="mobile-scroll-container container-fluid px-3">
-   <div className="mobile-scroll-container container my-4"> 
+    <div className="mobile-scroll-container container my-4">
       <h2 className="mb-4 fw-bold text-primary border-bottom pb-2">Order History</h2>
 
       {/* Filters & Actions */}
@@ -645,9 +645,9 @@ const CashierOrderHistory = () => {
       </div>
 
       <div className="mb-4 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
-        
+
         <div className="d-flex gap-2"></div>
-        
+
         <div className="d-flex gap-2">
           <button className="btn btn-success" onClick={exportToExcel} disabled={isExportingExcel || isExportingPDF}>
             📤 Export Excel
@@ -668,7 +668,7 @@ const CashierOrderHistory = () => {
               {pdfProgress}%
             </span> */}
           </button>
-          
+
         </div>
       </div>
 
@@ -683,7 +683,7 @@ const CashierOrderHistory = () => {
       ) : orders.length === 0 ? (
         <p className="text-muted">No orders found.</p>
       ) : (
-         <>
+        <>
           <div
             id="order-table"
             className="shadow-sm border rounded"
@@ -710,21 +710,20 @@ const CashierOrderHistory = () => {
                     <td>{new Date(order.createdAt).toLocaleString()}</td>
                     <td>{order.customerName}</td>
                     <td>
-                      {order.tableNo > 0 
-                        ? `Table ${order.tableNo} - ${order.waiterName || ""}` 
+                      {order.tableNo > 0
+                        ? `Table ${order.tableNo} - ${order.waiterName || ""}`
                         : `Takeaway (${order.deliveryType || ""} - ${order.deliveryPlaceName || ""})`}
                     </td>
                     <td>
                       <span
-                        className={`badge ${
-                          order.status === "Ready"
-                            ? "bg-success"
-                            : order.status === "Processing"
+                        className={`badge ${order.status === "Ready"
+                          ? "bg-success"
+                          : order.status === "Processing"
                             ? "bg-primary"
                             : order.status === "Completed"
-                            ? "bg-secondary"
-                            : "bg-warning text-dark"
-                        }`}
+                              ? "bg-secondary"
+                              : "bg-warning text-dark"
+                          }`}
                       >
                         {order.status}
                       </span>

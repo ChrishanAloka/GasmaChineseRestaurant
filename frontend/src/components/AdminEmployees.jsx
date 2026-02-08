@@ -73,23 +73,23 @@ const AdminEmployees = () => {
   };
 
   const handleDelete = (id) => {
-  if (!window.confirm("Are you sure you want to delete this employee?")) return;
+    if (!window.confirm("Are you sure you want to delete this employee?")) return;
 
-  axios
-    .delete(`https://gasmachineserestaurantapp.onrender.com/api/auth/employee/${id}`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-    })
-    .then(() => {
-      setEmployees(employees.filter((emp) => emp._id !== id));
-      toast.success("Employee deleted successfully");
-    })
-    .catch((err) => {
-      toast.error("Failed to delete employee");
-      console.error("Delete failed:", err.message);
-    });
-};
+    axios
+      .delete(`https://gasmachineserestaurantapp.onrender.com/api/auth/employee/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      })
+      .then(() => {
+        setEmployees(employees.filter((emp) => emp._id !== id));
+        toast.success("Employee deleted successfully");
+      })
+      .catch((err) => {
+        toast.error("Failed to delete employee");
+        console.error("Delete failed:", err.message);
+      });
+  };
 
-const symbol = localStorage.getItem("currencySymbol") || "$";
+  const symbol = localStorage.getItem("currencySymbol") || "$";
 
   return (
     <div className="container py-4 mobile-scroll-container">
@@ -166,7 +166,7 @@ const symbol = localStorage.getItem("currencySymbol") || "$";
           </tbody>
         </table>
       </div>
-      
+
     </div>
 
   );

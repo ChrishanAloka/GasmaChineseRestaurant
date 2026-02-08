@@ -90,77 +90,77 @@ const MenuManagement = () => {
 
   // Open edit modal
   const openEditModal = (menu) => {
-  setEditingMenu(menu._id);
-  setEditData({
-    name: menu.name,
-    description: menu.description || "",
-    price: menu.price,
-    cost: menu.cost,
-    category: menu.category,
-    minimumQty: menu.minimumQty,
-    currentQty: menu.currentQty
-  });
-  setEditImage(null);
-  setEditPreview("");
-};
+    setEditingMenu(menu._id);
+    setEditData({
+      name: menu.name,
+      description: menu.description || "",
+      price: menu.price,
+      cost: menu.cost,
+      category: menu.category,
+      minimumQty: menu.minimumQty,
+      currentQty: menu.currentQty
+    });
+    setEditImage(null);
+    setEditPreview("");
+  };
 
   const handleEditChange = (e) =>
     setEditData({ ...editData, [e.target.name]: e.target.value });
 
   // Submit edit
   const handleUpdate = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const formData = new FormData();
-  Object.entries(editData).forEach(([key, value]) => {
-    if (value !== undefined && value !== null) {
-      formData.append(key, value);
-    }
-  });
-
-  if (editImage) {
-    formData.append("image", editImage);
-  }
-
-  try {
-    const token = localStorage.getItem("token");
-    const res = await axios.put(
-      `https://gasmachineserestaurantapp.onrender.com/api/auth/menu/${editingMenu}`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`
-        }
+    const formData = new FormData();
+    Object.entries(editData).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        formData.append(key, value);
       }
-    );
+    });
 
-    setMenus(menus.map((m) => (m._id === editingMenu ? res.data : m)));
-    toast.success("Menu updated successfully!");
-    setEditingMenu(null);
-  } catch (err) {
-    console.error("Update failed:", err.response?.data || err.message);
-    toast.error("Failed to update menu");
-  }
-};
+    if (editImage) {
+      formData.append("image", editImage);
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.put(
+        `https://gasmachineserestaurantapp.onrender.com/api/auth/menu/${editingMenu}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      setMenus(menus.map((m) => (m._id === editingMenu ? res.data : m)));
+      toast.success("Menu updated successfully!");
+      setEditingMenu(null);
+    } catch (err) {
+      console.error("Update failed:", err.response?.data || err.message);
+      toast.error("Failed to update menu");
+    }
+  };
 
   // Delete menu
- const handleDelete = async (id) => {
-  const confirmDelete = window.confirm("Are you sure you want to delete this menu?");
-  if (!confirmDelete) return;
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this menu?");
+    if (!confirmDelete) return;
 
-  try {
-    const token = localStorage.getItem("token");
-    await axios.delete(`https://gasmachineserestaurantapp.onrender.com/api/auth/menu/${id}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    setMenus(menus.filter((menu) => menu._id !== id));
-    toast.success("Menu deleted successfully!");
-  } catch (err) {
-    console.error("Delete failed:", err.response?.data || err.message);
-    toast.error("Failed to delete menu");
-  }
-};
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(`https://gasmachineserestaurantapp.onrender.com/api/auth/menu/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setMenus(menus.filter((menu) => menu._id !== id));
+      toast.success("Menu deleted successfully!");
+    } catch (err) {
+      console.error("Delete failed:", err.response?.data || err.message);
+      toast.error("Failed to delete menu");
+    }
+  };
 
   // Restock functions
   const openRestockModal = (menu) => {
@@ -176,67 +176,67 @@ const MenuManagement = () => {
   };
 
   const sendNotification = (type, message) => {
-  const icons = {
-    order: "🛒",
-    stock: "📦",
-    table: "🪑",
-    cleaning: "🧼",
-    task: "📋",
-    payment: "💳",
-    update: "🔧"
+    const icons = {
+      order: "🛒",
+      stock: "📦",
+      table: "🪑",
+      cleaning: "🧼",
+      task: "📋",
+      payment: "💳",
+      update: "🔧"
+    };
+
+    const icon = icons[type] || "🔔";
+
+    // Show notification with relevant icon
+    toast.info(`${icon} ${message}`, {
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
   };
 
-  const icon = icons[type] || "🔔";
-
-  // Show notification with relevant icon
-  toast.info(`${icon} ${message}`, {
-    autoClose: 3000,
-    hideProgressBar: false,
-    closeOnClick: true,
-    pauseOnHover: true,
-    draggable: true,
-    progress: undefined,
-  });
-};
-
   const handleRestockSubmit = async () => {
-  if (restockAmount <= 0) {
-    alert("Please enter a valid restock amount");
-    return;
-  }
+    if (restockAmount <= 0) {
+      alert("Please enter a valid restock amount");
+      return;
+    }
 
-  const updatedAvailableQty = restockMenu.minimumQty + parseInt(restockAmount);
-  const updatedCurrentQty = restockMenu.currentQty + parseInt(restockAmount);
+    const updatedAvailableQty = restockMenu.minimumQty + parseInt(restockAmount);
+    const updatedCurrentQty = restockMenu.currentQty + parseInt(restockAmount);
 
-  try {
-    const token = localStorage.getItem("token");
+    try {
+      const token = localStorage.getItem("token");
 
-    const res = await axios.put(
-      `https://gasmachineserestaurantapp.onrender.com/api/auth/menu/${restockMenu._id}`,
-      {
-        minimumQty: updatedAvailableQty,
-        currentQty: updatedCurrentQty
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
+      const res = await axios.put(
+        `https://gasmachineserestaurantapp.onrender.com/api/auth/menu/${restockMenu._id}`,
+        {
+          minimumQty: updatedAvailableQty,
+          currentQty: updatedCurrentQty
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          }
         }
-      }
-    );
+      );
 
-    setMenus(menus.map((m) => (m._id === restockMenu._id ? res.data : m)));
-    toast.success("Menu restocked successfully!");
+      setMenus(menus.map((m) => (m._id === restockMenu._id ? res.data : m)));
+      toast.success("Menu restocked successfully!");
 
-    // ✅ Only call sendNotification after successful update
-    sendNotification("stock", `Stock updated for "${restockMenu.name}"`);
-    
-    closeRestockModal();
-  } catch (err) {
-    console.error("Restock failed:", err.response?.data || err.message);
-    alert("Failed to restock");
-  }
-};
+      // ✅ Only call sendNotification after successful update
+      sendNotification("stock", `Stock updated for "${restockMenu.name}"`);
+
+      closeRestockModal();
+    } catch (err) {
+      console.error("Restock failed:", err.response?.data || err.message);
+      alert("Failed to restock");
+    }
+  };
 
   // Helper functions
   const calculateMenuStatus = (qty) => {

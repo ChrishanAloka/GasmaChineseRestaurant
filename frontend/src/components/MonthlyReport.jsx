@@ -10,7 +10,7 @@ import {
   Tooltip,
   Legend
 } from "chart.js";
-import { FaMoneyBillWave, FaTruckLoading, FaFileInvoiceDollar, FaUserTie, FaChartPie, FaBalanceScale,  FaGift,  FaTools } from "react-icons/fa";
+import { FaMoneyBillWave, FaTruckLoading, FaFileInvoiceDollar, FaUserTie, FaChartPie, FaBalanceScale, FaGift, FaTools } from "react-icons/fa";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -22,7 +22,7 @@ const MonthlyReport = () => {
   const [year, setYear] = useState(new Date().getFullYear());
 
   const symbol = localStorage.getItem("currencySymbol") || "$";
-  
+
 
   // Load report data based on selected month/year
   useEffect(() => {
@@ -67,7 +67,7 @@ const MonthlyReport = () => {
     !reportData.monthlyBills ||
     !reportData.monthlySalaries
   )
-  return <div>No data found</div>;
+    return <div>No data found</div>;
 
   // Generate dates for chart/table
   const getDatesInMonth = (year, month) => {
@@ -109,7 +109,7 @@ const MonthlyReport = () => {
   const totalIncome = incomeData.reduce((a, b) => a + b, 0) + totalOtherIncome;
   const netProfit = totalIncome - totalExpenses;
 
-    
+
 
   const chartData = {
     labels: allDates.map(date => date.split("-")[2]),
@@ -221,117 +221,117 @@ const MonthlyReport = () => {
 
       {/* Summary Stats */}
 
-<div className="summary-stats my-5">
-  <h4 className="mb-4">📊 Summary - {new Date(year, month).toLocaleString('default', { month: 'long', year: 'numeric' })}</h4>
+      <div className="summary-stats my-5">
+        <h4 className="mb-4">📊 Summary - {new Date(year, month).toLocaleString('default', { month: 'long', year: 'numeric' })}</h4>
 
-  <div className="row g-4">
-    {/* Total Income */}
-    <div className="col-md-4">
-      <div className="p-4 rounded shadow-sm border-start border-success border-5 bg-light">
-        <div className="d-flex align-items-center">
-          <FaMoneyBillWave size={30} className="text-success me-3" />
-          <div>
-            <small className="text-muted">Total Income</small>
-            <h5 className="mb-0 text-success">{symbol}{totalIncome.toFixed(2)}</h5>
+        <div className="row g-4">
+          {/* Total Income */}
+          <div className="col-md-4">
+            <div className="p-4 rounded shadow-sm border-start border-success border-5 bg-light">
+              <div className="d-flex align-items-center">
+                <FaMoneyBillWave size={30} className="text-success me-3" />
+                <div>
+                  <small className="text-muted">Total Income</small>
+                  <h5 className="mb-0 text-success">{symbol}{totalIncome.toFixed(2)}</h5>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Total Expenses */}
+          <div className="col-md-4">
+            <div className="p-4 rounded shadow-sm border-start border-danger border-5 bg-light">
+              <div className="d-flex align-items-center">
+                <FaChartPie size={30} className="text-danger me-3" />
+                <div>
+                  <small className="text-muted">Total Expenses</small>
+                  <h5 className="mb-0 text-danger">{symbol}{totalExpenses.toFixed(2)}</h5>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Net Profit */}
+          <div className="col-md-4">
+            <div className={`p-4 rounded shadow-sm border-start border-5 bg-light ${netProfit >= 0 ? 'border-info' : 'border-danger'}`}>
+              <div className="d-flex align-items-center">
+                <FaBalanceScale size={30} className={`${netProfit >= 0 ? 'text-info' : 'text-danger'} me-3`} />
+                <div>
+                  <small className="text-muted">Net Profit</small>
+                  <h5 className={`mb-0 ${netProfit >= 0 ? 'text-info' : 'text-danger'}`}>
+                    {symbol}{netProfit.toFixed(2)}
+                  </h5>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Other Income */}
+          <div className="col-md-4">
+            <div className="p-4 rounded shadow-sm border-start border-purple border-5 bg-light">
+              <div className="d-flex align-items-center">
+                <FaGift size={30} className="text-purple me-3" style={{ color: "#9966ff" }} />
+                <div>
+                  <small className="text-muted">Other Income</small>
+                  <h5 className="mb-0" style={{ color: "#9966ff" }}>{symbol}{totalOtherIncome.toFixed(2)}</h5>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Other Expenses */}
+          <div className="col-md-4">
+            <div className="p-4 rounded shadow-sm border-start border-orange border-5 bg-light">
+              <div className="d-flex align-items-center">
+                <FaTools size={30} className="text-orange me-3" style={{ color: "#ff9f40" }} />
+                <div>
+                  <small className="text-muted">Other Expenses</small>
+                  <h5 className="mb-0" style={{ color: "#ff9f40" }}>{symbol}{totalOtherExpenses.toFixed(2)}</h5>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Supplier Expenses */}
+          <div className="col-md-4">
+            <div className="p-4 rounded shadow-sm border-start border-dark border-5 bg-light">
+              <div className="d-flex align-items-center">
+                <FaTruckLoading size={30} className="text-dark me-3" />
+                <div>
+                  <small className="text-muted">Supplier Expenses</small>
+                  <h5 className="mb-0 text-dark">{symbol}{totalSupplierExpenses.toFixed(2)}</h5>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Utility Bills */}
+          <div className="col-md-4">
+            <div className="p-4 rounded shadow-sm border-start border-warning border-5 bg-light">
+              <div className="d-flex align-items-center">
+                <FaFileInvoiceDollar size={30} className="text-warning me-3" />
+                <div>
+                  <small className="text-muted">Kitchen Bills</small>
+                  <h5 className="mb-0 text-warning">{symbol}{totalBills.toFixed(2)}</h5>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Salaries */}
+          <div className="col-md-4">
+            <div className="p-4 rounded shadow-sm border-start border-primary border-5 bg-light">
+              <div className="d-flex align-items-center">
+                <FaUserTie size={30} className="text-primary me-3" />
+                <div>
+                  <small className="text-muted">Salaries</small>
+                  <h5 className="mb-0 text-primary">{symbol}{totalSalaries.toFixed(2)}</h5>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-
-    {/* Total Expenses */}
-    <div className="col-md-4">
-      <div className="p-4 rounded shadow-sm border-start border-danger border-5 bg-light">
-        <div className="d-flex align-items-center">
-          <FaChartPie size={30} className="text-danger me-3" />
-          <div>
-            <small className="text-muted">Total Expenses</small>
-            <h5 className="mb-0 text-danger">{symbol}{totalExpenses.toFixed(2)}</h5>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* Net Profit */}
-    <div className="col-md-4">
-      <div className={`p-4 rounded shadow-sm border-start border-5 bg-light ${netProfit >= 0 ? 'border-info' : 'border-danger'}`}>
-        <div className="d-flex align-items-center">
-          <FaBalanceScale size={30} className={`${netProfit >= 0 ? 'text-info' : 'text-danger'} me-3`} />
-          <div>
-            <small className="text-muted">Net Profit</small>
-            <h5 className={`mb-0 ${netProfit >= 0 ? 'text-info' : 'text-danger'}`}>
-              {symbol}{netProfit.toFixed(2)}
-            </h5>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* Other Income */}
-    <div className="col-md-4">
-      <div className="p-4 rounded shadow-sm border-start border-purple border-5 bg-light">
-        <div className="d-flex align-items-center">
-          <FaGift size={30} className="text-purple me-3" style={{ color: "#9966ff" }} />
-          <div>
-            <small className="text-muted">Other Income</small>
-            <h5 className="mb-0" style={{ color: "#9966ff" }}>{symbol}{totalOtherIncome.toFixed(2)}</h5>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* Other Expenses */}
-    <div className="col-md-4">
-      <div className="p-4 rounded shadow-sm border-start border-orange border-5 bg-light">
-        <div className="d-flex align-items-center">
-          <FaTools size={30} className="text-orange me-3" style={{ color: "#ff9f40" }} />
-          <div>
-            <small className="text-muted">Other Expenses</small>
-            <h5 className="mb-0" style={{ color: "#ff9f40" }}>{symbol}{totalOtherExpenses.toFixed(2)}</h5>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* Supplier Expenses */}
-    <div className="col-md-4">
-      <div className="p-4 rounded shadow-sm border-start border-dark border-5 bg-light">
-        <div className="d-flex align-items-center">
-          <FaTruckLoading size={30} className="text-dark me-3" />
-          <div>
-            <small className="text-muted">Supplier Expenses</small>
-            <h5 className="mb-0 text-dark">{symbol}{totalSupplierExpenses.toFixed(2)}</h5>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* Utility Bills */}
-    <div className="col-md-4">
-      <div className="p-4 rounded shadow-sm border-start border-warning border-5 bg-light">
-        <div className="d-flex align-items-center">
-          <FaFileInvoiceDollar size={30} className="text-warning me-3" />
-          <div>
-            <small className="text-muted">Kitchen Bills</small>
-            <h5 className="mb-0 text-warning">{symbol}{totalBills.toFixed(2)}</h5>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* Salaries */}
-    <div className="col-md-4">
-      <div className="p-4 rounded shadow-sm border-start border-primary border-5 bg-light">
-        <div className="d-flex align-items-center">
-          <FaUserTie size={30} className="text-primary me-3" />
-          <div>
-            <small className="text-muted">Salaries</small>
-            <h5 className="mb-0 text-primary">{symbol}{totalSalaries.toFixed(2)}</h5>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 
 
 

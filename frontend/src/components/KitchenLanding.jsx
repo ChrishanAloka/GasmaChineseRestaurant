@@ -147,7 +147,7 @@ const KitchenLanding = () => {
       <h2 className="mb-4 text-primary border-bottom pb-2 fw-bold">
         Live Kitchen Orders
       </h2>
-      
+
       {liveOrders.length > 0 && !loading && (
         <div className="d-flex justify-content-end mb-4">
           <button
@@ -200,9 +200,8 @@ const KitchenLanding = () => {
             return (
               <div key={order._id} className="col-md-6 col-lg-4">
                 <div
-                  className={`card h-100 shadow-sm ${
-                    isOverdue ? "border-danger border-2" : "border-primary"
-                  }`}
+                  className={`card h-100 shadow-sm ${isOverdue ? "border-danger border-2" : "border-primary"
+                    }`}
                 >
                   <div className="card-header bg-light d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <span className="fw-semibold">Order #{order._id.slice(-5)}</span>
@@ -263,9 +262,8 @@ const KitchenLanding = () => {
                     </ul>
 
                     <button
-                      className={`btn w-100 ${
-                        orderIsFromToday ? "btn-success" : "btn-danger"
-                      }`}
+                      className={`btn w-100 ${orderIsFromToday ? "btn-success" : "btn-danger"
+                        }`}
                       onClick={() => markAsReady(order._id)}
                     >
                       {orderIsFromToday

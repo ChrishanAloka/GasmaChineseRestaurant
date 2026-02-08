@@ -19,7 +19,7 @@ const TakeawayOrdersPage = () => {
 
   const UserId = localStorage.getItem("userId");
   const UserRole = localStorage.getItem("userRole");
-  
+
   const [currentPage, setCurrentPage] = useState(1);
   const ORDERS_PER_PAGE = 15; // adjustable
 
@@ -104,9 +104,9 @@ const TakeawayOrdersPage = () => {
       setOrders(orders.map(o => o._id === editingOrderId ? res.data : o));
       setEditingOrderId(null);
       toast.success("Delivery status updated successfully!");
-      
-      await sendNotification("Update", `Delivery Status Updated for order ${orders.customerName } as ${editData.deliveryStatus}`);  
-      
+
+      await sendNotification("Update", `Delivery Status Updated for order ${orders.customerName} as ${editData.deliveryStatus}`);
+
     } catch (err) {
       console.error("Update failed:", err.response?.data || err.message);
       toast.error("Failed to update delivery status");
@@ -259,7 +259,7 @@ const TakeawayOrdersPage = () => {
                           >
                             View
                           </button>
-                          
+
                           {canEdit && (
                             <button
                               className="btn btn-sm btn-warning"
@@ -278,61 +278,61 @@ const TakeawayOrdersPage = () => {
           </div>
 
           {totalPages > 1 && (
-          <nav className="mt-4">
-            <ul className="pagination justify-content-center">
-              <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
-                <button
-                  className="page-link"
-                  onClick={() => paginate(currentPage - 1)}
-                  disabled={currentPage === 1}
-                >
-                  &laquo; Prev
-                </button>
-              </li>
+            <nav className="mt-4">
+              <ul className="pagination justify-content-center">
+                <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                  <button
+                    className="page-link"
+                    onClick={() => paginate(currentPage - 1)}
+                    disabled={currentPage === 1}
+                  >
+                    &laquo; Prev
+                  </button>
+                </li>
 
-              {[...Array(totalPages)].map((_, i) => {
-                const pageNum = i + 1;
-                if (
-                  pageNum === 1 ||
-                  pageNum === totalPages ||
-                  (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
-                ) {
-                  return (
-                    <li
-                      key={pageNum}
-                      className={`page-item ${currentPage === pageNum ? "active" : ""}`}
-                    >
-                      <button className="page-link" onClick={() => paginate(pageNum)}>
-                        {pageNum}
-                      </button>
-                    </li>
-                  );
-                } else if (
-                  (pageNum === currentPage - 2 && currentPage > 3) ||
-                  (pageNum === currentPage + 2 && currentPage < totalPages - 2)
-                ) {
-                  return (
-                    <li key={pageNum} className="page-item disabled">
-                      <span className="page-link">...</span>
-                    </li>
-                  );
-                }
-                return null;
-              })}
+                {[...Array(totalPages)].map((_, i) => {
+                  const pageNum = i + 1;
+                  if (
+                    pageNum === 1 ||
+                    pageNum === totalPages ||
+                    (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                  ) {
+                    return (
+                      <li
+                        key={pageNum}
+                        className={`page-item ${currentPage === pageNum ? "active" : ""}`}
+                      >
+                        <button className="page-link" onClick={() => paginate(pageNum)}>
+                          {pageNum}
+                        </button>
+                      </li>
+                    );
+                  } else if (
+                    (pageNum === currentPage - 2 && currentPage > 3) ||
+                    (pageNum === currentPage + 2 && currentPage < totalPages - 2)
+                  ) {
+                    return (
+                      <li key={pageNum} className="page-item disabled">
+                        <span className="page-link">...</span>
+                      </li>
+                    );
+                  }
+                  return null;
+                })}
 
-              <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
-                <button
-                  className="page-link"
-                  onClick={() => paginate(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                >
-                  Next &raquo;
-                </button>
-              </li>
-            </ul>
-          </nav>
-        )}
-        </>  
+                <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+                  <button
+                    className="page-link"
+                    onClick={() => paginate(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next &raquo;
+                  </button>
+                </li>
+              </ul>
+            </nav>
+          )}
+        </>
       )}
 
       {/* Receipt Modal */}
@@ -370,7 +370,7 @@ const TakeawayOrdersPage = () => {
                 </div>
 
                 {/* Driver Select - only for Delivery Service */}
-                {editData.deliveryStatus === "Driver Pending"  ? (
+                {editData.deliveryStatus === "Driver Pending" ? (
                   <div className="mb-3">
                     <label className="form-label">Assign Driver</label>
                     <select

@@ -51,11 +51,10 @@ const KitchenOrderHistory = () => {
                   <td>{new Date(order.date).toLocaleString()}</td>
                   <td>
                     <span
-                      className={`badge px-3 py-2 rounded-pill fw-semibold ${
-                        order.status === "Ready"
-                          ? "bg-success"
-                          : "bg-primary"
-                      }`}
+                      className={`badge px-3 py-2 rounded-pill fw-semibold ${order.status === "Ready"
+                        ? "bg-success"
+                        : "bg-primary"
+                        }`}
                     >
                       {order.status}
                     </span>

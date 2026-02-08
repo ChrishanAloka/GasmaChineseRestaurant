@@ -81,7 +81,7 @@ const KitchenBills = () => {
     }
   };
 
-    // Get currency from localStorage (not from React context)
+  // Get currency from localStorage (not from React context)
   const symbol = localStorage.getItem("currencySymbol") || "$";
 
   // Open edit modal
@@ -370,7 +370,7 @@ const KitchenBills = () => {
                         onClick={() => openEditModal(bill)}
                         title="Edit Bill"
                       >
-                          ✏️ Edit
+                        ✏️ Edit
                       </button>
                       <button
                         className="btn btn-sm btn-danger"
@@ -386,7 +386,7 @@ const KitchenBills = () => {
             </tbody>
           </table>
         </div>
-        </div>
+      </div>
 
       {/* Monthly Summary */}
       {/* <div className="mt-4 p-3 bg-white border rounded shadow-sm">

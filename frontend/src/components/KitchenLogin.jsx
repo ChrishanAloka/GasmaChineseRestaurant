@@ -21,15 +21,15 @@ const KitchenLogin = () => {
       const data = res.data;
 
       if (data.role !== "kitchen") {
-      alert("Unauthorized access");
-      return;
-    }
+        alert("Unauthorized access");
+        return;
+      }
 
-    login(data); // Comes from useAuth()
-    navigate("/kitchen"); // Redirect after login
-  } catch (err) {
-    alert("Login failed. Please check your credentials.");
-  }
+      login(data); // Comes from useAuth()
+      navigate("/kitchen"); // Redirect after login
+    } catch (err) {
+      alert("Login failed. Please check your credentials.");
+    }
   };
 
   return (

@@ -51,8 +51,8 @@ const RegisterDriverPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-    
-    
+
+
       const token = localStorage.getItem("token");
       const res = await axios.post("https://gasmachineserestaurantapp.onrender.com/api/auth/drivers", formData, {
         headers: {
@@ -134,17 +134,17 @@ const RegisterDriverPage = () => {
 
   // Filter drivers
   const filteredDrivers = drivers.filter((d) => {
-  if (!searchTerm.trim()) return true;
+    if (!searchTerm.trim()) return true;
 
-  const lowerSearch = searchTerm.toLowerCase();
-  return (
-    d.name?.toLowerCase().includes(lowerSearch) ||
-    d.vehicle?.toLowerCase().includes(lowerSearch) ||
-    d.nic?.toLowerCase().includes(lowerSearch) ||
-    d.numberPlate?.toLowerCase().includes(lowerSearch) ||
-    d.phone?.toLowerCase().includes(lowerSearch)
-  );
-});
+    const lowerSearch = searchTerm.toLowerCase();
+    return (
+      d.name?.toLowerCase().includes(lowerSearch) ||
+      d.vehicle?.toLowerCase().includes(lowerSearch) ||
+      d.nic?.toLowerCase().includes(lowerSearch) ||
+      d.numberPlate?.toLowerCase().includes(lowerSearch) ||
+      d.phone?.toLowerCase().includes(lowerSearch)
+    );
+  });
 
   const symbol = localStorage.getItem("currencySymbol") || "$";
 
@@ -396,12 +396,12 @@ const RegisterDriverPage = () => {
 
       </div>
 
-    
+
 
       <ToastContainer />
     </div>
 
-    
+
   );
 };
 

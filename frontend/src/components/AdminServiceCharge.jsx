@@ -116,9 +116,8 @@ const AdminServiceCharge = () => {
             <li className="list-group-item d-flex justify-content-between">
               <span>Status:</span>
               <span
-                className={`badge rounded-pill px-3 py-2 ${
-                  serviceCharge.isActive ? "bg-success text-white" : "bg-danger text-white"
-                }`}
+                className={`badge rounded-pill px-3 py-2 ${serviceCharge.isActive ? "bg-success text-white" : "bg-danger text-white"
+                  }`}
               >
                 {serviceCharge.isActive ? "Enabled" : "Disabled"}
               </span>

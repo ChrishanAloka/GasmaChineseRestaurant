@@ -45,10 +45,10 @@ export const printReceiptToBoth = async (receiptHTML) => {
     await qz.websocket.connect();
 
     const printData = [{
-        type: 'pixel',     // ← This is required for HTML
-        format: 'html',    // ← Format is "html"
-        flavor: 'plain',
-        data: receiptHTML
+      type: 'pixel',     // ← This is required for HTML
+      format: 'html',    // ← Format is "html"
+      flavor: 'plain',
+      data: receiptHTML
     }];
 
     const printedSuccessfully = [];

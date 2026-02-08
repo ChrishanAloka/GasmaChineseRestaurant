@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { 
-  Chart as ChartJS, 
-  ArcElement, 
+import {
+  Chart as ChartJS,
+  ArcElement,
   CategoryScale,
   LinearScale,
   BarElement,
   Title,
-  Tooltip, 
-  Legend 
+  Tooltip,
+  Legend
 } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
 import { Bar } from 'react-chartjs-2';
@@ -18,8 +18,8 @@ ChartJS.register(
   CategoryScale,
   LinearScale,
   BarElement,
-  Title, 
-  Tooltip, 
+  Title,
+  Tooltip,
   Legend
 );
 
@@ -278,7 +278,7 @@ const AdminDashboard = () => {
     labels: Object.keys(summary.statusCounts),
     datasets: [{
       label: "Order Status",
-       data: Object.values(summary.statusCounts),
+      data: Object.values(summary.statusCounts),
       backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
       hoverOffset: 4
     }]
@@ -289,7 +289,7 @@ const AdminDashboard = () => {
     labels: ["Cash", "Card", "Bank Transfer"],
     datasets: [{
       label: "Payment Methods",
-       data: [
+      data: [
         (summary.paymentBreakdown.cash - summary.paymentBreakdown.cashdue),
         summary.paymentBreakdown.card,
         summary.paymentBreakdown.bank
@@ -303,7 +303,7 @@ const AdminDashboard = () => {
     labels: summary.topMenus.map(m => m.name),
     datasets: [{
       label: "Units Sold",
-       data: summary.topMenus.map(m => m.count),
+      data: summary.topMenus.map(m => m.count),
       backgroundColor: "#4CAF50"
     }]
   };
@@ -322,232 +322,238 @@ const AdminDashboard = () => {
   }
 
   return (
-  <div className="container my-4">
-    <h2 className="mb-4 text-primary fw-bold">Admin Dashboard</h2>
+    <div className="container my-4">
+      <h2 className="mb-4 text-primary fw-bold">Admin Dashboard</h2>
 
-    {/* Filter Panel */}
-    <div className="card shadow-sm p-3 mb-4">
-      <div className="row g-3 align-items-end">
-        <div className="col-md-3">
-          <label className="form-label fw-semibold">Select Timeframe</label>
-          <select
-            value={filterType}
-            onChange={(e) => setFilterType(e.target.value)}
-            className="form-select"
-          >
-            <option value="today">Today</option>
-            <option value="thisWeek">This Week</option>
-            <option value="thisMonth">This Month</option>
-            <option value="custom">Custom</option>
-          </select>
-        </div>
+      {/* Filter Panel */}
+      <div className="card shadow-sm p-3 mb-4">
+        <div className="row g-3 align-items-end">
+          <div className="col-md-3">
+            <label className="form-label fw-semibold">Select Timeframe</label>
+            <select
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              className="form-select"
+            >
+              <option value="today">Today</option>
+              <option value="thisWeek">This Week</option>
+              <option value="thisMonth">This Month</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
 
-        {filterType === "custom" && (
-          <>
-            <div className="col-md-3">
-              <label className="form-label fw-semibold">From</label>
-              <input
-                type="date"
-                className="form-control"
-                value={customStart}
-                onChange={(e) => setCustomStart(e.target.value)}
-              />
-            </div>
-            <div className="col-md-3">
-              <label className="form-label fw-semibold">To</label>
-              <input
-                type="date"
-                className="form-control"
-                value={customEnd}
-                onChange={(e) => setCustomEnd(e.target.value)}
-              />
-            </div>
-          </>
-        )}
+          {filterType === "custom" && (
+            <>
+              <div className="col-md-3">
+                <label className="form-label fw-semibold">From</label>
+                <input
+                  type="date"
+                  className="form-control"
+                  value={customStart}
+                  onChange={(e) => setCustomStart(e.target.value)}
+                />
+              </div>
+              <div className="col-md-3">
+                <label className="form-label fw-semibold">To</label>
+                <input
+                  type="date"
+                  className="form-control"
+                  value={customEnd}
+                  onChange={(e) => setCustomEnd(e.target.value)}
+                />
+              </div>
+            </>
+          )}
 
-        <div className="col-md-3">
-          <button onClick={fetchSummary} className="btn btn-outline-primary w-100">
-            🔍 Apply Filter
-          </button>
+          <div className="col-md-3">
+            <button onClick={fetchSummary} className="btn btn-outline-primary w-100">
+              🔍 Apply Filter
+            </button>
+          </div>
         </div>
       </div>
-    </div>
 
-    {/* Summary Cards */}
-    {/* <div className="row g-3 mb-5 row-cols-5"> */}
-    <div className="row g-3 mb-5">
-      {[
-        { label: 
-            // "Total Orders / Delivery Orders", 
-            (
+      {/* Summary Cards */}
+      {/* <div className="row g-3 mb-5 row-cols-5"> */}
+      <div className="row g-3 mb-5">
+        {[
+          {
+            label:
+              // "Total Orders / Delivery Orders", 
+              (
+                <>
+                  Total Orders
+                  <br />
+                </>
+              ),
+            value: `${summary.totalOrders} `, color: "primary", icon: "🛒"
+          },
+          {
+            label:
+              // "Orders Income ( Net Income )",
+              (
+                <>
+                  Orders Income
+                  <br />
+                  ( Net Income )
+                </>
+              ),
+            value:
+              // `${symbol}${formatCurrency(summary.totalOrdersIncome)}   (${symbol}${formatCurrency(summary.totalOrdersNetIncome)})`,
+              (
+                <>
+                  {symbol}{formatCurrency(summary.totalOrdersIncome)}
+                  <br />
+                  ( {symbol}{formatCurrency(summary.totalOrdersNetIncome)} )
+                </>
+              ),
+            color: "primary", icon: "🛒"
+          },
+          {
+            label:
+              // "Total Delevery Charges",
+              (
+                <>
+                  Delivery Orders
+                  <br />
+                  ( Total Delevery Charges )
+
+                </>
+              ),
+            value:
+              // `${symbol}${formatCurrency(summary.totaldeliveryOrdersIncome)}`, 
+              (
+                <>
+                  {summary.totaldeliveryOrders}
+                  <br />
+                  ( {symbol}{formatCurrency(summary.totaldeliveryOrdersIncome)} )
+                </>
+              ),
+            color: "primary", icon: "🚚"
+          },
+          {
+            label: (
               <>
-                Total Orders 
+                Total Dine-In Orders
                 <br />
-              </>
-            ), 
-          value: `${summary.totalOrders} `, color: "primary", icon: "🛒" },
-        { label: 
-            // "Orders Income ( Net Income )",
-             (
-              <>
-                Orders Income
-                <br />
-                ( Net Income )
-              </>
-            ), 
-          value: 
-            // `${symbol}${formatCurrency(summary.totalOrdersIncome)}   (${symbol}${formatCurrency(summary.totalOrdersNetIncome)})`,
-            (
-              <>
-                {symbol}{formatCurrency(summary.totalOrdersIncome)}
-                <br />
-                ( {symbol}{formatCurrency(summary.totalOrdersNetIncome)} )
-              </>
-            ), 
-          color: "primary", icon: "🛒" },
-        { label:
-            // "Total Delevery Charges",
-            (
-              <>
-                Delivery Orders
-                <br />
-                ( Total Delevery Charges )
-                
-              </>
-            ), 
-          value: 
-            // `${symbol}${formatCurrency(summary.totaldeliveryOrdersIncome)}`, 
-            (
-              <>
-                {summary.totaldeliveryOrders} 
-                <br />
-                ( {symbol}{formatCurrency(summary.totaldeliveryOrdersIncome)} )
+                ( Total Service Charge )
               </>
             ),
-          color: "primary", icon: "🚚" },
-        {
-          label: (
-            <>
-              Total Dine-In Orders
-              <br />
-              ( Total Service Charge )
-            </>
-          ),
-          value: (
-            <>
-              {summary.totalTableOrders}
-              <br />
-              ( {symbol}{formatCurrency(summary.totalServiceChargeIncome)} )
-            </>
-          ),
-          color: "primary",
-          icon: "%"
-        },
-        { label: "Other Income", value: `${symbol}${formatCurrency(summary.totalOtherIncome)}`, color: "success", icon: "🎁"}, // ✅ NEW
-        { label: "Other Expenses", value: `${symbol}${formatCurrency(summary.totalOtherExpenses)}`, color: "danger", icon: "🔧"}, // ✅ NEW
-        
-        { label: "Total Income", value: `${symbol}${formatCurrency(summary.totalIncome)}`, color: "success", icon: "💰" },
-        { label: "Total Cost", value: `${symbol}${formatCurrency(summary.totalCost)}`, color: "danger", icon: "📉" },
-        {
-          label: "Net Profit",
-          value: `${summary.netProfit >= 0 ? "+" : "-"}${symbol}${formatCurrency(Math.abs(summary.netProfit))}`,
-          color: summary.netProfit >= 0 ? "info" : "warning",
-          icon: summary.netProfit >= 0 ? "📈" : "⚠️",
-        }
-      ].map((card, idx) => (
-        <div className="col-md-3" key={idx}>
-          <div className={`card bg-${card.color} text-white shadow-sm h-100`}>
-            <div className="card-body text-center">
-              <div className="fs-3">{card.icon}</div>
-              <h6 className="mt-2 fw-bold">{card.label}</h6>
-              <h4 className="fw-bold">{card.value}</h4>
+            value: (
+              <>
+                {summary.totalTableOrders}
+                <br />
+                ( {symbol}{formatCurrency(summary.totalServiceChargeIncome)} )
+              </>
+            ),
+            color: "primary",
+            icon: "%"
+          },
+          { label: "Other Income", value: `${symbol}${formatCurrency(summary.totalOtherIncome)}`, color: "success", icon: "🎁" }, // ✅ NEW
+          { label: "Other Expenses", value: `${symbol}${formatCurrency(summary.totalOtherExpenses)}`, color: "danger", icon: "🔧" }, // ✅ NEW
+
+          { label: "Total Income", value: `${symbol}${formatCurrency(summary.totalIncome)}`, color: "success", icon: "💰" },
+          { label: "Total Cost", value: `${symbol}${formatCurrency(summary.totalCost)}`, color: "danger", icon: "📉" },
+          {
+            label: "Net Profit",
+            value: `${summary.netProfit >= 0 ? "+" : "-"}${symbol}${formatCurrency(Math.abs(summary.netProfit))}`,
+            color: summary.netProfit >= 0 ? "info" : "warning",
+            icon: summary.netProfit >= 0 ? "📈" : "⚠️",
+          }
+        ].map((card, idx) => (
+          <div className="col-md-3" key={idx}>
+            <div className={`card bg-${card.color} text-white shadow-sm h-100`}>
+              <div className="card-body text-center">
+                <div className="fs-3">{card.icon}</div>
+                <h6 className="mt-2 fw-bold">{card.label}</h6>
+                <h4 className="fw-bold">{card.value}</h4>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="row g-4 mb-4">
+        <div className="col-12">
+          <div className="card shadow-sm h-100">
+            <div className="card-body">
+              <h6 className="fw-bold text-center mb-3">📊 Orders by Type & Delivery Place</h6>
+              <Bar data={orderTypeChartData} options={orderTypeChartOptions} />
             </div>
           </div>
         </div>
-      ))}
-    </div>
+      </div>
 
-    <div className="row g-4 mb-4">
-      <div className="col-12">
-        <div className="card shadow-sm h-100">
-          <div className="card-body">
-            <h6 className="fw-bold text-center mb-3">📊 Orders by Type & Delivery Place</h6>
-            <Bar data={orderTypeChartData} options={orderTypeChartOptions} />
+      {/* Chart Section */}
+      <div className="row g-4 mb-4">
+        <div className="col-md-4">
+          <div className="card shadow-sm h-100">
+            <div className="card-body">
+              <h6 className="fw-bold text-center mb-3">📦 Order Status</h6>
+              <Doughnut data={statusChartData} />
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-
-    {/* Chart Section */}
-    <div className="row g-4 mb-4">
-      <div className="col-md-4">
-        <div className="card shadow-sm h-100">
-          <div className="card-body">
-            <h6 className="fw-bold text-center mb-3">📦 Order Status</h6>
-            <Doughnut data={statusChartData} />
+        <div className="col-md-4">
+          <div className="card shadow-sm h-100">
+            <div className="card-body">
+              <h6 className="fw-bold text-center mb-3">💳 Payment Methods</h6>
+              <Doughnut data={paymentChartData} />
+            </div>
           </div>
         </div>
-      </div>
-      <div className="col-md-4">
-        <div className="card shadow-sm h-100">
-          <div className="card-body">
-            <h6 className="fw-bold text-center mb-3">💳 Payment Methods</h6>
-            <Doughnut data={paymentChartData} />
-          </div>
-        </div>
-      </div>
-      <div className="col-md-4">
-        <div className="card shadow-sm h-100">
-          <div className="card-body">
-            <h6 className="fw-bold text-center mb-3">📊 Cost Breakdown</h6>
-            <Doughnut data={costChartData} options={{ plugins: { legend: { position: "bottom" } } }} />
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* Bottom Tables Section */}
-    <div className="row g-4">
-      <div className="col-md-4">
-        <div className="card shadow-sm h-100">
-          <div className="card-body">
-            <h6 className="fw-bold mb-3">🍽️ Top Ordered Menu Items</h6>
-            <ul className="list-group">
-              {summary.topMenus.length === 0 && (
-                <li className="list-group-item text-muted">No data</li>
-              )}
-              {summary.topMenus.slice(0, 10).map((item, idx) => (
-                <li
-                  key={idx}
-                  className="list-group-item d-flex justify-content-between align-items-center"
-                >
-                  {item.name}
-                  <span className="badge bg-dark">{item.count}</span>
-                </li>
-              ))}
-            </ul>
+        <div className="col-md-4">
+          <div className="card shadow-sm h-100">
+            <div className="card-body">
+              <h6 className="fw-bold text-center mb-3">📊 Cost Breakdown</h6>
+              <Doughnut data={costChartData} options={{ plugins: { legend: { position: "bottom" } } }} />
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="col-md-4">
-        <div className="card shadow-sm h-100">
-          <div className="card-body">
-            <h6 className="fw-bold mb-3">📌 Order Summary</h6>
-            <table className="table table-sm table-hover table-striped">
-              <thead>
-                <tr>
-                  <th>Status</th>
-                  <th>Count</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Object.entries(summary.statusCounts).map(([status, count], idx) => (
-                  <tr key={idx}>
-                    <td>{status}</td>
-                    <td>{count}</td>
-                  </tr>
+      {/* Bottom Tables Section */}
+      <div className="row g-4">
+        <div className="col-md-4">
+          <div className="card shadow-sm h-100">
+            <div className="card-body">
+              <h6 className="fw-bold mb-3">🍽️ Top Ordered Menu Items</h6>
+              <ul className="list-group">
+                {summary.topMenus.length === 0 && (
+                  <li className="list-group-item text-muted">No data</li>
+                )}
+                {summary.topMenus.slice(0, 10).map((item, idx) => (
+                  <li
+                    key={idx}
+                    className="list-group-item d-flex justify-content-between align-items-center"
+                  >
+                    {item.name}
+                    <span className="badge bg-dark">{item.count}</span>
+                  </li>
                 ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-md-4">
+          <div className="card shadow-sm h-100">
+            <div className="card-body">
+              <h6 className="fw-bold mb-3">📌 Order Summary</h6>
+              <table className="table table-sm table-hover table-striped">
+                <thead>
+                  <tr>
+                    <th>Status</th>
+                    <th>Count</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.entries(summary.statusCounts).map(([status, count], idx) => (
+                    <tr key={idx}>
+                      <td>{status}</td>
+                      <td>{count}</td>
+                    </tr>
+                  ))}
                   <tr>
                     <td>Delayed Completed</td>
                     <td>{summary.delayedOrders}</td>
@@ -556,104 +562,104 @@ const AdminDashboard = () => {
                     <td>Delayed Completed (Day After)</td>
                     <td>{summary.nextDayStatusUpdates}</td>
                   </tr>
-              </tbody>
-            </table>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="col-md-4">
-        <div className="card shadow-sm h-100">
-          <div className="card-body">
-            <h6 className="fw-bold mb-3">💸 Payment Summary</h6>
-            <table className="table table-sm table-hover table-striped">
-              <thead>
-                <tr>
-                  <th>Method</th>
-                  <th>Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  ["Cash", (summary.paymentBreakdown.cash - summary.paymentBreakdown.cashdue)],
-                  // ["ChangeDue", summary.paymentBreakdown.cashdue],
-                  ["Card", summary.paymentBreakdown.card],
-                  ["Bank Transfer", summary.paymentBreakdown.bank],
-                ].map(([label, val], idx) => (
-                  <tr key={idx}>
-                    <td>{label}</td>
-                    <td>{symbol}{formatCurrency(val)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* Waiter Service Charge Earnings */}
-    <div className="row g-4 mt-2">
-      <div className="col-md-12">
-        <div className="card shadow-sm">
-          <div className="card-body">
-            <h6 className="fw-bold mb-3">🧑‍🍳 Waiters – Total Service Charge Earned</h6>
-            {summary.waiterServiceEarnings?.length > 0 ? (
-              <ul className="list-group">
-                {summary.waiterServiceEarnings.slice(0, 10).map((entry, idx) => (
-                  <li
-                    key={idx}
-                    className="list-group-item d-flex justify-content-between align-items-center"
-                  >
-                    <span>{entry.waiterName || "Unknown Waiter"}</span>
-                    <span className="badge bg-success">
-                      {symbol}{formatCurrency(entry.totalServiceCharge)}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-muted">No waiter service charge data available</p>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* Delivery Places Breakdown */}
-    <div className="row g-4 mt-2">
-      <div className="col-md-12">
-        <div className="card shadow-sm">
-          <div className="card-body">
-            <h6 className="fw-bold mb-3">📍 Delivery Places – Order Count & Revenue</h6>
-            {summary.deliveryPlacesBreakdown?.length > 0 ? (
+        <div className="col-md-4">
+          <div className="card shadow-sm h-100">
+            <div className="card-body">
+              <h6 className="fw-bold mb-3">💸 Payment Summary</h6>
               <table className="table table-sm table-hover table-striped">
                 <thead>
                   <tr>
-                    <th>Place</th>
-                    <th>Orders</th>
-                    <th>Revenue ({symbol})</th>
+                    <th>Method</th>
+                    <th>Amount</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {summary.deliveryPlacesBreakdown.map((place, idx) => (
+                  {[
+                    ["Cash", (summary.paymentBreakdown.cash - summary.paymentBreakdown.cashdue)],
+                    // ["ChangeDue", summary.paymentBreakdown.cashdue],
+                    ["Card", summary.paymentBreakdown.card],
+                    ["Bank Transfer", summary.paymentBreakdown.bank],
+                  ].map(([label, val], idx) => (
                     <tr key={idx}>
-                      <td>{place.placeName}</td>
-                      <td>{place.count}</td>
-                      <td>{formatCurrency(place.totalCharge)}</td>
+                      <td>{label}</td>
+                      <td>{symbol}{formatCurrency(val)}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-            ) : (
-              <p className="text-muted">No delivery place data available</p>
-            )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Waiter Service Charge Earnings */}
+      <div className="row g-4 mt-2">
+        <div className="col-md-12">
+          <div className="card shadow-sm">
+            <div className="card-body">
+              <h6 className="fw-bold mb-3">🧑‍🍳 Waiters – Total Service Charge Earned</h6>
+              {summary.waiterServiceEarnings?.length > 0 ? (
+                <ul className="list-group">
+                  {summary.waiterServiceEarnings.slice(0, 10).map((entry, idx) => (
+                    <li
+                      key={idx}
+                      className="list-group-item d-flex justify-content-between align-items-center"
+                    >
+                      <span>{entry.waiterName || "Unknown Waiter"}</span>
+                      <span className="badge bg-success">
+                        {symbol}{formatCurrency(entry.totalServiceCharge)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-muted">No waiter service charge data available</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Delivery Places Breakdown */}
+      <div className="row g-4 mt-2">
+        <div className="col-md-12">
+          <div className="card shadow-sm">
+            <div className="card-body">
+              <h6 className="fw-bold mb-3">📍 Delivery Places – Order Count & Revenue</h6>
+              {summary.deliveryPlacesBreakdown?.length > 0 ? (
+                <table className="table table-sm table-hover table-striped">
+                  <thead>
+                    <tr>
+                      <th>Place</th>
+                      <th>Orders</th>
+                      <th>Revenue ({symbol})</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {summary.deliveryPlacesBreakdown.map((place, idx) => (
+                      <tr key={idx}>
+                        <td>{place.placeName}</td>
+                        <td>{place.count}</td>
+                        <td>{formatCurrency(place.totalCharge)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="text-muted">No delivery place data available</p>
+              )}
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
 
 };
 

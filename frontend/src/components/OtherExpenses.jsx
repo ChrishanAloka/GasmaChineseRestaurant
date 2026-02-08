@@ -369,7 +369,7 @@ const OtherExpenses = () => {
                         onClick={() => openEditModal(expense)}
                         title="Edit Expense"
                       >
-                          ✏️ Edit
+                        ✏️ Edit
                       </button>
                       <button
                         className="btn btn-sm btn-danger"

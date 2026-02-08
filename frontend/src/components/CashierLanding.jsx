@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import PaymentModal from "./PaymentModal";
 import ReceiptModal from "./ReceiptModal";
-import 'react-toastify/dist/ReactToastify.css'; 
+import 'react-toastify/dist/ReactToastify.css';
 import AsyncSelect from 'react-select/async';
 import makeAnimated from 'react-select/animated';
 import Select from 'react-select';
@@ -42,7 +42,7 @@ const CashierLanding = () => {
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [sizeFilter, setSizeFilter] = useState(""); // "", "M", or "L"
   const [menuPopularity, setMenuPopularity] = useState({}); // e.g., { "Pepperoni Pizza": 42, ... }
-  
+
   const [numberPadTarget, setNumberPadTarget] = useState(null); // 'phone' or 'tableNo'
   const [showNumberPad, setShowNumberPad] = useState(false);
   const [customerSearchResults, setCustomerSearchResults] = useState([]);
@@ -119,7 +119,7 @@ const CashierLanding = () => {
       });
 
       // Filter employees with role "waiter" (adjust field name if needed, e.g., "role" or "position")
-      const waiterList = res.data.filter(emp => 
+      const waiterList = res.data.filter(emp =>
         emp.role?.toLowerCase() === "waiter" || emp.position?.toLowerCase() === "waiter"
       );
 
@@ -243,7 +243,7 @@ const CashierLanding = () => {
       setMenus(res.data);
       const uniqueCategories = [...new Set(res.data.map(menu => menu.category).filter(Boolean))];
       setCategories(uniqueCategories);
-      
+
       // ✅ Initialize tempStock from currentQty
       const initialTempStock = {};
       res.data.forEach(menu => {
@@ -313,26 +313,26 @@ const CashierLanding = () => {
   };
 
   const fetchServiceCharge = async () => {
-  try {
-    const token = localStorage.getItem("token");
-    const res = await axios.get(
-      "https://gasmachineserestaurantapp.onrender.com/api/auth/admin/service-charge",
-      {
-        headers: { Authorization: `Bearer ${token}` }
-      }
-    );
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(
+        "https://gasmachineserestaurantapp.onrender.com/api/auth/admin/service-charge",
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
 
-    const { dineInCharge, isActive } = res.data;
+      const { dineInCharge, isActive } = res.data;
 
-    setServiceChargeSettings({
-      dineInCharge,
-      isActive: isActive === true || isActive === "true" // ✅ ensures boolean
-    });
-  } catch (err) {
-    console.error("Failed to load service charge:", err.message);
-    console.error("Failed to load service charge:", err.response?.data || err.message);
+      setServiceChargeSettings({
+        dineInCharge,
+        isActive: isActive === true || isActive === "true" // ✅ ensures boolean
+      });
+    } catch (err) {
+      console.error("Failed to load service charge:", err.message);
+      console.error("Failed to load service charge:", err.response?.data || err.message);
 
-  }
+    }
   };
 
   // const fetchDeliveryCharge = async () => {
@@ -377,7 +377,7 @@ const CashierLanding = () => {
     }
 
     const cleanedName = cleanMenuName(menu.name);
-    
+
     const existing = cart.find((item) => item._id === menu._id);
 
     if (existing) {
@@ -521,7 +521,7 @@ const CashierLanding = () => {
       deliveryCharge = selectedDeliveryPlace.charge;
       finalTotal += deliveryCharge;
     }
-    
+
 
     setOrderData({
       customerName: name,
@@ -614,7 +614,7 @@ const CashierLanding = () => {
     } catch (err) {
       console.error("Order failed:", err.response?.data || err.message);
       const errorMsg = err.response?.data?.error || "Failed to place order";
-      
+
       if (err.response?.status === 409) {
         toast.error("⚠️ " + errorMsg); // e.g., "This order has already been processed..."
       } else {
@@ -663,8 +663,8 @@ const CashierLanding = () => {
   );
 
   const deliveryCharge = customer.orderType === "takeaway" &&
-                        customer.deliveryType === "Delivery Service" &&
-                        selectedDeliveryPlace
+    customer.deliveryType === "Delivery Service" &&
+    selectedDeliveryPlace
     ? selectedDeliveryPlace.charge
     : 0;
 
@@ -701,7 +701,7 @@ const CashierLanding = () => {
                   classNamePrefix="select"
                   components={makeAnimated()}
                 /> */}
-                
+
                 <input
                   type="text"
                   value={customer.phone}
@@ -764,14 +764,14 @@ const CashierLanding = () => {
                 <select
                   name="orderType"
                   value={customer.orderType}
-                  onChange={handleOrderTypeChange} 
+                  onChange={handleOrderTypeChange}
                   className="form-select"
                 >
                   <option value="table">Dine In</option>
                   <option value="takeaway">Takeaway</option>
                 </select>
               </div>
-              
+
               {/* {customer.orderType === "table" && (
                 <>
                   <div className="col-md-3">
@@ -793,7 +793,7 @@ const CashierLanding = () => {
               )} */}
 
               {customer.orderType === "table" && (
-                <> 
+                <>
                   <div className="col-md-3">
                     <label>Table No</label>
                     <input
@@ -841,11 +841,11 @@ const CashierLanding = () => {
                     name="deliveryType"
                     value={customer.deliveryType}
                     onChange={(e) =>
-                          setCustomer({
-                            ...customer,
-                            deliveryType: e.target.value
-                          })
-                        }
+                      setCustomer({
+                        ...customer,
+                        deliveryType: e.target.value
+                      })
+                    }
                     className="form-select"
                   >
                     <option value="">Select an option</option>
@@ -939,9 +939,9 @@ const CashierLanding = () => {
                       customer.deliveryPlaceId
                         ? deliveryPlaces.find(place => place._id === customer.deliveryPlaceId)
                           ? {
-                              value: customer.deliveryPlaceId,
-                              label: `${deliveryPlaces.find(p => p._id === customer.deliveryPlaceId).placeName} (${symbol}${deliveryPlaces.find(p => p._id === customer.deliveryPlaceId).charge.toFixed(2)})`
-                            }
+                            value: customer.deliveryPlaceId,
+                            label: `${deliveryPlaces.find(p => p._id === customer.deliveryPlaceId).placeName} (${symbol}${deliveryPlaces.find(p => p._id === customer.deliveryPlaceId).charge.toFixed(2)})`
+                          }
                           : null
                         : null
                     }
@@ -1139,7 +1139,7 @@ const CashierLanding = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="col-md-8">
           <div className="bg-white p-3 mb-3 rounded shadow-sm">
             <div className="row g-3">
@@ -1195,7 +1195,7 @@ const CashierLanding = () => {
                   <small className="text-warning">⚠️ Low stock!</small>
                 )}
               </div>
-              
+
               <div className="col-md-4">
                 <button
                   className="btn btn-success w-100 mt-4"
@@ -1260,14 +1260,14 @@ const CashierLanding = () => {
 
           <div className="row g-3">
             {filteredMenus.map((menu) => {
-              
+
               const inStock = menu.currentQty > 0;
               const lowStock = menu.currentQty <= menu.minimumQty;
 
-              return(
-              <div key={menu._id} className="col-12 col-md-4 col-lg-4 col-xl-3">
-                <div className="card shadow-sm h-100 border-0">
-                  {/* <img
+              return (
+                <div key={menu._id} className="col-12 col-md-4 col-lg-4 col-xl-3">
+                  <div className="card shadow-sm h-100 border-0">
+                    {/* <img
                     src={
                     menu.imageUrl.startsWith("https")
                       ? menu.imageUrl
@@ -1280,30 +1280,30 @@ const CashierLanding = () => {
                     }}
                     className="card-img-top"
                   /> */}
-                  <div className="card-body text-center">
-                    <h6>{menu.name} <p>({menu.category})</p></h6>
-                    <p className="m-0">{symbol}{menu.price.toFixed(2)} </p>
-                    <p className="m-0">
-                      Stock:{" "}
-                    <span className={`badge ${lowStock ? "bg-warning text-dark" : "bg-success"}`}>
-                      {/* {menu.currentQty} */}
-                      {tempStock[menu._id]}
-                    </span>
-                    </p>
-                    {inStock ? (
-                    <button
-                      className="btn btn-success w-100 mt-2"
-                      onClick={() => addToCart(menu)}
-                    >
-                      Add to Order
-                    </button>
-                    ) : (
-                      <div className="text-danger mt-auto">❌ Out of Stock</div>
-                    )}
+                    <div className="card-body text-center">
+                      <h6>{menu.name} <p>({menu.category})</p></h6>
+                      <p className="m-0">{symbol}{menu.price.toFixed(2)} </p>
+                      <p className="m-0">
+                        Stock:{" "}
+                        <span className={`badge ${lowStock ? "bg-warning text-dark" : "bg-success"}`}>
+                          {/* {menu.currentQty} */}
+                          {tempStock[menu._id]}
+                        </span>
+                      </p>
+                      {inStock ? (
+                        <button
+                          className="btn btn-success w-100 mt-2"
+                          onClick={() => addToCart(menu)}
+                        >
+                          Add to Order
+                        </button>
+                      ) : (
+                        <div className="text-danger mt-auto">❌ Out of Stock</div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
+              );
             })}
           </div>
         </div>

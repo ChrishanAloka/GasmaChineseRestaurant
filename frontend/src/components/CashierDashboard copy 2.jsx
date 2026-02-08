@@ -62,7 +62,7 @@ const TodaySummary = () => {
 
   // ✅ Cost Breakdown Chart Data
   const costChartData = {
-    labels: [ "Other Expenses"], // ✅ UPDATED
+    labels: ["Other Expenses"], // ✅ UPDATED
     datasets: [{
       label: "Expenses",
       data: [
@@ -71,7 +71,7 @@ const TodaySummary = () => {
         // summary.totalSalaries,
         summary.totalOtherExpenses // ✅ NEW
       ],
-      backgroundColor: [ "#FF9F40"] // ✅ ADDED Orange for Other Expenses
+      backgroundColor: ["#FF9F40"] // ✅ ADDED Orange for Other Expenses
     }]
   };
 
@@ -122,8 +122,8 @@ const TodaySummary = () => {
         {[
           { label: "Total Orders", value: summary.totalOrders, color: "primary", icon: "🛒" },
           { label: "Orders Income", value: `${symbol}${formatCurrency(summary.totalOrdersIncome)}`, color: "success", icon: "💰" },
-          { label: "Other Income", value: `${symbol}${formatCurrency(summary.totalOtherIncome)}`, color: "success", icon: "🎁"}, // ✅ NEW
-          { label: "Other Expenses", value: `${symbol}${formatCurrency(summary.totalOtherExpenses)}`, color: "danger", icon: "🔧"} // ✅ NEW
+          { label: "Other Income", value: `${symbol}${formatCurrency(summary.totalOtherIncome)}`, color: "success", icon: "🎁" }, // ✅ NEW
+          { label: "Other Expenses", value: `${symbol}${formatCurrency(summary.totalOtherExpenses)}`, color: "danger", icon: "🔧" } // ✅ NEW
           // { label: "Total Cost", value: `${symbol}${formatCurrency(summary.totalCost)}`, color: "danger", icon: "📉" },
           // {
           //   label: "Net Profit",

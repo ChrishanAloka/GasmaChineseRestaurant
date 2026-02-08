@@ -369,7 +369,7 @@ const OtherIncome = () => {
                         onClick={() => openEditModal(income)}
                         title="Edit Income"
                       >
-                          ✏️ Edit
+                        ✏️ Edit
                       </button>
                       <button
                         className="btn btn-sm btn-danger"

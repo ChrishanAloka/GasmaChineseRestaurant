@@ -14,41 +14,41 @@ const AttendanceDashboard = () => {
   }, [month, year]);
 
   const fetchMonthlySummary = async () => {
-  setLoading(true);
-  try {
-    const token = localStorage.getItem("token");
-    const res = await axios.get(
-      "https://gasmachineserestaurantapp.onrender.com/api/auth/admin/attendance/monthly-summary",
-      {
-        params: { month, year }, // Ensure these are numbers like 7 and 2025
-        headers: { Authorization: `Bearer ${token}` }
-      }
-    );
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(
+        "https://gasmachineserestaurantapp.onrender.com/api/auth/admin/attendance/monthly-summary",
+        {
+          params: { month, year }, // Ensure these are numbers like 7 and 2025
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
 
-    console.log("Backend returned:", res.data); // 👀 Check here
-    setSummary(res.data);
-  } catch (err) {
-    console.error("Failed to load summary:", err.response?.data || err.message);
-    toast.error("Failed to load attendance summary");
-    setSummary([]);
-  } finally {
-    setLoading(false);
-  }
-};
+      console.log("Backend returned:", res.data); // 👀 Check here
+      setSummary(res.data);
+    } catch (err) {
+      console.error("Failed to load summary:", err.response?.data || err.message);
+      toast.error("Failed to load attendance summary");
+      setSummary([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleMonthChange = (e) => {
     setMonth(parseInt(e.target.value));
   };
 
   const handleFilterChange = (e) => {
-  setMonth(parseInt(e.target.value));
-};
+    setMonth(parseInt(e.target.value));
+  };
 
-const handleYearChange = (e) => {
-  setYear(parseInt(e.target.value));
-};
+  const handleYearChange = (e) => {
+    setYear(parseInt(e.target.value));
+  };
 
-  
+
 
   return (
     <div className="container my-4">
@@ -60,12 +60,12 @@ const handleYearChange = (e) => {
         <div>
           <label className="form-label mb-0">Select Month</label>
           <select value={month} onChange={handleFilterChange} className="form-select w-auto me-3">
-          {[...Array(12)].map((_, i) => (
-            <option key={i + 1} value={i + 1}>
-              {new Date(2025, i).toLocaleString("default", { month: "long" })}
-            </option>
-          ))}
-        </select>
+            {[...Array(12)].map((_, i) => (
+              <option key={i + 1} value={i + 1}>
+                {new Date(2025, i).toLocaleString("default", { month: "long" })}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>
@@ -121,13 +121,12 @@ const handleYearChange = (e) => {
                     <td>{otHours.toFixed(2)}</td>
                     <td>
                       <span
-                        className={`badge ${
-                          status === "Overtime"
-                            ? "bg-success text-white"
-                            : status === "Undertime"
+                        className={`badge ${status === "Overtime"
+                          ? "bg-success text-white"
+                          : status === "Undertime"
                             ? "bg-warning text-dark"
                             : "bg-secondary"
-                        }`}
+                          }`}
                       >
                         {status}
                       </span>
